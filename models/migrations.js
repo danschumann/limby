@@ -1,0 +1,202 @@
+var
+
+  Migration, Migrations,
+
+  tableName = 'migrations',
+
+  when      = require('when'),
+  keys      = require('when/keys'),
+  sequence  = require('when/sequence'),
+  path      = require('path'),
+  basename  = require('path').basename,
+  join      = require('path').join,
+  _         = require('underscore'),
+  fs        = require('final-fs'),
+  pm        = require('print-messages');
+
+module.exports = function(limby){
+
+  var bookshelf = limby.bookshelf;
+
+  Migration   = bookshelf.Model.extend({
+
+    tableName: tableName,
+
+    permittedAttributes: [
+      'id',
+      'filename',
+      'limb',
+    ],
+
+  }, {
+    
+    run: function(filePath, direction) {
+
+      migration = require(filePath)
+      var
+        migration = require(filePath),
+        fileName = basename(filePath),
+
+        // for consoling
+        pretty_direction = (direction == 'up' ? 'up'.green : 'down'.red),
+
+        // In case it fails
+        undoMigration = function(){
+
+          console.log(('Saving Migration to ' + tableName + ' Failed!!!!!').red, migration.title, pretty_direction, arguments);
+          // If we migrate successfully, but fail to save in migrations table
+          // we have to undo the migration manually since it can't be in a transaction
+          return migration[direction == 'up' ? 'down' : 'up'](bookshelf)
+            .then(function(){
+              throw new Error('Some migrations were successful, but we could not save them to the database'); 
+            });
+
+        };
+
+      console.log('migration:'.magenta, pretty_direction, migration.title, fileName.blue);
+
+      // We do the migration
+      return migration[direction](limby)
+        .then(function(){
+
+          console.log('migration done:'.blue, pretty_direction, migration.title, direction.cyan, fileName.blue);
+
+          var limbName = filePath.split(path.sep);
+          // -1 is the last entry ( filename ), - 2 is `migrations`, -3 is the limbName
+          limbName = limbName[limbName.length - 3];
+
+          // save it to the database
+          var record = Migration.forge({filename: fileName, limb: limbName})
+
+          console.log('saving in migrations table..'.green, fileName);
+          if ( direction == 'up' )  {
+            return record = record.save().otherwise(undoMigration);
+          } else
+            return record = record.fetch().then(function(model){
+              return model.destroy();
+            })
+            .otherwise(undoMigration);
+
+        });
+          
+    },
+
+  });
+
+  Migrations = bookshelf.Collection.extend({ model: Migration }, {
+
+    getFiles: function(){
+
+      var files = [];
+
+      // their migrations might depend on previous limby migrations
+      // so we have to combine all migrations into 1 list and run in order
+      var limbyMigrationsPath = join(__dirname, '..', 'migrations');
+
+      return fs.readdir(limbyMigrationsPath).then(function(limbyMigrationFiles){
+
+        _.each(limbyMigrationFiles, function(fileName){
+
+          // We will sort based on fileName so we keep that separate, but then we will need the full path
+          files.push([fileName, join(limbyMigrationsPath, fileName)])
+
+        })
+
+        _.each(limby.limbs, function(branch, branchName){
+          _.each(branch.migrations, function(migration, fileName){
+            files.push([fileName, join(limby._limbs, branchName, 'migrations', fileName)]);
+          });
+        });
+
+        files.sort(function(a, b){
+          if (a[0] < b[0]) return -1;
+          if (a[0] > b[0]) return 1;
+          return 0
+        });
+        return files;
+      });
+
+    },
+
+    migrate: function(options){
+
+      options = options || {};
+      var files;
+      return this.getFiles()
+        .then(function(_files){
+          files = _files;
+          return Migrations.ensureTable()
+        })
+        .then(function(){
+          return Migrations.fileNames(options.path)
+        })
+        .then(function(existingFileNames){
+          if ( options.command == 'rollback' )
+            return Migrations.rollback(files, options);
+          else {
+            var pending = _.compact(_.map(files, function(set){
+              var fileName = set[0];
+              if (! _.include(existingFileNames, fileName))
+                return set;
+            }));
+            if (pending.length) {
+
+              // Sequence because migrations should be in order
+              return sequence(_.compact(_.map(pending, function(set, n){
+                if ( !options.step || options.step > n ){
+                  return function(){
+                    return Migration.run(set[1], 'up');
+                  }
+                }
+              })));
+
+            }
+          }
+
+        });
+    },
+
+    ensureTable: function(){
+
+      return bookshelf.knex.schema.hasTable(tableName).then(function(exists){
+        if ( !exists ) {
+          pm.log('Creating Migrations Table...');
+          return bookshelf.schema.createTable(tableName, function(table){
+
+            table.increments('id').unique().primary();
+            // filename should be ISO string -- description == '2013-11-30T14-48-34.465Z'
+            // note dashes instead of colons in time, file system likes that
+            table.string('filename').unique().notNullable();
+            table.string('limb');
+
+          });
+        }
+      });
+
+    },
+
+    // We need to know all the migrations that need to be ran, and which ones were already ran
+    fileNames: function() {
+      var migrations;
+
+      return (migrations = new Migrations).fetch().then(function(){
+        return migrations.pluck('filename');
+      });
+    },
+
+    rollback: function(files, options){
+
+      options.step = options.step || 1;
+      downs = []
+      while(files.length > 0 && options.step-- > 0){
+        downs.push(Migration.run(files.pop(), 'down'));
+      };
+
+      return sequence(downs);
+
+    },
+
+  });
+
+  return {Migrations: Migrations, Migration: Migration};
+};
