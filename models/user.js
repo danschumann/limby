@@ -191,18 +191,24 @@ module.exports = function(limby, models) {
 
     signup: function(attributes) {
 
+      attributes.email = attributes.username;
+      attributes.confirm_email = attributes.confirm_username;
+
       var user = User.forge(attributes)
         .check('first_name')
         .check('last_name')
         .check('username')
         .check('confirm_username')
+        .check('confirm_email')
         .check('password');
 
+      if ( user.hasError() ) return user.reject();
+
       return User
-        .usernameExists(attributes.username)
+        .emailExists(attributes.email)
         .then(function(exists){
           if (exists)
-            user.newError('username', 'That username already exists');
+            user.newError('email', 'That email is already in use');
 
           if ( user.hasError() ) return user.reject();
         })

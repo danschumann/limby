@@ -27,7 +27,8 @@ module.exports = function(limby, models) {
         //.import(options.src + '/mixins/colors')
         .render(function(err, css){
           var url_path = join((options.baseURL || ''), '/stylesheets/', self.relativePath, self.baseName + '.css');
-          stylesheets[url_path] = css;
+          // replace() -- windows fix
+          stylesheets[url_path.replace(/\\/g, '/')] = css;
           if (err) console.log('css error'.red, err);
         });
 

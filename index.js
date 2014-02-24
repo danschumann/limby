@@ -1,6 +1,13 @@
 var
-  pm  = require('print-messages');
-  _   = require('underscore');
+  sep   = require('path').sep;
+  pm    = require('print-messages');
+  _     = require('underscore'),
+  join        = require('path').join,
+  express     = require('express'),
+  fs          = require('final-fs'),
+  when        = require('when'),
+  sequence    = require('when/sequence'),
+  loaddir     = require('loaddir');
 
 require('./lib/bootstrap');
 
@@ -19,20 +26,9 @@ var Limby = function(configPath) {
 
   this.app = express();
 
-  // The rest of the application is built in separate limbs
-  // each limb is it's own separate application that gets put on a route
-  this.loadLimbs();
   return this;
 
 };
-
-var
-  join        = require('path').join,
-  express     = require('express'),
-  fs          = require('final-fs'),
-  when        = require('when'),
-  sequence    = require('when/sequence'),
-  loaddir     = require('loaddir');
 
 Limby.prototype.loadLimbs = function() {
   var limby = this;
@@ -45,66 +41,83 @@ Limby.prototype.loadLimbs = function() {
 
   // Each module is like a mini application with `public`, `views`, `stylesheets`
   // that should not be required, but everything else should ( like `controllers`, `app` )
-  var
-    unwatched = new RegExp(limby._limbs + "/[^/]*/(public|stylesheets)/.*"),
-    viewFolder = new RegExp(limby._limbs + "/([^/]*)/views/(.*)"),
+  var s = sep == '\\' ? '\\\\' : sep;
+  var firstSeparator = new RegExp("^" + s);
 
-    // widgets are used outside of their modules.
-    // see views/home/index for an example
-    widgetFolder = new RegExp(limby._limbs + "/[^/]*/views/widgets/(.*)"),
+  var escapedDir = limby._limbs.replace(/\\/g, '\\\\'); // for windows
 
-    trimECT = /\.ect$/;
+  var trimEXT = /(\.ect$|\.ect.html$)/; 
 
   // They can have widgets within their modules that appear on limby default pages
   // like account, base/index and home/index
   limby.widgets = {};
+  limby.limbs = {};
 
-  this.limbs = loaddir({
-    path: limby._limbs,
-    as_object: true,
-    callback: function() {
 
-      var viewMatch = this.path.match(viewFolder);
+  return when(fs.readdir(limby._limbs))
+  .then(function(branches){
 
-      if( this.path.match(unwatched) ) {
-        return false;
+    relativeWidgets = new RegExp(".*widgets" + s),
 
-      } else if ( viewMatch ) {
-        // exclude from requiring it
+    _.each(branches, function(branchName){
 
-        // We store widgets differently to make them easier to include
-        // in a template, we call _.each(limby.widgets['home/index'], ...)
-        var widgetMatch = this.path.match(widgetFolder);
-        if ( widgetMatch ) {
+      // These are all normal internal js files
+      limby.limbs[branchName] = loaddir({
+        path: join(limby._limbs, branchName),
+        as_object: true,
+        black_list: ['views', 'public', 'vendor', 'frontend', 'stylesheets'],
+        require: true,
+      });
 
-          var widgetPath = widgetMatch[1];
+      // These are views, so we output the filename
+      var viewPath = join(limby._limbs, branchName, 'views');
+      if (fs.existsSync(viewPath))
+        limby.limbs[branchName].views = loaddir({
 
-          limbName = viewMatch[1];
-          var ll = limby._limbs.replace(limby.app.get('views'), '') + '/' + limbName + '/views/widgets/' + widgetPath
+          path: viewPath,
+          as_object: true,
+          callback: function(){
+            // We join for windows slashes
+            this.baseName = this.baseName.replace(trimEXT,'');
+            return join(this.path);
+          },
+        });
+
+      var widgetPath = join(limby._limbs, branchName, 'views', 'widgets');
+      if (fs.existsSync(widgetPath)) {
+        var widgets = loaddir({
+          path: widgetPath,
+          callback: function(){
+            // We join for windows slashes
+            return join(this.path.replace(trimEXT, ''));
+          },
+        });
+
+        _.each(widgets, function(fullPath){
+
+          // relative to app's views top;
+          console.log('fudd'.yellow, limby.app.get('views'));
+          var
+            relativePath = fullPath.replace(join(limby.app.get('views')), '') + '.ect.html',
+            widgetPath = join(relativePath.replace(relativeWidgets, ''));
+
+          relativePath = relativePath.replace(firstSeparator, '');
           limby.widgets[widgetPath] = limby.widgets[widgetPath] || [];
-          limby.widgets[widgetPath].push(
-            // We get the the limbs directory relative to the top views directory
-            // since this string will be called as a template
-            limby._limbs.replace(limby.app.get('views'), '') +
-            '/' + limbName + '/views/widgets/' + widgetPath
-          );
-          // Unique because this callback is ran again when the file is editted
+
+          limby.widgets[widgetPath].push(relativePath);
           limby.widgets[widgetPath] = _.unique(limby.widgets[widgetPath]);
-        }
 
-        this.baseName = this.baseName.replace(trimECT, '');
-        // We need to know the full path of this view for including it in other views
-        return limby._limbs + '/' + viewMatch[1] + '/views/' + viewMatch[2];
+        });
+      };
+    });
 
-      } else {
-        // We only include files outside of the view folder
-        return require(this.path);
-      }
+    _.defer(function(){
+      console.log('hey'.red, join(limby.app.get('views')), limby.widgets);
+    });
 
-    },
+    limby.unwrap();
+    return limby;
   });
-
-  this.unwrap();
 };
 
 Limby.prototype.loadControllers = function() {
@@ -240,18 +253,26 @@ Limby.prototype.extend = function(key) {
   _.extend(subApp.settings, app.settings);
   _.extend(subApp.engines, app.engines);
 
-  var staticPath = limby._limbs + '/' + key + '/public';
+  var staticPath = join(limby._limbs, key, 'public');
   if (fs.existsSync(staticPath))
     subApp.use(express.static(staticPath));
 
+  var vendorPath = join(limby._limbs, key, 'vendor');
+  if (fs.existsSync(vendorPath))
+    subApp.use(express.static(vendorPath));
+
+  var coffeePath = join(limby._limbs, key, 'frontend');
+  if (fs.existsSync(coffeePath))
+    subApp.use(limby.middleware.coffeescript({src: coffeePath}));
+
   // Stylesheets
-  var stylesheetsPath = join(limby._limbs, key, '/stylesheets');
+  var stylesheetsPath = join(limby._limbs, key, 'stylesheets');
   if (fs.existsSync(stylesheetsPath))
-    app.use(limby.middleware.stylus({ src: stylesheetsPath, baseURL: '/group_lunches' }));
+    app.use(limby.middleware.stylus({ src: stylesheetsPath, baseURL: '/' + key }));
 
   subApp.use(function(req, res, next) {
     // The relative path to the views are now within modules 
-    req._limby.relativeViewPath = limby._limbs + '/' + key + '/';
+    req._limby.relativeViewPath = join(limby._limbs, key) + '/';
     req._limby.key = key;
     next();
   });
