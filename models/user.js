@@ -10,7 +10,6 @@ module.exports = function(limby, models) {
     when       = require('when'),
     crypto     = require('crypto'),
     bcrypt     = require('bcrypt'),
-    userMailers = require('../mailers/user'),
 
     check      = bookshelf.check,
     nodefn     = require('when/node/function');
@@ -18,9 +17,6 @@ module.exports = function(limby, models) {
   instanceMethods = {
 
     tableName: 'users',
-
-    // Email functions can take up a lot of room
-    mailers: userMailers,
 
     permittedAttributes: [
       'id',

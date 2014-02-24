@@ -19,6 +19,8 @@ var Limby = function(configPath) {
   if (!configPath) throw new Error('Must pass configPath to Limby, `new Limby(configPath)`');
   var config = this.config = require('./lib/config-loader')(configPath);
 
+  this.send_mail = require('./lib/send_mail')(this);
+
   // Base limby stuff -- mostly handles user management
   this.loadModels();
   this.loadMiddleware();
@@ -96,7 +98,6 @@ Limby.prototype.loadLimbs = function() {
         _.each(widgets, function(fullPath){
 
           // relative to app's views top;
-          console.log('fudd'.yellow, limby.app.get('views'));
           var
             relativePath = fullPath.replace(join(limby.app.get('views')), '') + '.ect.html',
             widgetPath = join(relativePath.replace(relativeWidgets, ''));
@@ -109,10 +110,6 @@ Limby.prototype.loadLimbs = function() {
 
         });
       };
-    });
-
-    _.defer(function(){
-      console.log('hey'.red, join(limby.app.get('views')), limby.widgets);
     });
 
     limby.unwrap();
@@ -307,7 +304,7 @@ Limby.prototype.unwrap = function() {
 
   _.each(limby.limbs, function(branch, branchName) {
 
-    _.each(['models', 'middleware', 'controllers'], function(folder){
+    _.each(['models', 'middleware', 'controllers', 'mailers'], function(folder){
       var files = branch[folder];
 
       // models are for ease of doing hasManys,etc
@@ -324,6 +321,12 @@ Limby.prototype.unwrap = function() {
       });
     });
   });
+};
+
+Limby.prototype.eachWidget = function(str, callback) {
+  var limby = this;
+
+  _.each(limby.widgets[join(str)], callback);
 };
 
 module.exports = Limby;
