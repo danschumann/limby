@@ -14,7 +14,7 @@ var
   fs        = require('final-fs'),
   pm        = require('print-messages');
 
-module.exports = function(limby){
+module.exports = function(limby) {
 
   var bookshelf = limby.bookshelf;
 
@@ -28,8 +28,21 @@ module.exports = function(limby){
       'limb',
     ],
 
-  }, {
+    rollback: function() {
+      var filePath;
+
+      if (this.get('limb') == 'limby')
+        filePath = join(__dirname, '..', 'migrations', this.get('filename'));
+      else
+        filePath = join(limby.config.limbs, this.get('limb'), 'migrations', this.get('filename'));
+
+      return function(){
+        return Migration.run(filePath, 'down');
+      };
+    },
     
+  }, {
+
     run: function(filePath, direction) {
 
       migration = require(filePath)
@@ -93,7 +106,7 @@ module.exports = function(limby){
       // so we have to combine all migrations into 1 list and run in order
       var limbyMigrationsPath = join(__dirname, '..', 'migrations');
 
-      return fs.readdir(limbyMigrationsPath).then(function(limbyMigrationFiles){
+      return when(fs.readdir(limbyMigrationsPath)).then(function(limbyMigrationFiles){
 
         _.each(limbyMigrationFiles, function(fileName){
 
@@ -107,7 +120,7 @@ module.exports = function(limby){
             files.push([fileName, join(limby._limbs, branchName, 'migrations', fileName)]);
           });
         });
-
+        
         files.sort(function(a, b){
           if (a[0] < b[0]) return -1;
           if (a[0] > b[0]) return 1;
@@ -115,11 +128,11 @@ module.exports = function(limby){
         });
         return files;
       });
-
+    
     },
-
+    
     migrate: function(options){
-
+      
       options = options || {};
       var files;
       return this.getFiles()
@@ -131,26 +144,26 @@ module.exports = function(limby){
           return Migrations.fileNames(options.path)
         })
         .then(function(existingFileNames){
-          if ( options.command == 'rollback' )
-            return Migrations.rollback(files, options);
-          else {
-            var pending = _.compact(_.map(files, function(set){
-              var fileName = set[0];
-              if (! _.include(existingFileNames, fileName))
-                return set;
-            }));
-            if (pending.length) {
+          var pending = _.compact(_.map(files, function(set){
 
-              // Sequence because migrations should be in order
-              return sequence(_.compact(_.map(pending, function(set, n){
-                if ( !options.step || options.step > n ){
-                  return function(){
-                    return Migration.run(set[1], 'up');
-                  }
+            var fileName = set[0];
+            if (! _.include(existingFileNames, fileName))
+              return set;
+
+          }));
+
+          if (pending.length) {
+            
+            // Sequence because migrations should be in order
+            return sequence(_.compact(_.map(pending, function(set, n){
+              if ( !options.step || options.step > n ){
+                return function(){
+                  return Migration.run(set[1], 'up');
                 }
-              })));
+              }
 
-            }
+            })));
+            
           }
 
         });
@@ -184,16 +197,20 @@ module.exports = function(limby){
       });
     },
 
-    rollback: function(files, options){
+    rollback: function(options){
 
       options.step = options.step || 1;
       downs = []
-      while(files.length > 0 && options.step-- > 0){
-        downs.push(Migration.run(files.pop(), 'down'));
-      };
 
-      return sequence(downs);
+      return (migrations = new Migrations).fetch().then(function(){
 
+        while(migrations.length > 0 && options.step-- > 0){
+          downs.push(migrations.pop().rollback());
+        };
+
+        return sequence(downs);
+
+      })
     },
 
   });

@@ -9,6 +9,7 @@ var
   sequence    = require('when/sequence'),
   loaddir     = require('loaddir');
 
+require('./lib/mysql_date_format');
 require('./lib/bootstrap');
 
 var Limby = function(configPath) {
@@ -309,6 +310,7 @@ Limby.prototype.unwrap = function() {
 
       // models are for ease of doing hasManys,etc
       _.each(files, function(closure, key) {
+        console.log('loading', branchName, folder, key);
 
         var unwrapped = closure(limby, branch.models);
 

@@ -16,7 +16,7 @@ module.exports = function(limby){
   limby.check = bookshelf.check = _.bind(limby.validator.check, limby.validator);
   limby.schema = bookshelf.schema = limby.knex.schema;
 
-  if (config.ldap && config.ldap.enabled){
+  if (!GLOBAL.limbyBin && config.ldap && config.ldap.enabled){
     // Add ldapAuthenticate method to bookshelf
     require('../lib/ldap')(limby);
   };
