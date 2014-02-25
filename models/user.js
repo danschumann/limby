@@ -139,9 +139,11 @@ module.exports = function(limby, models) {
     },
 
     loginStrategy: function(username, password) {
+
       var
         authResult, 
         user = this;
+
       console.log('hey'.red, config.ldap.enabled, config);
       if (config.ldap.enabled) {
 
@@ -170,7 +172,7 @@ module.exports = function(limby, models) {
       } else
         return this.mustLoad()
         .then(function(){
-          return user.checkPassword(attributes.password);
+          return user.checkPassword(password);
         })
 
 
@@ -232,7 +234,6 @@ module.exports = function(limby, models) {
 
       if ( user.hasError() ) return when.reject(user.errors);
 
-      console.log('loggy'.red, attributes);
       return user.loginStrategy(attributes.username, attributes.password)
         .then(function(match){
           if (match)
