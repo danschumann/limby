@@ -105,14 +105,23 @@ module.exports = function(limby) {
       // their migrations might depend on previous limby migrations
       // so we have to combine all migrations into 1 list and run in order
       var limbyMigrationsPath = join(__dirname, '..', 'migrations');
+      var appMigrationsPath = join(limby._limbs, '..', 'migrations');
 
       return when(fs.readdir(limbyMigrationsPath)).then(function(limbyMigrationFiles){
 
         _.each(limbyMigrationFiles, function(fileName){
-
           // We will sort based on fileName so we keep that separate, but then we will need the full path
           files.push([fileName, join(limbyMigrationsPath, fileName)])
+        })
 
+        return fs.exists(appMigrationsPath).then(function(exists){
+          if (exists)
+            return fs.readdir(appMigrationsPath);
+        });
+      }).then(function(appMigrationFiles){
+        _.each(appMigrationFiles, function(fileName){
+          // We will sort based on fileName so we keep that separate, but then we will need the full path
+          files.push([fileName, join(appMigrationsPath, fileName)])
         })
 
         _.each(limby.limbs, function(branch, branchName){
