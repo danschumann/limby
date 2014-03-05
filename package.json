@@ -29,6 +29,7 @@
     "ldapjs": "~0.7.0",
     "ldapauth": "~2.2.4",
     "ldapauth-fork": "~2.2.11",
+    "papercut": "0.0.6",
     "prompt": "0.2.11"
   },
   "license": "MIT"

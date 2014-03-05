@@ -18,6 +18,7 @@ var limby = new Limby(join(process.cwd(), 'config'));
 limby.loadLimbs()
 .then(function(){
 
+  console.log('hey');
   var Migrations = migrationsWrapped(limby).Migrations;
 
   argv = require('optimist').argv;

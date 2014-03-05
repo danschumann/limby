@@ -203,6 +203,10 @@ Limby.prototype.route = function() {
       relativeViewPath: '',
     };
 
+    req.upload = function(opts){
+      return limby.models.Files.upload(_.extend(opts, {req: req}));
+    }
+
     res.view = function(path, options) {
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
@@ -252,12 +256,10 @@ Limby.prototype.extend = function(key) {
   _.extend(subApp.engines, app.engines);
 
   var staticPath = join(limby._limbs, key, 'public');
-  if (fs.existsSync(staticPath))
-    subApp.use(express.static(staticPath));
+  if (fs.existsSync(staticPath)) subApp.use(express.static(staticPath));
 
   var vendorPath = join(limby._limbs, key, 'vendor');
-  if (fs.existsSync(vendorPath))
-    subApp.use(express.static(vendorPath));
+  if (fs.existsSync(vendorPath)) subApp.use(express.static(vendorPath));
 
   var coffeePath = join(limby._limbs, key, 'frontend');
   if (fs.existsSync(coffeePath))

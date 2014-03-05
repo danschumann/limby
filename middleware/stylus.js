@@ -36,7 +36,6 @@ module.exports = function(limby, models) {
     });
 
     return function(req, res, next){
-      console.log(req.url, _.keys(stylesheets));
       if (stylesheets[req.url]){
         res.setHeader('content-type', 'text/css');
         res.send(stylesheets[req.url]);

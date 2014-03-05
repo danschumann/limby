@@ -1,0 +1,50 @@
+module.exports = function(limby, models) {
+
+  var
+    Tagging, Taggings,
+    columns, instanceMethods, classMethods, options,
+
+    config     = limby.config,
+    bookshelf  = limby.bookshelf,
+    _          = require('underscore'),
+    pm         = require('print-messages'),
+    when       = require('when'),
+
+    check      = bookshelf.check,
+    nodefn     = require('when/node/function');
+
+  instanceMethods = {
+
+    tableName: 'limby_taggings',
+
+    permittedAttributes: [
+      'id',
+      'name',
+    ],
+
+    tag: function() {
+      return this.belongsTo(limby.models.Tag);
+    },
+
+    morphModels: [ ], // extend this in other tags
+    parent: function() {
+      return this.morphTo.apply(this, ['parent'].concat(this.morphModels));
+    },
+
+    validations: { },
+
+  };
+
+  classMethods = { };
+
+  options = {
+    instanceMethods: instanceMethods,
+    classMethods: classMethods,
+  };
+
+  Tagging = bookshelf.Model.extend(instanceMethods, classMethods);
+  Taggings = bookshelf.Collection.extend({ model: Tagging }, { });
+      
+  return {Tagging: Tagging, Taggings: Taggings};
+
+};

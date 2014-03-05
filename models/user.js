@@ -301,4 +301,4 @@ module.exports = function(limby, models) {
   Users = bookshelf.Collection.extend({ model: User });
       
   return {User: User, Users: Users};
-}
+};

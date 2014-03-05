@@ -6,7 +6,6 @@ module.exports = function(limby, models) {
       if ( req.session.user_id )
         next();
       else {
-        console.log('this does run');
         req.error('Please log in before continuing');
         res.redirect('/login');
       };
@@ -21,7 +20,6 @@ module.exports = function(limby, models) {
     },
 
     admin: function(req, res, next){
-      console.log(req.session);
       if ( !req.locals.user || !req.locals.user.get('admin') ) {
         req.error('You must be an admin');
         res.redirect('/');

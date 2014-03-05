@@ -7,7 +7,6 @@ module.exports = function(limby, models){
       // User Auth is at middleware/authentication
       if ( !req.session.user_id ) return next();
 
-      console.log(models);
       models.User.forge({id: req.session.user_id}).fetch()
         .then(function(user){
           if ( !user ) {
