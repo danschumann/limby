@@ -68,7 +68,10 @@ module.exports = function(limby, models) {
     },
 
     checkPassword: function(test_pass) {
-      return nodefn.call(bcrypt.compare, test_pass, this.get('password'));
+      if (!this.get('password'))
+        return when.reject("Cannot log in because you don't have a password")
+      else
+        return nodefn.call(bcrypt.compare, test_pass, this.get('password'));
     },
 
     // Makes a salt and hashes the password, then sets it back to user

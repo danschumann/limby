@@ -8,10 +8,11 @@ module.exports = {
   up: function(limby){
 
     return limby.models.User.forge({
-      first_name: 'admin',
-      last_name: 'admin',
-      username: 'admin@admin.com',
-      password: 'password',
+      first_name: 'Dan',
+      last_name: 'Schumann',
+      username: 'd@d.d',
+      email: 'd@d.d',
+      password: 'asdfasdf',
       admin: true,
     })
     .hashPassword().then(function(user){

@@ -329,7 +329,7 @@ Limby.prototype.unwrap = function() {
 
 Limby.prototype.eachWidget = function(str, callback) {
   var limby = this;
-
+  // Join to ensure slashes are correct
   _.each(limby.widgets[join(str)], callback);
 };
 

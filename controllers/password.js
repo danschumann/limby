@@ -13,21 +13,27 @@ module.exports = function(limby, models) {
 
       var attributes = _.pick(req.body, 'password', 'confirm_password');
 
-      req.locals.user.checkPassword(req.body.current_password)
-        .then(function(matches){
-          if ( ! matches )
-            req.locals.user.newError('current_password', 'Please enter your current password correctly')
+      var user = req.locals.user;
+      when().then(function(){
+        if (user.get('password'))
+          return user.checkPassword(req.body.current_password);
+        else // if they don't have a password they can't match it...
+          return true;
+      })
+      .then(function(matches){
+        if ( !matches )
+          req.locals.user.newError('current_password', 'Please enter your current password correctly')
 
-          return req.locals.user.changePassword(attributes);
-        })
-        .then(function(user){
-          req.notification('You have successfully editted your account');
-          res.redirect('/');
-        })
-        .otherwise(function(errors){
-          req.error(errors);
-          res.view('account/password', {body: req.body});
-        });
+        return req.locals.user.changePassword(attributes);
+      })
+      .then(function(user){
+        req.notification('You have successfully editted your account');
+        res.redirect('/');
+      })
+      .otherwise(function(errors){
+        req.error(errors);
+        res.view('account/password', {body: req.body});
+      });
     },
 
   };
