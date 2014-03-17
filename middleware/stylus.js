@@ -4,6 +4,7 @@ module.exports = function(limby, models) {
     _         = require('underscore'),
     stylus    = require('stylus'),
     nib       = require('nib'),
+    fs        = require('fs'),
     join      = require('path').join,
     loaddir   = require('loaddir');
 
@@ -21,11 +22,11 @@ module.exports = function(limby, models) {
       callback: function(){
         var self = this;
 
-        stylus(this.fileContents)
-        .use(nib())
-        //.import(options.src + '/mixins/methods')
-        //.import(options.src + '/mixins/colors')
-        .render(function(err, css){
+        var s = stylus(this.fileContents).use(nib());
+        var mixinPath = join(options.src, 'mixins');
+        if ( fs.existsSync(mixinPath + '.styl') ) s = s.import(mixinPath);
+
+        s.render(function(err, css){
           var url_path = join((options.baseURL || ''), '/stylesheets/', self.relativePath, self.baseName + '.css');
           // replace() -- windows fix
           stylesheets[url_path.replace(/\\/g, '/')] = css;
