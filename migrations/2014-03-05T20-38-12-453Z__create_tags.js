@@ -13,7 +13,7 @@ module.exports = {
     .then(function(){
       return data.schema.createTable('limby_taggings', function(table){
         table.increments('id').primary();
-        table.integer('limby_tags_id').index();
+        table.integer('limby_tag_id').index();
         table.integer('parent_id').index();
         table.string('parent_type').index();
       });

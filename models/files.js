@@ -26,7 +26,7 @@ module.exports = function(limby, models) {
   var ResizerDefault = papercut.Schema(function(schema){
     schema.version({
       name: 'avatar',
-      size: '100x100',
+      size: '300x200',
       process: 'resize',
     });
 

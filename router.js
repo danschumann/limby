@@ -50,4 +50,15 @@ module.exports = function(limby){
   app.get  ('/email', authentication.user, user.load, controllers.email.index);
   app.post ('/email', authentication.user, user.load, controllers.email.post);
 
+  // Specify your own auth
+  app.get  ('/tags/?*', authentication.user);
+
+  app.get  ('/tags', limby.controllers.tags.index);
+  app.get  ('/tags/edit', limby.controllers.tags.edit);
+  app.get  ('/tags/:tag_id', limby.controllers.tags.edit);
+  app.get  ('/tags/:tag_id/delete', limby.controllers.tags.destroy);
+
+  app.post ('/tags', limby.controllers.tags.update);
+  app.post ('/tags/:tag_id', limby.controllers.tags.update);
+
 };
