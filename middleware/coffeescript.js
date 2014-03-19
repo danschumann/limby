@@ -13,7 +13,6 @@ module.exports = function(limby, models) {
     var javascripts = {};
 
     loaddir({
-      debug: true,
       fast_watch: true,
 
       path: options.src,

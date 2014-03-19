@@ -1,31 +1,38 @@
 var
-  sep   = require('path').sep;
-  pm    = require('print-messages');
-  _     = require('underscore'),
+  sep         = require('path').sep;
+  pm          = require('print-messages');
+  _           = require('underscore'),
   join        = require('path').join,
   express     = require('express'),
   fs          = require('final-fs'),
   when        = require('when'),
   sequence    = require('when/sequence'),
-  loaddir     = require('loaddir');
+  ECT         = require('ect'),
+  //loaddir     = function(options){ options.debug=true; return require('loaddir')(options); }
+  loaddir     = require('loaddir')
+  ;
 
+  var trimEXT = /(\.ect$|\.ect.html$)/; 
+ 
 require('./lib/mysql_date_format');
 require('./lib/bootstrap');
 
-var Limby = function(configPath) {
+var Limby = function(unformattedConfig) {
 
   // We don't care if they call `Limby()` or `new Limby`
-  if (!(this instanceof Limby)) return new Limby(configPath);
+  if (!(this instanceof Limby)) return new Limby(unformattedConfig);
 
-  if (!configPath) throw new Error('Must pass configPath to Limby, `new Limby(configPath)`');
-  var config = this.config = require('./lib/config-loader')(configPath);
+  require('./lib/config-loader')(this, unformattedConfig);
+  require('./lib/send_mail')(this);
 
-  this.send_mail = require('./lib/send_mail')(this);
+  // for application wide things like views and models that are not native to limby
+  this.local = {}
 
   // Base limby stuff -- mostly handles user management
   this.loadModels();
   this.loadMiddleware();
   this.loadControllers();
+  this.loadViews();
 
   this.app = express();
 
@@ -36,11 +43,11 @@ var Limby = function(configPath) {
 Limby.prototype.loadLimbs = function() {
   var limby = this;
 
-  if (!this.config.limbs)
-    throw new Error('setup a config.limbs path for your Limby modules');
+  if (!this.config.limby.limbs)
+    throw new Error('setup a config.limby.limbs path for your Limby modules');
 
   // We remember the string for building paths later
-  this._limbs = this.config.limbs;
+  this._limbs = join(this.config.limby.base, this.config.limby.limbs);
 
   // Each module is like a mini application with `public`, `views`, `stylesheets`
   // that should not be required, but everything else should ( like `controllers`, `app` )
@@ -49,13 +56,10 @@ Limby.prototype.loadLimbs = function() {
 
   var escapedDir = limby._limbs.replace(/\\/g, '\\\\'); // for windows
 
-  var trimEXT = /(\.ect$|\.ect.html$)/; 
-
   // They can have widgets within their modules that appear on limby default pages
   // like account, base/index and home/index
   limby.widgets = {};
   limby.limbs = {};
-
 
   return when(fs.readdir(limby._limbs))
   .then(function(branches){
@@ -80,8 +84,9 @@ Limby.prototype.loadLimbs = function() {
           path: viewPath,
           as_object: true,
           callback: function(){
-            // We join for windows slashes
             this.baseName = this.baseName.replace(trimEXT,'');
+
+            // We join for windows slashes
             return join(this.path);
           },
         });
@@ -91,25 +96,20 @@ Limby.prototype.loadLimbs = function() {
         var widgets = loaddir({
           path: widgetPath,
           callback: function(){
-            // We join for windows slashes
-            return join(this.path.replace(trimEXT, ''));
+
+            var
+              relativePath = this.path.replace(limby.config.limby.base, ''),
+              widgetPath = join(relativePath.replace(relativeWidgets, '')).replace(trimEXT, '');
+
+            relativePath = relativePath.replace(firstSeparator, '');
+            limby.widgets[widgetPath] = limby.widgets[widgetPath] || [];
+
+            limby.widgets[widgetPath].push(relativePath);
+            limby.widgets[widgetPath] = _.unique(limby.widgets[widgetPath]);
+
           },
         });
 
-        _.each(widgets, function(fullPath){
-
-          // relative to app's views top;
-          var
-            relativePath = fullPath.replace(join(limby.app.get('views')), '') + '.ect.html',
-            widgetPath = join(relativePath.replace(relativeWidgets, ''));
-
-          relativePath = relativePath.replace(firstSeparator, '');
-          limby.widgets[widgetPath] = limby.widgets[widgetPath] || [];
-
-          limby.widgets[widgetPath].push(relativePath);
-          limby.widgets[widgetPath] = _.unique(limby.widgets[widgetPath]);
-
-        });
       };
     });
 
@@ -141,6 +141,49 @@ Limby.prototype.loadMiddleware = function() {
       return require(this.path)(limby, limby.models);
     },
   });
+};
+
+Limby.prototype.loadViews = function() {
+  var limby = this;
+
+  // We have one renderer
+  // it's location is top most,
+  // so all limby, local, and limb views can be located within this folder
+  limby._renderer = ECT({watch: true, root: limby.config.limby.base});
+  limby._render = _.bind(limby._renderer.render, limby._renderer);
+
+
+  // Limby specific views -- can be overwritten
+  var viewPath = join(limby.config.limby.base, limby.config.limby.module, 'views');
+  limby.views = loaddir({
+    path: viewPath,
+    callback: function(){
+      this.baseName = this.baseName.replace(trimEXT, '');
+      return join(viewPath, this.relativePath, this.fileName);
+    },
+  });
+
+  // Make a copy if they want to override and reference the original
+  limby._views = _.extend({}, limby.views);
+
+
+  if ( this.config.limby.views ) {
+    var localViews = join(limby.config.limby.base, this.config.limby.views);
+    loaddir({
+      path: localViews,
+      callback: function(){
+        limby.views[join(this.relativePath, this.baseName.replace(trimEXT, ''))] = 
+          join(localViews, this.relativePath, this.fileName);
+      },
+    });
+
+  }
+
+  // Ensure layouts
+  _.each([ 'account', 'home', ], function(name){
+    limby.views['layouts/' + name] = limby.views['layouts/' + name] || limby.views['layouts/default'];
+  });
+
 };
 
 Limby.prototype.migrate = function() {
@@ -178,6 +221,12 @@ Limby.prototype.route = function() {
   var limby = this;
   var app = limby.app;
 
+  // Views
+  app.set('views', limby.config.limby.base);
+  app.set('view engine', 'ect.html');
+  // Viewing as html helps out syntax highlighting
+  app.engine('ect.html', limby._render);
+
   //routers.api     (app);
   //routers.admin   (app);
   
@@ -207,17 +256,34 @@ Limby.prototype.route = function() {
       return limby.models.Files.upload(_.extend(opts, {req: req}));
     }
 
-    res.view = function(path, options) {
+    res.limby = {};
+
+    res.limby.extendOptions = function(options) {
+
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
         config: limby.config,
         req: req,
         _: _,
       });
+      return _.extend(defaults, options);
 
-      // We can keep the main ect view engine top, so that we can use the main views like 
-      // layout, navbar, etc, and here is where we can specify our module's directory
-      res.render(req._limby.relativeViewPath + 'views/' + path, _.extend(defaults, options));
+    };
+
+    res.view = function(path, options) {
+
+      options = res.limby.extendOptions(options);
+
+      // Within a limb
+      if (req._limby.relativeViewPath)
+        res.render(req._limby.relativeViewPath + 'views/' + path, options);
+      else {
+
+        // path is `accounts/index`, limby.views[path] is `accounts/index.ect.html`
+        var view = limby.views[path] || limby.views[path + '/index'];
+        if (!view) throw new Error('that view was not found');
+        return res.send(limby._render(view, options));
+      }
 
     };
 
@@ -244,6 +310,9 @@ Limby.prototype.route = function() {
 
 };
 
+//
+// Loads a limby module ( a limb )
+//
 Limby.prototype.extend = function(key) {
   var limby = this;
   var app = limby.app;
@@ -312,7 +381,6 @@ Limby.prototype.unwrap = function() {
 
       // models are for ease of doing hasManys,etc
       _.each(files, function(closure, key) {
-        console.log('loading', branchName, folder, key);
 
         var unwrapped = closure(limby, branch.models);
 
@@ -331,6 +399,19 @@ Limby.prototype.eachWidget = function(str, callback) {
   var limby = this;
   // Join to ensure slashes are correct
   _.each(limby.widgets[join(str)], callback);
+};
+
+Limby.prototype.layout = function(type) {
+  return this.views['layouts/' + type] || this.views['layouts/default'];
+};
+
+Limby.prototype.renderWidgets = function(path, options) {
+  var limby = this;
+
+  return _.map(limby.widgets[path], function(widgetPath) {
+    return limby._render(widgetPath, options);
+  }).join('\n');
+
 };
 
 module.exports = Limby;

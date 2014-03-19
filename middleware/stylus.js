@@ -15,7 +15,6 @@ module.exports = function(limby, models) {
     var stylesheets = {};
 
     loaddir({
-      debug: true,
 
       path: options.src,
 

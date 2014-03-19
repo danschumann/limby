@@ -1,0 +1,22 @@
+<% @title = ((@customer_request?.id && 'Edit') || 'New') + ' Customer Request -- ' %>
+
+<% extend 'views/layout.ect.html' %>
+
+<% block 'head' : %>
+  <link rel="stylesheet" type="text/css" href="/whiteboard/stylesheets/customer_request.css" />
+<% end %>
+
+<form
+class="tags"
+action="/tags<%- @tag?.id && ('/' + @tag?.id) %>"
+enctype="multipart/form-data"
+method="post">
+
+  <h3><%- (@tag? && 'Edit') || 'New' %> Tag</h3>
+
+  <div class="customer_request_inputs">
+    <input class="gl_name" value="<%- @tag?.get('name') %>" name="name" placeholder="Name" />
+  </div>
+
+  <input type="submit" value="Save" />
+</form>

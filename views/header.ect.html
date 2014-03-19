@@ -1,0 +1,10 @@
+<div class="header">
+  <h1>Limby</h1>
+</div>
+<div class="navbar_container">
+  <% include @limby.views['navbar'] %>
+</div>
+
+<% if sectionHeader = @limby.limbs[@req._limby.key]?.views?.header : %>
+  <% include sectionHeader %>
+<% end %>

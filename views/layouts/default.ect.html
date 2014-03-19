@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+<%# user scripts -- unindented for pretty view-source %>
+<% content 'head' %>
+  <title> <%- (@title || 'Limby Default Page')  %></title>
+</head>
+<body>
+
+  <% include @limby.views['header'] %>
+  <% include @limby.views['notifications'] %>
+
+  <% content %>
+
+  <% include @limby.views['footer'] %>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+<% @req.locals.navLogin = false %>
+<% extend @limby.layout 'base' %>
+
+<div class="login_index">
+  <h1>Login</h1>
+  <% include @limby.views['login/_form'] %>
+</div>

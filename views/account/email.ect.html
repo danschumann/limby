@@ -1,0 +1,15 @@
+<% extend @limby.layout('account') %>
+
+<form class="email" action="/email" method="post">
+
+  <h2>Change Email</h2>
+
+  <div class="current_email_display">
+    Current Email: <strong><%- @req.locals.user.get('email') %></strong>
+  </div>
+  <div class="email_fields">
+    Email: <input name="email" />
+    Confirm Email: <input name="confirm_email" />
+  <input type="submit" value="Change Email" />
+  </div>
+</form>

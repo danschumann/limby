@@ -7,7 +7,7 @@ module.exports = function(limby, models) {
   return {
 
     index: function(req, res, next){
-      res.view('account');
+      res.view('account/index')
     },
 
     post: function(req, res, next){

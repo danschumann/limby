@@ -1,0 +1,21 @@
+<% extend @limby.layout('base') %>
+
+<h1> Welcome to Limby default home </h1>
+
+
+<div class="markdown_content">
+
+  <p>Limby is working, but you should override this default view with one of your own.</p>
+
+  <p>Learn more at <a href="http://limbyjs.com">limbyjs.com</a>.</p>
+
+</div>
+
+<% if @config.ldap?.enabled : %>
+  <% @req.locals.loginClasses = (@req.locals.loginClasses || '') + ' splash' %>
+  <% include @limby.views['login/_form'] %>
+<% else : %>
+  <% @req.locals.signupClasses = (@req.locals.signupClasses || '') + ' splash' %>
+  <% include @limby.views['signup/_form'] %>
+<% end %>
+

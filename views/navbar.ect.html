@@ -1,0 +1,63 @@
+<div class="navbar">
+
+  <% if @req.session.user_id : %>
+
+    <% if !@req._limby.key : %>
+      <% if @req.url == '/account' : %>
+        <% accountClass = 'active' %>
+      <% else if !@req.url || @req.url == '/' : %>
+        <% baseClass = 'active' %>
+      <% end %>
+    <% end %>
+
+    <div class="navsection right">
+      <a href="/logout"> Logout </a>
+    </div>
+    
+    <div class="navsection right <%- accountClass %>">
+      <a href="/account"> Account </a>
+    </div>
+
+    <div class="navsection <%- baseClass %>">
+      <a href="/"> Home </a>
+    </div>
+
+    <div class="navsection right">
+      <%- @req.locals.user.get('first_name') %>
+    </div>
+
+    <%- @limby.renderWidgets('navbar', this) %>
+
+    <% if @req.locals.user.get('admin') : %>
+
+      <span class="admin_navsection"><span class="inner">
+
+        <div class="navsection">
+          Admin
+          
+        </div>
+        <% if @req.url == '/tags' : %>
+          <% tagsClass = 'active' %>
+        <% end %>
+
+        <div class="navsection <%- tagsClass || '' %>">
+          <a href="/tags">Tags</a>
+        </div>
+      </span></span>
+    <% end %>
+
+    <div class="navmiddle" style="display: none"><a href="/group_lunches/">Vortex Portal</a></div>
+
+  <% else : %>
+
+   <%
+   #
+   # Logged out
+   # %>
+
+    <% if @req.locals.navLogin isnt false : %>
+      <% include @limby.views['login/_form'] %>
+    <% end %>
+
+  <% end %>
+</div>

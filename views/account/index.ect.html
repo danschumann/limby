@@ -1,0 +1,27 @@
+<% extend @limby.layout('account') %>
+
+<div class="account_links">
+  <a href="/email">Change Email</a>
+  <% if !@config.ldap?.enabled : %>
+    | <a href="/password">Change Password</a>
+  <% end %>
+</div>
+
+<form class="account" action="/account" method="post">
+
+  <h3>Edit Account</h3>
+
+  <% @body ?= {first_name: '', last_name: ''} %>
+  <% @user = @req.locals.user.toJSON() %>
+
+  <div class="account_inputs">
+    First Name
+    <input value="<%- @body.first_name || @user.first_name %>" name="first_name" />
+    Last Name
+    <input value="<%- @body.last_name || @user.last_name %>" name="last_name" />
+  </div>
+  
+  <%- @limby.renderWidgets('account/index', this) %>
+
+  <input class="account_save" type="submit" value="Save" />
+</form>

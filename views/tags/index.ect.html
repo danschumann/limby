@@ -1,0 +1,27 @@
+<% extend 'views/layout.ect.html' %>
+
+<% block 'head' : %>
+  <link rel="stylesheet" type="text/css" href="/stylesheets/tags.css" />
+<% end %>
+
+<div class="tags">
+  <a class="edit_link" href="/tags/edit">Create</a>
+  <h1> Tags </h1>
+
+  <div class="tag_list">
+    <% @tags.each (tag) => : %>
+      <div class="tag">
+        <a
+        class="edit_link"
+        href="/tags/<%- tag.id %>/delete"
+        onclick="javascript: return confirm('Delete? Are you sure?');"
+        >
+          x
+        </a>
+        <a href="/tags/<%- tag.id %>">
+          <%- tag.get 'name' %>
+        </a>
+      </div>
+    <% end %>
+  </div>
+</div>
