@@ -2,13 +2,12 @@ module.exports = function(limby, models) {
   // Compiling coffeescripts and serving on the frontend
 
   var
-    coffeescript_middleware,
     coffeescript  = require('coffee-script'),
     loaddir  = require('loaddir');
 
   // We load every stylesheet into memory and serve them only if that url gets hit
   // options.src is all we care about for this version
-  coffeescript_middleware = function(options){
+  return function(options) {
 
     var javascripts = {};
 
@@ -35,6 +34,4 @@ module.exports = function(limby, models) {
         next();
     };
   };
-
-  return coffeescript_middleware;
 };

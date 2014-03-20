@@ -1,6 +1,5 @@
 module.exports = function(limby, models) {
   var
-    stylus_middleware,
     _         = require('underscore'),
     stylus    = require('stylus'),
     nib       = require('nib'),
@@ -10,7 +9,7 @@ module.exports = function(limby, models) {
 
   // We load every stylesheet into memory and serve them only if that url gets hit
   // options.src is all we care about for this version
-  stylus_middleware = function(options){
+  return function(options){
 
     var stylesheets = {};
 
@@ -43,6 +42,4 @@ module.exports = function(limby, models) {
         next()
     }
   };
-
-  return stylus_middleware;
 };
