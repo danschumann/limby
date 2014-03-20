@@ -1,6 +1,6 @@
 <% @title = ((@customer_request?.id && 'Edit') || 'New') + ' Customer Request -- ' %>
 
-<% extend 'views/layout.ect.html' %>
+<% extend @limby.layout() %>
 
 <% block 'head' : %>
   <link rel="stylesheet" type="text/css" href="/whiteboard/stylesheets/customer_request.css" />

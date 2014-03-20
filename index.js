@@ -194,7 +194,6 @@ Limby.prototype.loadViews = function() {
   })
   .then(function(views) {
     limby.views = views;
-    console.log('hey'.red, views);
 
     // Make a copy if they want to override and reference the original
     limby._views = _.extend({}, views);
@@ -318,10 +317,6 @@ Limby.prototype.route = function() {
         res.render(req._limby.relativeViewPath + 'views/' + path, options);
       else {
 
-        _.each(limby.views, function(n,k) {
-          console.log(k == j(path));
-        })
-        console.log(limby.views[j(path)]);
         // path is `accounts/index`, limby.views[path] is `accounts/index.ect.html`
         var view = limby.views[j(path)] || limby.views[j(path, 'index')];
         if (!view) throw new Error('that view was not found');

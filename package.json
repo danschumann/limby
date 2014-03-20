@@ -28,7 +28,7 @@
     "ldapjs": "~0.7.0",
     "ldapauth": "~2.2.4",
     "ldapauth-fork": "~2.2.11",
-    "loaddir": "1.0.5",
+    "loaddir": "1.0.6",
     "papercut": "0.0.6",
     "prompt": "0.2.11"
   },
