@@ -13,9 +13,9 @@
 
 <% if @config.ldap?.enabled : %>
   <% @req.locals.loginClasses = (@req.locals.loginClasses || '') + ' splash' %>
-  <% include @limby.views['login/_form'] %>
+  <% include @limby.viewPath('login/_form') %>
 <% else : %>
   <% @req.locals.signupClasses = (@req.locals.signupClasses || '') + ' splash' %>
-  <% include @limby.views['signup/_form'] %>
+  <% include @limby.viewPath('signup/_form') %>
 <% end %>
 

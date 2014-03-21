@@ -56,7 +56,7 @@
    # %>
 
     <% if @req.locals.navLogin isnt false : %>
-      <% include @limby.views['login/_form'] %>
+      <% include @limby.viewPath('login/_form') %>
     <% end %>
 
   <% end %>
