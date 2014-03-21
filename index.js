@@ -1,9 +1,9 @@
 var
-  sep         = require('path').sep;
-  s = sep == '\\' ? '\\\\' : sep,
-  firstSeparator = new RegExp("^" + s),
-  sepReg = new RegExp(s, 'g'),
-  pm          = require('print-messages');
+
+  sepReg = require('./lib/regexes').sepReg,
+  trimEXT = require('./lib/regexes').trimEXT,
+
+  pm          = require('print-messages'),
   _           = require('underscore'),
   j           = require('path').join,
   express     = require('express'),
@@ -11,11 +11,10 @@ var
   when        = require('when'),
   sequence    = require('when/sequence'),
   ECT         = require('ect'),
+  loadBranch  = require('./lib/load_branch'),
   //loaddir     = function(options){ options.debug=true; return require('loaddir')(options); }
   loaddir     = require('loaddir')
   ;
-
-  var trimEXT = /(\.ect$|\.ect.html$)/; 
  
 require('./lib/mysql_date_format');
 require('./lib/bootstrap');
@@ -30,7 +29,6 @@ var Limby = function(unformattedConfig) {
 
   // for application wide things like views and models that are not native to limby
   this.local = {}
-
 
   this.app = express();
 
@@ -48,19 +46,12 @@ Limby.prototype.loadNative = function() {
   ])
 };
 
-// Each module is like a mini application with `public`, `views`, `stylesheets`
-// that should not be required, but everything else should ( like `controllers`, `app` )
+// Each module is like a mini application
 Limby.prototype.loadLimbs = function() {
   var limby = this;
 
-  if (!this.config.limby.limbs)
-    throw new Error('setup a config.limby.limbs path for your Limby modules');
-
-
   // We remember the string for building paths later
   this._limbs = j(this.config.limby.base, this.config.limby.limbs);
-
-  var escapedDir = limby._limbs.replace(/\\/g, '\\\\'); // for windows
 
   // They can have widgets within their modules that appear on limby default pages
   // like account, base/index and home/index
@@ -70,71 +61,8 @@ Limby.prototype.loadLimbs = function() {
   return when(fs.readdir(limby._limbs))
   .then(function(branches){
 
-    relativeWidgets = new RegExp(".*widgets" + s);
-
     return when.map(branches, function(branchName){
-
-      // These are all normal internal js files
-      return loaddir({
-        path: j(limby._limbs, branchName),
-        asObject: true,
-        black_list: ['views', 'public', 'vendor', 'frontend', 'stylesheets'],
-        require: true,
-      })
-      .then(function(branch) {
-
-        // The branch is all folders except special cases
-        limby.limbs[branchName] = branch;
-
-        // These are views, so we output the filename
-        var viewPath = j(limby._limbs, branchName, 'views');
-
-        return fs.exists(viewPath)
-        .then(function(exists) {
-          if (!exists) return;
-
-          return loaddir({
-
-            path: viewPath,
-            asObject: true,
-            callback: function(){
-              this.baseName = this.baseName.replace(trimEXT,'');
-
-              // We join for windows slashes
-              return j(this.path);
-            },
-          })
-          .then(function(v) {
-            branch.views = v;
-          });
-
-        });
-      })
-      .then(function() {
-
-        var widgetPath = j(limby._limbs, branchName, 'views', 'widgets');
-        return fs.exists(widgetPath)
-        .then(function(exists) {
-          if (!exists) return;
-
-          return loaddir({
-            path: widgetPath,
-            callback: function(){
-
-              var
-                relativePath = this.path.replace(limby.config.limby.base, ''),
-                widgetPath = j(relativePath.replace(relativeWidgets, '')).replace(trimEXT, '');
-
-              relativePath = relativePath.replace(firstSeparator, '');
-              limby.widgets[widgetPath] = limby.widgets[widgetPath] || [];
-
-              limby.widgets[widgetPath].push(relativePath);
-              limby.widgets[widgetPath] = _.unique(limby.widgets[widgetPath]);
-
-            },
-          });
-        });
-      });
+      return loadBranch(limby, branchName)
     })
     .then(function() {
       limby.unwrap();
@@ -192,7 +120,8 @@ Limby.prototype.loadViews = function() {
     path: viewPath,
     callback: function(){
       this.baseName = this.baseName.replace(trimEXT, '');
-      return j(limby.config.limby.module, 'views', this.relativePath, this.fileName).replace(sepReg, '/');
+      //return j(limby.config.limby.module, 'views', this.relativePath, this.fileName).replace(sepReg, '/');
+      return j(this.path);
     },
   })
   .then(function(views) {
@@ -207,8 +136,9 @@ Limby.prototype.loadViews = function() {
         path: localViews,
         callback: function() {
           var key = j(this.relativePath, this.baseName.replace(trimEXT, ''));
-          customViews[key] = limby.views[key] = 
-            j(limby.config.limby.views, this.relativePath, this.fileName).replace(sepReg, '/');
+          customViews[key] = limby.views[key] =
+            j(this.path);
+            //j(limby.config.limby.views, this.relativePath, this.fileName).replace(sepReg, '/');
         },
       });
 
@@ -216,7 +146,7 @@ Limby.prototype.loadViews = function() {
   })
   .then(function(){
 
-    // Ensure layouts
+    // Ensure layouts -- fill in default if not present
     _.each([ 'account', 'home', ], function(name){
       limby.views[j('layouts', name)] = limby.views[j('layouts', name)] || limby.views[j('layouts', 'default')];
     });
