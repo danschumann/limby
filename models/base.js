@@ -97,6 +97,18 @@ module.exports = function(limby){
       return when.reject(options || this.errors);
     },
 
+  }, {
+    
+    firstOrCreate: function(options) {
+      var self = this;
+
+      return this.forge(options).fetch()
+        .then(function(model) {
+          if (!model || !model.id)
+            return self.forge(options).save();
+        })
+    },
+
   });
 
   {bookshelf: bookshelf};

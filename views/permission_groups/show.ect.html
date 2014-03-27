@@ -1,0 +1,44 @@
+<% extend @limby.layout() %>
+
+<script src="/limby_static/javascripts/permission_groups.js"></script>
+
+<div class="permission_group" data-group_id="<%- @group.id %>">
+  <h1>Permission Group</h1>
+
+  <h2><%- @group.get('name') %></h2>
+
+  <div>
+    <div class="users_list">
+      <h4>Users</h4>
+      <% @users.each (user) => : %>
+        <div>
+          <input
+            type="checkbox"
+            class="permission_group_user"
+            data-user_id="<%- user.id %>"
+            <%- if @group.related('permission_group_users').findWhere({user_id: user.id}) then 'checked' else '' %>
+          />
+          <%- user.fullName() %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div>
+    <div class="roles_list">
+      <h4>Roles</h4>
+      <% @roles.each (role) => : %>
+        <div>
+          <input
+            type="checkbox"
+            class="permission_group_role"
+            data-role_id="<%- role.id %>"
+            <%- if @group.related('permission_group_roles').findWhere({limby_permission_id: role.id}) then 'checked' else '' %>
+          />
+          <%- role.get('name') %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+</div>

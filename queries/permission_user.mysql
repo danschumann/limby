@@ -1,0 +1,8 @@
+select * from limby_permissions
+
+  inner join limby_permission_user_roles on 
+    limby_permissions.id = limby_permission_user_roles.limby_permission_id
+      and
+    limby_permission_user_roles.user_id = ?
+where
+  limby_permissions.name = ?

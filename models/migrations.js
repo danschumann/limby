@@ -34,7 +34,7 @@ module.exports = function(limby) {
       if (this.get('limb') == 'limby')
         filePath = join(__dirname, '..', 'migrations', this.get('filename'));
       else
-        filePath = join(limby.config.limbs, this.get('limb'), 'migrations', this.get('filename'));
+        filePath = join(limby.config.limby.base, limby.config.limby.limbs, this.get('limb'), 'migrations', this.get('filename'));
 
       return function(){
         return Migration.run(filePath, 'down');
@@ -45,7 +45,6 @@ module.exports = function(limby) {
 
     run: function(filePath, direction) {
 
-      migration = require(filePath)
       var
         migration = require(filePath),
         fileName = basename(filePath),
@@ -69,7 +68,7 @@ module.exports = function(limby) {
       console.log('migration:'.magenta, pretty_direction, migration.title, fileName.blue);
 
       // We do the migration
-      return migration[direction](limby)
+      return when(migration[direction](limby))
         .then(function(){
 
           console.log('migration done:'.blue, pretty_direction, migration.title, direction.cyan, fileName.blue);

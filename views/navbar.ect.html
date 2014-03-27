@@ -28,7 +28,12 @@
 
     <%- @limby.renderWidgets('navbar', this) %>
 
-    <% if @req.locals.user.get('admin') : %>
+    <%
+    tagsPerm = @req.locals.user.hasPermission('admin/tags')
+    permsPerm = @req.locals.user.hasPermission('admin/permissions')
+    %>
+
+    <% if tagsPerm || permsPerm : %>
 
       <span class="admin_navsection"><span class="inner">
 
@@ -38,11 +43,22 @@
         </div>
         <% if @req.url == '/tags' : %>
           <% tagsClass = 'active' %>
+        <% else if @req.url == '/admin/permissions' : %>
+          <% permissionsClass = 'active' %>
         <% end %>
 
-        <div class="navsection <%- tagsClass || '' %>">
-          <a href="/tags">Tags</a>
-        </div>
+        <% if tagsPerm : %>
+          <div class="navsection <%- tagsClass || '' %>">
+            <a href="/tags">Tags</a>
+          </div>
+        <% end %>
+        
+        <% if permsPerm : %>
+          <div class="navsection <%- permissionsClass || '' %>">
+            <a href="/admin/permissions">Permissions</a>
+          </div>
+        <% end %>
+
       </span></span>
     <% end %>
 

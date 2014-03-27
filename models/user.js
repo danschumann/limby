@@ -63,6 +63,11 @@ module.exports = function(limby, models) {
       },
     },
 
+    // Only roles that are specific to 1 user, nothing to do with groups
+    permission_roles: function(){
+      return this.hasMany(models.PermissionUserRoles);
+    },
+
     formattedEmail: function(){
       return this.get('first_name') + ' ' + this.get('last_name') + ' <' + this.get('email') + '>';
     },
@@ -185,6 +190,23 @@ module.exports = function(limby, models) {
       return this.get('first_name') + ' ' + this.get('last_name');
     },
 
+    loadPermissions: function() {
+
+      var user = this;
+
+      // union permissions through roles and groups
+      return limby.knex.raw(limby.queries.user_permissions, [user.id, user.id])
+        .then(function(results){
+          user.permissions = models.Permissions.forge(results && results[0]);
+          console.log(results[0]);
+        });
+
+    },
+
+    hasPermission: function(pName) {
+      var user = this;
+      return user.permissions.findWhere({name: pName});
+    },
 
   };
 

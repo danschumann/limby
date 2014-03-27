@@ -19,7 +19,7 @@
     "ect": "~0.5.4",
     "nodemailer": "~0.5.15",
     "client-sessions": "~0.6.0",
-    "coffee-script": "~1.6.3",
+    "coffee-script": "^1.7.1",
     "validator": "~2.0.0",
     "underscore": "1.5.2",
     "optimist": "~0.6.0",
@@ -28,7 +28,7 @@
     "ldapjs": "~0.7.0",
     "ldapauth": "~2.2.4",
     "ldapauth-fork": "~2.2.11",
-    "loaddir": "1.0.6",
+    "loaddir": "^1.0.6",
     "papercut": "0.0.6",
     "prompt": "0.2.11"
   },

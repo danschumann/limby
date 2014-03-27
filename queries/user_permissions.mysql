@@ -1,0 +1,22 @@
+# if this gets too slow we can create a flag on permissions to be ~'always_loaded'
+select perms.* from limby_permissions `perms`
+
+  inner join limby_permission_group_roles `group_roles` on 
+    perms.id = group_roles.limby_permission_id
+
+  inner join limby_permission_groups `groups` on
+    groups.id = group_roles.limby_permission_group_id
+
+  inner join limby_permission_group_users `group_users` on 
+    group_users.limby_permission_group_id = groups.id
+      and
+    group_users.user_id = ?
+
+union
+
+select perms.* from limby_permissions `perms`
+
+  inner join limby_permission_user_roles `user_roles` on
+    user_roles.limby_permission_id = perms.id
+      and
+    user_roles.user_id = ?

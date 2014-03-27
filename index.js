@@ -43,7 +43,20 @@ Limby.prototype.loadNative = function() {
     this.loadMiddleware(),
     this.loadControllers(),
     this.loadViews(),
+    this.loadQueries()
   ])
+};
+
+Limby.prototype.loadQueries = function() {
+
+  var limby = this;
+
+  return loaddir({
+    path: j( __dirname, 'queries'),
+  }).then(function(queries){
+    limby.queries = queries;
+  });
+
 };
 
 // Each module is like a mini application
@@ -190,6 +203,7 @@ Limby.prototype.loadModels = function() {
 // Middleware to set up `req` and `res`
 // Include this before any of the other Limby methods
 Limby.prototype.route = function() {
+
   var limby = this;
   var app = limby.app;
 
@@ -198,6 +212,8 @@ Limby.prototype.route = function() {
   app.set('view engine', 'ect.html');
   // Viewing as html helps out syntax highlighting
   app.engine('ect.html', limby._render);
+
+  app.use('/limby_static', express.static(j(__dirname, 'public')));
 
   //routers.api     (app);
   //routers.admin   (app);
@@ -224,7 +240,7 @@ Limby.prototype.route = function() {
       relativeViewPath: '',
     };
 
-    req.upload = function(opts){
+    req.upload = function(opts) {
       return limby.models.Files.upload(_.extend(opts, {req: req}));
     }
 
@@ -382,6 +398,7 @@ Limby.prototype.viewPath = function(path) {
   return this.views[j(path)] || this.views[j(path, 'index')];
 
 }
+
 Limby.prototype.renderWidgets = function(path, options) {
   var limby = this;
 
@@ -390,5 +407,43 @@ Limby.prototype.renderWidgets = function(path, options) {
   }).join('\n');
 
 };
+
+Limby.prototype.actionable = function(opts) {
+  var limby = this;
+  
+  _.each(opts, function(options, path) {
+    console.log('aaaaa'.red, options, path);
+
+    if (options.actions == 'all')
+      _.each( ['index', 'create', 'update', 'delete'], function(route){
+        //limby.actionRoute(route, options, path);
+      });
+    else
+
+      // TODO: this
+      _.each( options.actions, function(route){
+        //limby.actionRoute(route, options, path);
+      });
+
+  });
+};
+
+Limby.prototype.action = function(options) {
+  var limby = this;
+
+  switch(options.type) {
+    case 'index':
+      return function(req, res, next){
+        var col = options.collection.forge();
+
+        // TODO: col.query(method) Query options
+        col.fetch().then(function(results){
+          res.view(options.view || 'actionable/index', {results: results});
+        })
+      };
+      break;
+  };
+
+}
 
 module.exports = Limby;

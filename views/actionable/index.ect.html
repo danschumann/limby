@@ -1,0 +1,10 @@
+<% extend @limby.layout() %>
+
+<a href="/admin/permissions/new">Create new permission</a>
+<% @results.each (permission) => : %>
+  <div>
+    <% @_.each permission, (attr, key) => : %>
+      <%- key %>: <%- attr %>
+    <% end %>
+  </div>
+<% end %>

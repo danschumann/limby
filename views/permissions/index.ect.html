@@ -1,0 +1,42 @@
+<% extend @limby.layout() %>
+
+<script src="/limby_static/javascripts/permission_user_roles.js"></script>
+
+<% include @limby.viewPath('permissions/_index') %>
+
+<div>
+  <h1>Groups</h1>
+  <a href="/admin/permissions/groups/new">Create Group</a>
+  <% @groups.each (gr) => : %>
+    <div>
+      <a href="/admin/permissions/groups/<%- gr.id %>">
+        <%- gr.get('name') %>
+      </a>
+    </div>
+  <% end %>
+</div>
+
+<div>
+  <h1>Users</h1>
+  <% @users.each (user) => : %>
+    <div data-user_id="<%- user.id %>" >
+      <h4><%- user.id + ' ' + user.fullName() %></h4>
+      <!--
+      <button onclick="javascript: $('[data-user_id=<%- user.id %>] .perm_list').show(); $(this).hide()"> Show permissions</button>
+      -->
+      <div class="perm_list" >
+        <% @permissions.each (perm) => : %>
+          <div>
+            <input 
+            type="checkbox"
+            class="permission_user_role"
+            data-permission_id="<%- perm.id %>"
+            <%- if user.related('permission_roles').findWhere({limby_permission_id: perm.id}) then 'checked' else '' %>
+            />
+            <%- perm.get 'name' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

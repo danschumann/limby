@@ -17,14 +17,13 @@ module.exports = function(limby){
     reset_password  = middleware.reset_password,
     authentication  = middleware.authentication;
 
-  app.get  ('/*', user.load);
-  console.log(controllers.base);
+  app.all  ('/*', user.load);
+
   app.get  ('/',
     limby.if(function(req){ return !req.session.user_id }, controllers.base.welcome),
     controllers.base.dashboard
   );
 
-  console.log('hey'.blue, controllers, controllers.signup);
   app.get  ('/signup', authentication.non, controllers.signup.index);
   app.post ('/signup', authentication.non, controllers.signup.post);
 
@@ -60,5 +59,21 @@ module.exports = function(limby){
 
   app.post ('/tags', limby.controllers.tags.update);
   app.post ('/tags/:tag_id', limby.controllers.tags.update);
+
+  //
+  // Admin routes
+  //
+  app.all ('/admin/*', authentication.admin);
+
+  app.all ('/admin/permissions*?', authentication.permission('admin/permissions'))
+
+  app.get ('/admin/permissions', controllers.permissions.index);
+
+  app.post ('/admin/permissions/groups', controllers.permission_groups.create);
+  app.get  ('/admin/permissions/groups/new', controllers.permission_groups.editNew);
+  app.get  ('/admin/permissions/groups/:id', controllers.permission_groups.show);
+  app.post ('/admin/permissions/groups/:group_id/users/:user_id', controllers.permission_group_users.toggle);
+  app.post ('/admin/permissions/groups/:group_id/roles/:role_id', controllers.permission_group_roles.toggle);
+  app.post ('/admin/permissions/:role_id/users/:user_id', controllers.permission_user_roles.toggle);
 
 };
