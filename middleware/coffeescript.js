@@ -3,6 +3,8 @@ module.exports = function(limby, models) {
 
   var
     coffeescript  = require('coffee-script'),
+    join = require('path').join,
+    sepReg = require('../lib/regexes').sepReg,
     loaddir  = require('loaddir');
 
   // We load every stylesheet into memory and serve them only if that url gets hit
@@ -21,7 +23,7 @@ module.exports = function(limby, models) {
       },
 
       callback: function(){
-        var url_path = '/javascripts/' + this.relativePath + this.baseName + '.js';
+        var url_path = '/javascripts/' + join(this.relativePath, this.baseName).replace(sepReg, '/') + '.js';
         javascripts[url_path] = this.fileContents;
       },
     });

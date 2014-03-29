@@ -30,7 +30,8 @@
     "ldapauth-fork": "~2.2.11",
     "loaddir": "^1.0.7",
     "papercut": "0.0.6",
-    "prompt": "0.2.11"
+    "prompt": "0.2.11",
+    "express": "^3.5.1"
   },
   "license": "MIT"
 }
