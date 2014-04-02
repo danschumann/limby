@@ -55,7 +55,6 @@ module.exports = function(limby) {
         // In case it fails
         undoMigration = function(){
 
-          console.log(('Saving Migration to ' + tableName + ' Failed!!!!!').red, migration.title, pretty_direction, arguments);
           // If we migrate successfully, but fail to save in migrations table
           // we have to undo the migration manually since it can't be in a transaction
           return migration[direction == 'up' ? 'down' : 'up'](bookshelf)
@@ -65,13 +64,9 @@ module.exports = function(limby) {
 
         };
 
-      console.log('migration:'.magenta, pretty_direction, migration.title, fileName.blue);
-
       // We do the migration
       return when(migration[direction](limby))
         .then(function(){
-
-          console.log('migration done:'.blue, pretty_direction, migration.title, direction.cyan, fileName.blue);
 
           var limbName = filePath.split(path.sep);
           // -1 is the last entry ( filename ), - 2 is `migrations`, -3 is the limbName

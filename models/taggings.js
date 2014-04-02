@@ -28,9 +28,9 @@ module.exports = function(limby, models) {
       return this.belongsTo(limby.models.Tag);
     },
 
-    morphModels: [ ], // extend this in other tags
+    morphParents: [ ], // extend this in other tags
     parent: function() {
-      return this.morphTo.apply(this, ['parent'].concat(this.morphModels));
+      return this.morphTo.apply(this, ['parent'].concat(this.morphParents));
     },
 
     validations: { },

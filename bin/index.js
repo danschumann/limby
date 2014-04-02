@@ -50,7 +50,6 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
   })
   .then(function(){
 
-    console.log('hey');
     var Migrations = limby.models.Migrations;
 
     return when().then(function(){
@@ -58,15 +57,16 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
         var step = argv.step;
         // Clone so decrementing argv.step doesn't affect migrate
         return Migrations.rollback(argv)
-          .then(function(){
+          .then(function() {
             argv.step = step; // We decremented it in the first part
             return Migrations.migrate(argv)
           });
       } else if ( command == 'rollback' ) 
         return Migrations.rollback(argv)
-      else if ( !command || command == 'migrate' ) 
+      else if ( !command || command == 'migrate' )  {
+        console.log('buh'.red);
         return Migrations.migrate(argv)
-      else {
+      } else {
 
         console.log("Please supply a command", commands);
         console.log("If you meant to start the server, please run `node index.js` from the root directory(../) or include limby in your project");
@@ -74,7 +74,7 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
       }
     })
     .then(function(){
-      process.exit(0); 
+      process.exit(0);
     });
   });
 }

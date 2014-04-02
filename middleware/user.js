@@ -24,7 +24,11 @@ module.exports = function(limby, models){
             return res.redirect('/');
           }
 
-          return user.loadPermissions().then(function(){
+          return user.loadPermissions().then(function(permissions){
+            req.locals.permissions = permissions;
+            req.hasPermission = function(type) {
+              return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
+            };
             next();
           });
         })

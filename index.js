@@ -197,7 +197,6 @@ Limby.prototype.loadModels = function() {
     // }
   });
 
-
 };
 
 // Middleware to set up `req` and `res`
@@ -220,6 +219,7 @@ Limby.prototype.route = function() {
   
   // Pass in an object that is available on the view `this` (`@`) object
   limby.config.viewOptions = limby.config.viewOptions || {};
+
 
   app.use(limby.middleware.flash);
   app.use(function(req, res, next) {
@@ -246,7 +246,7 @@ Limby.prototype.route = function() {
 
     res.limby = {};
 
-    res.limby.extendOptions = function(options) {
+    res.view = function(path, options) {
 
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
@@ -254,13 +254,7 @@ Limby.prototype.route = function() {
         req: req,
         _: _,
       });
-      return _.extend(defaults, options);
-
-    };
-
-    res.view = function(path, options) {
-
-      options = res.limby.extendOptions(options);
+      options = _.extend(defaults, options);
 
       // Within a limb
       if (req._limby.relativeViewPath)
@@ -277,6 +271,8 @@ Limby.prototype.route = function() {
 
     next();
   });
+
+  app.use(limby.middleware.user.load);
 
   _.each(limby.limbs, function(branch, branchName) {
     _.each(branch.middleware, function(method, routeName) { 

@@ -63,6 +63,10 @@ module.exports = function(limby, models) {
       },
     },
 
+    group_users: function(){
+      return this.hasMany(models.PermissionGroupUsers);
+    },
+
     // Only roles that are specific to 1 user, nothing to do with groups
     permission_roles: function(){
       return this.hasMany(models.PermissionUserRoles);
@@ -152,7 +156,6 @@ module.exports = function(limby, models) {
         authResult, 
         user = this;
 
-      console.log('hey'.red, config.ldap.enabled, config);
       if (config.ldap.enabled) {
 
         return nodefn.call(limby.ldapAuthenticate, username, password)
@@ -197,15 +200,9 @@ module.exports = function(limby, models) {
       // union permissions through roles and groups
       return limby.knex.raw(limby.queries.user_permissions, [user.id, user.id])
         .then(function(results){
-          user.permissions = models.Permissions.forge(results && results[0]);
-          console.log(results[0]);
+          return models.Permissions.forge(results && results[0]);
         });
 
-    },
-
-    hasPermission: function(pName) {
-      var user = this;
-      return user.permissions.findWhere({name: pName});
     },
 
   };

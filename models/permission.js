@@ -22,9 +22,17 @@ module.exports = function(limby, models) {
       'name',
       'seeded',
       'module',
+      'parent_id',
+      'parent_type',
     ],
 
     validations: { },
+
+    morphParents: [ ], // extend this in other files
+    parent: function() {
+      console.log(['parent'].concat(this.morphParents));
+      return this.morphTo.apply(this, ['parent'].concat(this.morphParents));
+    },
 
   };
 

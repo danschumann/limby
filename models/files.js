@@ -48,9 +48,9 @@ module.exports = function(limby, models) {
       'type',
     ],
 
-    morphModels: [ ], // extend this in other files
+    morphParents: [ ], // extend this in other files
     parent: function() {
-      return this.morphTo.apply(this, ['parent'].concat(this.morphModels));
+      return this.morphTo.apply(this, ['parent'].concat(this.morphParents));
     },
 
     validations: { },

@@ -19,21 +19,42 @@
 <div>
   <h1>Users</h1>
   <% @users.each (user) => : %>
+    <% permsFromGroups = [] %>
     <div data-user_id="<%- user.id %>" >
       <h4><%- user.id + ' ' + user.fullName() %></h4>
       <!--
       <button onclick="javascript: $('[data-user_id=<%- user.id %>] .perm_list').show(); $(this).hide()"> Show permissions</button>
       -->
+      <div class="group_list" >
+        <h6>groups</h6>
+        <% @groups.each (group) => : %>
+          <div>
+            <input 
+            type="checkbox"
+            class="permission_user_group"
+            data-group_id="<%- group.id %>"
+            <%
+if checked = user.related('group_users').findWhere({limby_permission_group_id: group.id})
+  group.related('permission_group_roles').each (gr) =>
+    permsFromGroups.push gr.get('permission_role_id')
+            %>
+            <%- if checked then 'checked' else '' %>
+            />
+            <%- group.get 'name' %>
+          </div>
+        <% end %>
+      </div>
       <div class="perm_list" >
+        <h6>permissions</h6>
         <% @permissions.each (perm) => : %>
           <div>
             <input 
             type="checkbox"
-            class="permission_user_role"
+            class="permission_user_role <%- if (@_.include permsFromGroups, perm.id) then 'permFromGroup' else '' %>"
             data-permission_id="<%- perm.id %>"
             <%- if user.related('permission_roles').findWhere({limby_permission_id: perm.id}) then 'checked' else '' %>
             />
-            <%- perm.get 'name' %>
+            <%- if perm.get('parent_id') then perm.related('parent').permissionName() else perm.get 'name' %>
           </div>
         <% end %>
       </div>

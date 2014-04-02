@@ -17,8 +17,6 @@ module.exports = function(limby){
     reset_password  = middleware.reset_password,
     authentication  = middleware.authentication;
 
-  app.all  ('/*', user.load);
-
   app.get  ('/',
     limby.if(function(req){ return !req.session.user_id }, controllers.base.welcome),
     controllers.base.dashboard
@@ -63,7 +61,6 @@ module.exports = function(limby){
   //
   // Admin routes
   //
-  app.all ('/admin/*', authentication.admin);
 
   app.all ('/admin/permissions*?', authentication.permission('admin/permissions'))
 

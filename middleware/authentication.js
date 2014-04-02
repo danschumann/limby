@@ -44,15 +44,13 @@ module.exports = function(limby, models) {
         if ( req.locals.user.get('admin') ) return next();
 
         // For now, all permissions are loaded to user object
-        if (req.locals.user.permissions.findWhere({name: pName}))
+        if (req.locals.permissions.findWhere({name: pName}))
           return next();
         else {
           req.error('You might not have permission to view that page');
           res.redirect('/');
         }
 
-        // If not all permissions are loaded at once use this
-        //permissionUnwrapped(req, res, next, pName);
       };
     },
 

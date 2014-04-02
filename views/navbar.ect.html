@@ -29,8 +29,8 @@
     <%- @limby.renderWidgets('navbar', this) %>
 
     <%
-    tagsPerm = @req.locals.user.hasPermission('admin/tags')
-    permsPerm = @req.locals.user.hasPermission('admin/permissions')
+    tagsPerm = @req.hasPermission('admin/tags')
+    permsPerm = @req.hasPermission('admin/permissions')
     %>
 
     <% if tagsPerm || permsPerm : %>
