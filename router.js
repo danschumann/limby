@@ -19,6 +19,8 @@ module.exports = function(limby){
 
   app.get  ('/',
     limby.if(function(req){ return !req.session.user_id }, controllers.base.welcome),
+    user.load,
+    user.loadPermissions,
     controllers.base.dashboard
   );
 
@@ -38,14 +40,19 @@ module.exports = function(limby){
   //
   // Logged in routes
   //
-  app.get  ('/account', authentication.user, user.load, controllers.account.index);
-  app.post ('/account', authentication.user, user.load, controllers.account.post);
+  var loggedInMW = [
+    authentication.user,
+    user.load, 
+    user.loadPermissions,
+  ]
+  app.get  ('/account', loggedInMW, controllers.account.index);
+  app.post ('/account', loggedInMW, controllers.account.post);
 
-  app.get  ('/password', authentication.user, user.load, controllers.password.index);
-  app.post ('/password', authentication.user, user.load, controllers.password.post);
+  app.get  ('/password', loggedInMW, controllers.password.index);
+  app.post ('/password', loggedInMW, controllers.password.post);
   
-  app.get  ('/email', authentication.user, user.load, controllers.email.index);
-  app.post ('/email', authentication.user, user.load, controllers.email.post);
+  app.get  ('/email', loggedInMW, controllers.email.index);
+  app.post ('/email', loggedInMW, controllers.email.post);
 
   // Specify your own auth
   app.get  ('/tags/?*', authentication.user);

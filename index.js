@@ -272,8 +272,6 @@ Limby.prototype.route = function() {
     next();
   });
 
-  app.use(limby.middleware.user.load);
-
   _.each(limby.limbs, function(branch, branchName) {
     _.each(branch.middleware, function(method, routeName) { 
       app.get(routeName, method);

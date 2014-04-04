@@ -24,13 +24,8 @@ module.exports = function(limby, models){
             return res.redirect('/');
           }
 
-          return user.loadPermissions().then(function(permissions){
-            req.locals.permissions = permissions;
-            req.hasPermission = function(type) {
-              return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
-            };
-            next();
-          });
+          next();
+
         })
         .otherwise(function(er) {
           delete req.session.user_id;
@@ -38,5 +33,18 @@ module.exports = function(limby, models){
           res.redirect('/login');
         });
     },
+
+    loadPermissions: function(req, res, next) {
+
+      return req.locals.user.loadPermissions().then(function(permissions){
+        req.locals.permissions = permissions;
+        req.hasPermission = function(type) {
+          return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
+        };
+        next();
+      });
+
+    },
+
   };
 };
