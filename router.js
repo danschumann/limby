@@ -55,23 +55,23 @@ module.exports = function(limby){
   app.post ('/email', loggedInMW, controllers.email.post);
 
   // Specify your own auth
-  app.get  ('/tags/?*', authentication.user);
+  app.get  ('/tags/?*', loggedInMW, authentication.user);
 
-  app.get  ('/tags', limby.controllers.tags.index);
-  app.get  ('/tags/edit', limby.controllers.tags.edit);
-  app.get  ('/tags/:tag_id', limby.controllers.tags.edit);
-  app.get  ('/tags/:tag_id/delete', limby.controllers.tags.destroy);
+  app.get  ('/tags', loggedInMW, limby.controllers.tags.index);
+  app.get  ('/tags/edit', loggedInMW, limby.controllers.tags.edit);
+  app.get  ('/tags/:tag_id', loggedInMW, limby.controllers.tags.edit);
+  app.get  ('/tags/:tag_id/delete', loggedInMW, limby.controllers.tags.destroy);
 
-  app.post ('/tags', limby.controllers.tags.update);
-  app.post ('/tags/:tag_id', limby.controllers.tags.update);
+  app.post ('/tags', loggedInMW, limby.controllers.tags.update);
+  app.post ('/tags/:tag_id', loggedInMW, limby.controllers.tags.update);
 
   //
   // Admin routes
   //
 
-  app.all ('/admin/permissions*?', authentication.permission('admin/permissions'))
+  app.all ('/admin/permissions*?', loggedInMW, authentication.permission('admin/permissions'))
 
-  app.get ('/admin/permissions', controllers.permissions.index);
+  app.get ('/admin/permissions', loggedInMW, controllers.permissions.index);
 
   app.post ('/admin/permissions/groups', controllers.permission_groups.create);
   app.get  ('/admin/permissions/groups/new', controllers.permission_groups.editNew);

@@ -391,7 +391,7 @@ Limby.prototype.layout = function(type) {
 Limby.prototype.viewPath = function(path) {
   return this.views[j(path)] || this.views[j(path, 'index')];
 
-}
+};
 
 Limby.prototype.renderWidgets = function(path, options) {
   var limby = this;
@@ -438,6 +438,6 @@ Limby.prototype.action = function(options) {
       break;
   };
 
-}
+};
 
 module.exports = Limby;

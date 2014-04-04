@@ -1,6 +1,10 @@
-module.exports = function(limby, models){
+module.exports = function(limby, models) {
 
-  return {
+  var
+    when = require('when'),
+    userMiddleware;
+
+  return userMiddleware = {
 
     // Only logged in users may be at this page
     load: function(req, res, next) {
@@ -36,15 +40,33 @@ module.exports = function(limby, models){
 
     loadPermissions: function(req, res, next) {
 
-      return req.locals.user.loadPermissions().then(function(permissions){
-        req.locals.permissions = permissions;
-        req.hasPermission = function(type) {
-          return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
-        };
-        next();
+      when().then(function(){
+        console.log('permsmms');
+        if (req.locals.user) return;
+
+        var deferred = when.defer();
+        userMiddleware.load(req, res, function(){
+          deferred.resolve();
+        });
+        return deferred.promise;
+      })
+      .then(function(){
+        loadPermissions(req, res, next);
       });
 
     },
 
   };
+
+  function loadPermissions(req, res, next) {
+
+    return req.locals.user.loadPermissions().then(function(permissions){
+      req.locals.permissions = permissions;
+      req.hasPermission = function(type) {
+        return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
+      };
+      next();
+    });
+
+  }
 };
