@@ -223,15 +223,14 @@ module.exports = function(limby, models) {
 
       var user = User.forge(attributes);
 
-      user
-        .validate([
-          'first_name',
-          'last_name',
-          'username',
-          'confirm_username',
-          'confirm_email',
-          'password',
-        ]).otherwise(function(){}); // don't reject yet, check if email exists too
+      user.validateSync([
+        'first_name',
+        'last_name',
+        'username',
+        'confirm_username',
+        'confirm_email',
+        'password',
+      ]);
 
       return User.emailExists(attributes.email)
         .then(function(exists){
@@ -259,8 +258,7 @@ module.exports = function(limby, models) {
       var user;
 
       user = new User({username: attributes.username});
-      user.validate('username')
-        .otherwise(function(){}); // don't reject yet
+      user.validateSync('username');
 
       // We don't actually want to set the password to the user
       if (!attributes.password)
