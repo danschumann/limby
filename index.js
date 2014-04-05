@@ -316,6 +316,10 @@ Limby.prototype.extend = function(key) {
   if (fs.existsSync(coffeePath))
     subApp.use(limby.middleware.coffeescript({src: coffeePath}));
 
+  var cupsPath = j(limby._limbs, key, 'views/coffeecups');
+  if (fs.existsSync(cupsPath))
+    limby.middleware.coffeecups({path: cupsPath, app: subApp});
+
   // Stylesheets
   var stylesheetsPath = j(limby._limbs, key, 'stylesheets');
   if (fs.existsSync(stylesheetsPath))

@@ -77,17 +77,20 @@ module.exports = function(limby){
     // returns promise -- rejected if errors
     validate: function() {
 
-      this._validate();
+      this._validate.apply(this, arguments);
 
-      if (self.errored())
-        return self.reject();
+      if (this.errored())
+        return this.reject();
       else
         return when();
     },
 
     validateSync: function(){
-      if (self.errored())
-        return self.errors;
+
+      this._validate.apply(this, arguments);
+
+      if (this.errored())
+        return this.errors;
     },
 
     _validate: function(){
