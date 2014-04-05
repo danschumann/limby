@@ -22,10 +22,9 @@ module.exports = function(limby, models) {
 
       user
         .set(attributes)
-        .check('password')
-        .check('confirm_password');
+        .validate('password', 'confirm_password');
 
-      if ( user.hasError() ) {
+      if ( user.errored() ) {
         req.error( user.errors );
         return res.view('reset_password');
       };

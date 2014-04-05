@@ -1,6 +1,8 @@
 module.exports = function(limby, models) {
+
   var
     User  = models.User,
+    when  = require('when'),
     _     = require('underscore');
 
   return {
@@ -14,6 +16,7 @@ module.exports = function(limby, models) {
       var attributes = _.pick(req.body, 'password', 'confirm_password');
 
       var user = req.locals.user;
+
       when().then(function(){
         if (user.get('password'))
           return user.checkPassword(req.body.current_password);
@@ -22,9 +25,9 @@ module.exports = function(limby, models) {
       })
       .then(function(matches){
         if ( !matches )
-          req.locals.user.newError('current_password', 'Please enter your current password correctly')
-
-        return req.locals.user.changePassword(attributes);
+          return user.reject('current_password', 'Please enter your current password correctly');
+        else
+          return user.changePassword(attributes);
       })
       .then(function(user){
         req.notification('You have successfully editted your account');

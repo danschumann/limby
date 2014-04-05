@@ -12,7 +12,6 @@ module.exports = function(limby, models) {
     pm         = require('print-messages'),
     when       = require('when'),
 
-    check      = bookshelf.check,
     papercut    = require('papercut'),
     nodefn     = require('when/node/function');
 
@@ -83,7 +82,6 @@ module.exports = function(limby, models) {
       if (!_.isArray(req.files[key]))
         req.files[key] = [req.files[key]];
 
-      pm.log('ham'.red, req.files[key]);
       return when.map(req.files[key], function(file) {
         var path = file.path;
         var fName = fileNamer(file.originalFilename.replace(extRegex, ''));

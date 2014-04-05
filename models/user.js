@@ -35,19 +35,19 @@ module.exports = function(limby, models) {
 
     validations: {
       first_name: function(val){
-        check(val || '', 'First name must be between 2 and 45 characters').len(2, 45); 
+        this.check(val || '', 'First name must be between 2 and 45 characters').len(2, 45); 
       },
       last_name: function(val){
-        check(val || '', 'Last name must be between 2 and 45 characters').len(2, 45);
+        this.check(val || '', 'Last name must be between 2 and 45 characters').len(2, 45);
       },
       email: function(val){
-        check(val || '', 'Must be a valid email').isEmail();
+        this.check(val || '', 'Must be a valid email').isEmail();
       },
       username: function(val){
-        check(val || '', 'Username must be between 3 and 45 characters').len(3, 45);
+        this.check(val || '', 'Username must be between 3 and 45 characters').len(3, 45);
       },
       password: function(val){
-        check(val || '', 'Password must be between 6 and 255 characters').len(6, 255);
+        this.check(val || '', 'Password must be between 6 and 255 characters').len(6, 255);
       },
       confirm_email: function(val){
         if ( val !== this.get('email') )
@@ -76,11 +76,14 @@ module.exports = function(limby, models) {
       return this.get('first_name') + ' ' + this.get('last_name') + ' <' + this.get('email') + '>';
     },
 
-    checkPassword: function(test_pass) {
+    checkPassword: function(pass) {
+
       if (!this.get('password'))
-        return when.reject("Cannot log in because you don't have a password")
+        return when.reject("Cannot log in because you didn't create a password on signup -- did you use Facebook or LDAP?")
+
       else
-        return nodefn.call(bcrypt.compare, test_pass, this.get('password'));
+        return nodefn.call(bcrypt.compare, pass, this.get('password'));
+
     },
 
     // Makes a salt and hashes the password, then sets it back to user
@@ -103,89 +106,93 @@ module.exports = function(limby, models) {
 
       return this.fetch()
         .then(function(){
-          if (!user || !user.id) return when.reject({base: "Could not find that username"});;
+          if (!user || !user.id)
+           return user.reject("Could not find that username");
         });
     },
 
     changeEmail: function(attributes){
       var user = this;
 
-      user.set(attributes)
-        .check('email')
-        .check('confirm_email');
-
-      if ( user.hasError() ) return when.reject(user.errors);
-
-      return user.save();
-
-    },
-
-    editAccount: function(attributes){
-      var user = this;
-
-      user.set(attributes)
-        .check('first_name')
-        .check('last_name');
-
-      if (user.hasError())
-        return user.reject()
-      else
-        return user.save();
-
-    },
-
-    changePassword: function(attributes){
-      var user = this;
-
-      user.set(attributes)
-        .check('password')
-        .check('confirm_password');
-
-      if ( user.hasError() ) return when.reject(user.errors);
-
-      return user.hashPassword()
+      return user
+        .set(attributes)
+        .validate('email', 'confirm_email')
         .then(function(){
           return user.save();
         });
 
     },
 
-    loginStrategy: function(username, password) {
+    editAccount: function(attributes){
+      var user = this;
+
+      return user
+        .set(attributes)
+        .validate('first_name', 'last_name')
+        .then(function(){
+          return user.save();
+        });
+
+    },
+
+    // Just changes -- Assumes they already verified password
+    changePassword: function(attributes){
+      var user = this;
+
+      return user
+        .set(attributes)
+        .validate('password', 'confirm_password')
+        .then(function(){
+          return user.hashPassword();
+        })
+        .then(function(){
+          return user.save();
+        });
+
+    },
+
+    loginLDAP: function(username, password) {
 
       var
-        authResult, 
-        user = this;
+        user = this,
+        ldapUser;
 
-      if (config.ldap.enabled) {
-
-        return nodefn.call(limby.ldapAuthenticate, username, password)
+      return nodefn.call(limby.ldapAuthenticate, username, password)
         .otherwise(function(err){
-          return user.newError('base', 'Those credentials were not right').reject();
+          return user.reject('Those credentials were not right');
         })
-        .then(function(_authResult){
-          authResult = _authResult;
+        .then(function(_ldapUser){
+          // We found
+          ldapUser = _ldapUser;
           return user.fetch()
         })
         .then(function(){
           if ( !user.id ) {
-            user.newAccount = true; // flag so we ask if they want to change email
             return user
-              .set({first_name: authResult.givenName, last_name: authResult.sn, email: authResult.mail})
+              .set({first_name: ldapUser.givenName, last_name: ldapUser.sn, email: ldapUser.mail})
               .save();
           } else
             return user;
         })
         .otherwise(function(err){
-          if(user.hasError()) return user.reject(); // Already errored out
+          if(user.errored()) return user.reject(); // Already errored out
 
-          return user.newError('base', 'Could not get local user').reject();
+          return user.reject('Unknown error, try contacting db admin');
         });
+
+    },
+
+    loginStrategy: function(username, password) {
+
+      var user = this;
+
+      if (config.ldap.enabled) {
+        return this.loginLDAP(username, password);
       } else
         return this.mustLoad()
-        .then(function(){
-          return user.checkPassword(password);
-        })
-
+          .then(function(){
+            return user.checkPassword(password);
+          })
 
     },
 
@@ -214,29 +221,31 @@ module.exports = function(limby, models) {
       attributes.email = attributes.username;
       attributes.confirm_email = attributes.confirm_username;
 
-      var user = User.forge(attributes)
-        .check('first_name')
-        .check('last_name')
-        .check('username')
-        .check('confirm_username')
-        .check('confirm_email')
-        .check('password');
+      var user = User.forge(attributes);
 
-      if ( user.hasError() ) return user.reject();
+      user
+        .validate([
+          'first_name',
+          'last_name',
+          'username',
+          'confirm_username',
+          'confirm_email',
+          'password',
+        ]).otherwise(function(){}); // don't reject yet, check if email exists too
 
-      return User
-        .emailExists(attributes.email)
+      return User.emailExists(attributes.email)
         .then(function(exists){
           if (exists)
-            user.newError('email', 'That email is already in use');
+            user.error('email', 'That email is already in use');
 
-          if ( user.hasError() ) return user.reject();
+          // Now we can reject since we have all possible errors
+          if ( user.errored() ) return user.reject();
         })
+
         .then(function(){
           return user.hashPassword()
         })
         .then(function(){
-
           return user.save({method: 'insert'})
         })
         .then(function(){
@@ -249,14 +258,18 @@ module.exports = function(limby, models) {
     login: function(attributes) {
       var user;
 
-      user = new User({username: attributes.username}).check('username');
+      user = new User({username: attributes.username});
+      user.validate('username')
+        .otherwise(function(){}); // don't reject yet
 
+      // We don't actually want to set the password to the user
       if (!attributes.password)
-        user.newError('password', 'You must specify a password')
+        user.singleValidation('password', attributes.password);
 
-      if ( user.hasError() ) return when.reject(user.errors);
+      if ( user.errored() ) return user.reject();
 
-      return user.loginStrategy(attributes.username, attributes.password)
+      return user
+        .loginStrategy(attributes.username, attributes.password)
         .then(function(match){
           if (match)
             return when.resolve(user);
@@ -270,21 +283,29 @@ module.exports = function(limby, models) {
       var user; 
 
       // Make sure we have a username
-      user = new User({username: attributes.username}).check('username');
-      if ( user.hasError() ) return when.reject(user.errors);
+      user = new User({username: attributes.username})
 
-      // Make sure username exists
-      return user.mustLoad()
-
-        // Save a random token and expire it in an hour
+      return user.validate('username')
         .then(function(){
+
+          // Make sure username exists
+          return user.mustLoad()
+
+        })
+        .then(function(){
+
+          // need a token for verification
           return nodefn.call(crypto.randomBytes, 256);
+
         })
         .then(function(randomBuffer){
+
+          // expire in an hour to make sure it can't be guessed
           return user.save({
-            password_token:         randomBuffer.toString('hex').substring(0, 255),
+            password_token: randomBuffer.toString('hex').substring(0, 255),
             password_token_expires: (new Date).getTime() + 60 * 60 * 1000,
           });
+
         })
 
         // Email them the token

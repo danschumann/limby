@@ -1,7 +1,7 @@
 var
   _ = require('underscore');
 
-module.exports = function(limby){
+module.exports = function(limby) {
 
   return function(req, res, next) {
 
