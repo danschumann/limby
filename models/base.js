@@ -82,7 +82,7 @@ module.exports = function(limby){
       if (this.errored())
         return this.reject();
       else
-        return when();
+        return when(this);
     },
 
     validateSync: function(){
@@ -105,78 +105,20 @@ module.exports = function(limby){
       else if (_.isArray(arguments[0]))
         keys = arguments[0];
 
-      // For speed, we run our internal _error method instead of this.error
-      // so we have to ensure there is an error object
-      this.errors = this.errors || {};
-
       _.each(keys, function(key) {
-
-        self._singleValidation(key, self.get(key));
-
+        self.singleValidation(key, self.get(key));
       });
 
     },
 
     singleValidation: function(key, val) {
 
-      this.errors = this.errors || {};
-
-      return this._singleValidation(key, val);
-
-    },
-
-    _singleValidation: function(key, val) {
       try {
         this.validations[key].call(this, val);
       } catch (er) {
-        this._error(key, er);
+        console.log ('b!!!', key, er);
+        this.error(key, er);
       };
-      return this;
-    },
-
-    // Massages most formats into something we can use
-    error: function(key, messages) {
-
-      this.errors = this.errors || {};
-
-      if ( !messages ) {
-        messages = key;
-        key = null;
-      };
-
-      key = key || 'base';
-
-      return this._error(key, messages);
-    },
-
-    _error: function(key, messages) {
-
-      // We know how to handle strings and only strings
-      if (_.isString(messages)) {
-        this.errors[key] = this.errors[key] || [];
-        this.errors[key].push(messages);
-      }
-
-      // For every other type, we end up calling this._error again
-      // because it could be recursive -- eventually we'll have a string
-      
-      // Only errors should have .message -- i.e. -- new Error('asdf')
-      else if (messages.message)
-        this._error(key, messages.message);
-
-      else if (_.isObject(messages))
-        _.each(messages, function(err, _key) {
-          this._error(_key, err);
-        });
-
-      else if (_.isArray(messages))
-        _.each(messages, function(err) {
-          this._error(key, err);
-        });
-
-      else
-        console.log('Unhandled error type!'.red, arguments);
-
       return this;
     },
 
@@ -207,6 +149,10 @@ module.exports = function(limby){
     },
 
   });
+
+  // Allow models to easily push errors   modelInstance.error('doh')
+  // see lib/error for possible format of args
+  bookshelf.Model.prototype.error = require('../lib/error')(null, 'errors');
 
   {bookshelf: bookshelf};
 };

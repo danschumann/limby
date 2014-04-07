@@ -1,49 +1,15 @@
 var
+  extendErrorMaker = require('../lib/error');
   _ = require('underscore');
 
+// creates req.error('message') and req.notification('message')
+// see lib/error for possible format of args
 module.exports = function(limby) {
 
   return function(req, res, next) {
 
-    // We add methods to req to make pushing messages easier
     _.each(['error', 'notification'], function(method){
-
-      var plural = method + 's';
-
-      req.session[plural] = req.session[plural] || {};
-
-      req[method] = function(messages, key){
-
-        key = key || 'base';
-
-        // We only set values when we have a string
-        if (_.isString(messages)) {
-          req.session[plural][key] = req.session[plural][key] || [];
-          req.session[plural][key].push(messages);
-        }
-
-        // For every other type, we end up calling req[method] again
-        
-        // Only errors should have .message -- i.e. -- new Error('asdf')
-        else if (messages.message)
-          req[method](messages.message, key);
-
-        else if (_.isObject(messages))
-          _.each(messages, function(err, _key) {
-            req[method](err, _key);
-          });
-
-        else if (_.isArray(messages))
-          _.each(messages, function(err) {
-            req[method](err, key);
-          });
-
-        else
-          console.log('Unhandled error type!'.red, arguments);
-
-        return req;
-
-      };
+      req[method] = extendErrorMaker(req.session, method + 's');
     });
 
     next();
