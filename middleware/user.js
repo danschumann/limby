@@ -59,13 +59,23 @@ module.exports = function(limby, models) {
 
   function loadPermissions(req, res, next) {
 
-    return req.locals.user.loadPermissions().then(function(permissions){
-      req.locals.permissions = permissions;
-      req.hasPermission = function(type) {
-        return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
-      };
+    if (! req.locals.user ) {
+
+      req.locals.permissions = new models.Permissions;
+      req.hasPermission = function(type) { };
       next();
-    });
+
+    } else {
+
+      req.locals.user.loadPermissions().then(function(permissions){
+        req.locals.permissions = permissions;
+        req.hasPermission = function(type) {
+          return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
+        };
+        next();
+      });
+
+    }
 
   }
 };
