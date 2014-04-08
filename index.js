@@ -272,6 +272,9 @@ Limby.prototype.route = function() {
     next();
   });
 
+  // some middleware may define their own routes
+  limby.unwrap(['middleware']);
+
   _.each(limby.limbs, function(branch, branchName) {
     _.each(branch.middleware, function(method, routeName) { 
       app.get(routeName, method);
@@ -357,12 +360,12 @@ Limby.prototype.if = function(constraint, thenMethod, elseMethod) {
 // files are wrapped in a `module.exports = function(limby, models){...}` closure
 // This is so each individual file can know about all the limby settings
 // here is where we apply (limby, models) and are left with what that method returns
-Limby.prototype.unwrap = function() {
+Limby.prototype.unwrap = function(keys) {
   var limby = this;
 
   _.each(limby.limbs, function(branch, branchName) {
 
-    _.each(['models', 'middleware', 'controllers', 'mailers'], function(folder){
+    _.each(keys || ['models', 'controllers', 'mailers'], function(folder){
       var files = branch[folder];
 
       // models are for ease of doing hasManys,etc

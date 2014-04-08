@@ -11,16 +11,11 @@ module.exports = function(limby, models) {
     },
 
     post: function(req, res, next){
-      var checkboxes = ['notify_start_vote', 'notify_end_vote', 'notify_pickup'];
-
-      var attributes = {
-        first_name: _.escape(req.body.first_name),
-        last_name: _.escape(req.body.last_name),
-      };
-
-      _.each(checkboxes, function(key){
-        attributes[key] = (req.body[key] == 'on')
-      });
+      // Other limbs could add attributes if they are accepting more
+      var attributes = req.locals.attributes || {};
+      
+      attributes.first_name = attributes.first_name || _.escape(req.body.first_name);
+      attributes.last_name = attributes.last_name || _.escape(req.body.last_name);
 
       req.locals.user.editAccount(attributes)
         .then(function(user){
