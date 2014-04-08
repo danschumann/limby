@@ -3,6 +3,8 @@ module.exports = function(limby, models) {
   // Frontend templates are compiled into 1 file
   return function(options) {
 
+    options.key = options.key || 'coffeecups';
+
     var
       cache = {},
       breakRegex = /\n/g,
@@ -34,11 +36,11 @@ module.exports = function(limby, models) {
           // We ensure the structure exists
           // window.template[topDir][nextDir] = window.template[topDir][nextDir] || {};
           dirStructure += '["' + dir + '"]';
-          template_str += 'window.template' + dirStructure + ' = window.template' + dirStructure + ' || {};\n';
+          template_str += 'window.' + options.key + dirStructure + ' = window.' + options.key + dirStructure + ' || {};\n';
 
         });
 
-        template_str += 'window.template' + dirStructure + '["' + this.baseName + '"] = coffeecup.compile(function(){';
+        template_str += 'window.' + options.key + dirStructure + '["' + this.baseName + '"] = coffeecup.compile(function(){';
         template_str += '\n\n  return ' + this.fileContents.replace(breakRegex, '\n  ') + '\n});\n\n\n';
         cache[this.path] = template_str;
 
@@ -51,7 +53,7 @@ module.exports = function(limby, models) {
       repeat = true;
       joinTemplates = function(){
         _.defer(function(){
-          output = 'window.template = {};\n' + _(cache).values().join('');
+          output = 'window.' + options.key + ' = {};\n' + _(cache).values().join('');
         });
       };
 
