@@ -41,7 +41,6 @@ module.exports = function(limby, models) {
     loadPermissions: function(req, res, next) {
 
       when().then(function(){
-        console.log('permsmms');
         if (req.locals.user) return;
 
         var deferred = when.defer();
