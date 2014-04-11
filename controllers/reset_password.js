@@ -22,26 +22,22 @@ module.exports = function(limby, models) {
 
       user
         .set(attributes)
-        .validate('password', 'confirm_password');
-
-      if ( user.errored() ) {
-        req.error( user.errors );
-        return res.view('reset_password');
-      };
-
-      user.hashPassword()
-      .then(function(){
-        return user.save();
-      })
-      .then(function(){
-        req.notification('You have updated your password');
-        req.session.user_id = user.get('id');
-        res.redirect('/');
-      })
-      .otherwise(function(errors){
-        req.error(errors);
-        res.view('reset_password');
-      });
+        .validate('password', 'confirm_password')
+        .then(function(){
+          return user.hashPassword();
+        })
+        .then(function(){
+          return user.save();
+        })
+        .then(function(){
+          req.notification('You have updated your password');
+          req.session.user_id = user.get('id');
+          res.redirect('/');
+        })
+        .otherwise(function(errors){
+          req.error( errors );
+          return res.view('reset_password');
+        });
 
     },
 
