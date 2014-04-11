@@ -11,10 +11,31 @@ var
   join = require('path').join,
 
   argv = require('optimist').argv,
-  command = argv._[0],
   fs = require('fs'),
-
   when = require('when');
+
+// we need to remove the first arg if it is a path
+// this happens when running 'node path/to/limby/bin/index.js' on windows
+if (argv._[0]) {
+
+  // the path of this bin file ( this file you're reading right now )
+  var thisPath = join(__dirname, __filename);
+
+  if (argv._[0][0] == '/') {
+    // they used absolute path
+
+    if (thisPath == join(argv._[0]))
+      argv._.shift()
+
+  } else {
+    // relative path
+
+    if (thisPath == join(process.cwd(), argv._[0]))
+      argv._.shift()
+  }
+} 
+
+var command = argv._[0];
 
 if (argv._[0] == 'g' && argv._[1] == 'migration') {
 

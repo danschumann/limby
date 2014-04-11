@@ -29,12 +29,25 @@ module.exports = function(limby) {
     ],
 
     rollback: function() {
+
       var filePath;
 
+      // Native limby migrations
       if (this.get('limb') == 'limby')
         filePath = join(__dirname, '..', 'migrations', this.get('filename'));
+
+      // Base level application migrations
+      else if (this.get('limb') == 'core')
+        filePath = join(limby.paths.core, 'migrations', this.get('filename'));
+
+      // Individual limb migrations
       else
-        filePath = join(limby.config.limby.base, limby.config.limby.limbs, this.get('limb'), 'migrations', this.get('filename'));
+        filePath = join(
+          limby.paths.limbs,
+          this.get('limb'),
+          'migrations',
+          this.get('filename')
+        );
 
       return function(){
         return Migration.run(filePath, 'down');
@@ -111,10 +124,18 @@ module.exports = function(limby) {
 
         _.each(limby.limbs, function(branch, branchName){
           _.each(branch.migrations, function(migration, fileName){
-            files.push([fileName, join(limby._limbs, branchName, 'migrations', fileName)]);
+            var mPath;
+            if (branchName == 'core')
+              mPath = join(limby.paths.core, 'migrations', fileName)
+            else
+              mPath = join(limby.paths.limbs, branchName, 'migrations', fileName)
+
+            files.push([fileName, mPath]);
+
           });
         });
         
+        // a[0] and b[0] are both the fileName (date)
         files.sort(function(a, b){
           if (a[0] < b[0]) return -1;
           if (a[0] > b[0]) return 1;
@@ -129,6 +150,7 @@ module.exports = function(limby) {
       
       options = options || {};
       var files;
+
       return this.getFiles()
         .then(function(_files){
           files = _files;
@@ -196,15 +218,20 @@ module.exports = function(limby) {
       options.step = options.step || 1;
       downs = []
 
-      return (migrations = new Migrations).fetch().then(function(){
+      return (migrations = new Migrations)
+        .query(function(qb){
+          qb.orderBy('id', 'asc');
+        })
+        .fetch()
+        .then(function(){
 
-        while(migrations.length > 0 && options.step-- > 0){
-          downs.push(migrations.pop().rollback());
-        };
+          while(migrations.length > 0 && options.step-- > 0){
+            downs.push(migrations.pop().rollback());
+          };
 
-        return sequence(downs);
+          return sequence(downs);
 
-      })
+        });
     },
 
   });

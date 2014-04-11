@@ -5,7 +5,8 @@ var
 
   pm          = require('print-messages'),
   _           = require('underscore'),
-  j           = require('path').join,
+  path        = require('path'),
+  j           = path.join,
   express     = require('express'),
   fs          = require('final-fs'),
   when        = require('when'),
@@ -13,7 +14,8 @@ var
   ECT         = require('ect'),
   loadBranch  = require('./lib/load_branch'),
   //loaddir     = function(options){ options.debug=true; return require('loaddir')(options); }
-  loaddir     = require('loaddir')
+  loaddir     = require('loaddir'),
+  getArgNames = require('./lib/get_argument_names')
   ;
  
 require('./lib/mysql_date_format');
@@ -63,22 +65,32 @@ Limby.prototype.loadQueries = function() {
 Limby.prototype.loadLimbs = function() {
   var limby = this;
 
-  // We remember the string for building paths later
-  this._limbs = j(this.config.limby.base, this.config.limby.limbs);
-
   // They can have widgets within their modules that appear on limby default pages
   // like account, base/index and home/index
   limby.widgets = {};
   limby.limbs = {};
 
-  return when(fs.readdir(limby._limbs))
+  return when(fs.readdir(limby.paths.limbs))
   .then(function(branches){
+
+    // We find the path to the base application relative to limbs
+    // so we can treat it like another limb
+    var baseRel;
+
+    if (limby.paths.core)
+      branches.push(baseRel = path.relative(limby.paths.limbs, limby.paths.core));
 
     return when.map(branches, function(branchName){
       return loadBranch(limby, branchName)
     })
     .then(function() {
       limby.unwrap();
+
+      // Now that we loaded the core app, lets name it correctly
+      // baseRel is probably '..'
+      limby.core = limby.limbs.core = limby.limbs[baseRel];
+      delete limby.limbs[baseRel];
+
       return limby;
     });
   });
@@ -121,19 +133,17 @@ Limby.prototype.loadViews = function() {
   // We have one renderer
   // it's location is top most,
   // so all limby, local, and limb views can be located within this folder
-  limby._renderer = ECT({watch: true, root: limby.config.limby.base});
+  limby._renderer = ECT({watch: true, root: limby.paths.base});
   limby._render = _.bind(limby._renderer.render, limby._renderer);
 
   var customViews = {}
 
-
   // Limby default views -- can be overwritten
-  var viewPath = j(limby.config.limby.base, limby.config.limby.module, 'views');
+  var viewPath = j(__dirname, 'views');
   return loaddir({
     path: viewPath,
     callback: function(){
       this.baseName = this.baseName.replace(trimEXT, '');
-      //return j(limby.config.limby.module, 'views', this.relativePath, this.fileName).replace(sepReg, '/');
       return j(this.path);
     },
   })
@@ -143,19 +153,15 @@ Limby.prototype.loadViews = function() {
     // Make a copy to override and reference the original
     limby._views = _.extend({}, views);
 
-    if ( limby.config.limby.views ) {
-      var localViews = j(limby.config.limby.base, limby.config.limby.views);
+    if ( limby.paths.views )
       return loaddir({
-        path: localViews,
+        path: limby.paths.views,
         callback: function() {
           var key = j(this.relativePath, this.baseName.replace(trimEXT, ''));
-          customViews[key] = limby.views[key] =
-            j(this.path);
-            //j(limby.config.limby.views, this.relativePath, this.fileName).replace(sepReg, '/');
+          customViews[key] = limby.views[key] = j(this.path);
         },
       });
 
-    };
   })
   .then(function(){
 
@@ -207,7 +213,7 @@ Limby.prototype.route = function() {
   var app = limby.app;
 
   // Views
-  app.set('views', limby.config.limby.base);
+  app.set('views', limby.paths.base);
   app.set('view engine', 'ect.html');
   // Viewing as html helps out syntax highlighting
   app.engine('ect.html', limby._render);
@@ -309,35 +315,35 @@ Limby.prototype.extend = function(key) {
   _.extend(subApp.settings, app.settings);
   _.extend(subApp.engines, app.engines);
 
-  var staticPath = j(limby._limbs, key, 'public');
+  var staticPath = j(limby.paths.limbs, key, 'public');
   if (fs.existsSync(staticPath)) subApp.use(express.static(staticPath));
 
-  var vendorPath = j(limby._limbs, key, 'vendor');
+  var vendorPath = j(limby.paths.limbs, key, 'vendor');
   if (fs.existsSync(vendorPath)) subApp.use(express.static(vendorPath));
 
-  var coffeePath = j(limby._limbs, key, 'frontend');
+  var coffeePath = j(limby.paths.limbs, key, 'frontend');
   if (fs.existsSync(coffeePath))
     subApp.use(limby.middleware.coffeescript({src: coffeePath}));
 
-  var cupsPath = j(limby._limbs, key, 'views/coffeecups');
+  var cupsPath = j(limby.paths.limbs, key, 'views/coffeecups');
   if (fs.existsSync(cupsPath))
     limby.middleware.coffeecups({path: cupsPath, app: subApp});
 
   // Stylesheets
-  var stylesheetsPath = j(limby._limbs, key, 'stylesheets');
+  var stylesheetsPath = j(limby.paths.limbs, key, 'stylesheets');
   if (fs.existsSync(stylesheetsPath))
     app.use(limby.middleware.stylus({ src: stylesheetsPath, baseURL: '/' + key }));
 
   subApp.use(function(req, res, next) {
     // The relative path to the views are now within modules 
-    req._limby.relativeViewPath = j(limby.config.limby.limbs, key);
+    req._limby.relativeViewPath = j(limby.paths._limbs, key);
     req._limby.key = key;
     next();
   });
 
-  // Here is where the asset loads all of its routes
-  if (limby.limbs[key].app)
-    limby.limbs[key].app(limby, subApp);
+  // Route Limb App
+  if (_.isString(limby.limbs[key].app))
+    require(limby.limbs[key].app)(limby, subApp);
 
   // We nest the entire sub app under its base route
   app.use('/' + key, subApp);
@@ -369,8 +375,9 @@ Limby.prototype.unwrap = function(keys) {
       var files = branch[folder];
 
       // models are for ease of doing hasManys,etc
-      _.each(files, function(closure, key) {
+      _.each(files, function(path, key) {
 
+        var closure = require(path);
         var unwrapped = closure(limby, branch.models);
 
         if (folder == 'models' || folder == 'middleware') {
@@ -381,6 +388,7 @@ Limby.prototype.unwrap = function(keys) {
           files[key] = unwrapped;
       });
     });
+
   });
 };
 
@@ -409,25 +417,53 @@ Limby.prototype.renderWidgets = function(path, options) {
 
 };
 
-Limby.prototype.actionable = function(opts) {
+// lpath is something like   'myLimb.app'  or 'myLimb.someFolder.someFile'
+//
+// The purpose of thise function is drilling down into limby modules
+// once we get into a module, we require the key if it's still a string
+Limby.prototype.require = function(lPath) {
+
   var limby = this;
-  
-  _.each(opts, function(options, path) {
-    console.log('aaaaa'.red, options, path);
 
-    if (options.actions == 'all')
-      _.each( ['index', 'create', 'update', 'delete'], function(route){
-        //limby.actionRoute(route, options, path);
-      });
-    else
+  // each step of the dive
+  lPath = lPath.split('.');
 
-      // TODO: this
-      _.each( options.actions, function(route){
-        //limby.actionRoute(route, options, path);
-      });
+  // for replacing the string on the containing object
+  var parent; 
+  var localKey;
 
-  });
-};
+  var limb;
+
+  // we go recursively into the limbs for our file
+  var output = limby.limbs;
+  while (lPath.length) {
+
+    // the previous output is the parent, it will need to be extended later
+    parent = output;
+
+    // heres where the output pointer goes deeper into recursion
+    output = output[localKey = lPath.shift()];
+
+    // we grab the limb as soon as we can for later
+    if (!limb) limb = output; 
+  }
+
+  // If it's not been required yet, we do so now
+  // and replace on the parent so we can keep using it
+  if (_.isString(output)) {
+    output = parent[localKey] = require(output);
+
+    if (_.isFunction(output)) {
+      var argNames = getArgNames(output);
+
+      // If it's a limby closure function we unwrap it
+      if (argNames[0] == 'limby')
+        output = output(limby, argNames[1] == 'models' ? limb.models : null );
+    }
+  }
+
+  return output;
+}
 
 Limby.prototype.action = function(options) {
   var limby = this;
