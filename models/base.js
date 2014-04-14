@@ -50,7 +50,7 @@ module.exports = function(limby){
 
     _bindMailers: function(){
       // We have instance.mailers.send_some_username(), that should have context of this instance
-      
+
       // Don't overwrite prototype
       var mailers = this.mailers;
       // new mailers object or instances could get crossed
@@ -71,7 +71,7 @@ module.exports = function(limby){
     check: check,
 
     // Args: ([empty runs all validations]) or
-    // ( 'key1', 'key2'.....'keyx') or 
+    // ( 'key1', 'key2'.....'keyx') or
     // ([ 'key1', 'key2'.....'keyx' ])
     //
     // returns promise -- rejected if errors
@@ -116,7 +116,6 @@ module.exports = function(limby){
       try {
         this.validations[key].call(this, val);
       } catch (er) {
-        console.log ('b!!!', key, er);
         this.error(key, er);
       };
       return this;
@@ -137,7 +136,7 @@ module.exports = function(limby){
     //
     // Class methods
     //
-    
+
     firstOrCreate: function(options) {
       var self = this;
 

@@ -13,10 +13,10 @@ $(function() {
 
   });
 
-  $('.permission_group_role').change(function(e) {
+  $('.permission_user_group').change(function(e) {
     $pgu = $(e.currentTarget)
 
-    $.post('/admin/permissions/groups/' + group_id + '/roles/' + $pgu.attr('data-role_id'),
+    $.post('/admin/permissions/groups/' + $pgu.attr('data-group_id') + '/users/' + $pgu.attr('data-user_id'),
       {toggle: $pgu.is(':checked') || undefined},
       function(res) {
         console.log(res);

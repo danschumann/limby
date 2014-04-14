@@ -32,6 +32,7 @@
             <input 
             type="checkbox"
             class="permission_user_group"
+            data-user_id="<%- user.id %>"
             data-group_id="<%- group.id %>"
             <%
 if checked = user.related('group_users').findWhere({limby_permission_group_id: group.id})

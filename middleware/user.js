@@ -2,80 +2,68 @@ module.exports = function(limby, models) {
 
   var
     when = require('when'),
-    userMiddleware;
+    userMiddleware = {};
 
-  return userMiddleware = {
+  // Only logged in users may be at this page
+  userMiddleware.load = function(req, res, next) {
 
-    // Only logged in users may be at this page
-    load: function(req, res, next) {
+    // Not logged in or already loaded user
+    //   We don't care about not logged in because
+    //   user auth is at middleware/authentication
+    if ( !req.session.user_id || req.locals.user ) return next();
 
-      // Not logged in or already loaded user
-      //   We don't care about not logged in because
-      //   user auth is at middleware/authentication
-      if ( !req.session.user_id || req.locals.user ) return next();
-
-      models.User.forge({id: req.session.user_id}).fetch()
-        .then(function(user) {
-          if ( !user ) {
-            // For some reason they have a session that has an invalid user token
-            delete req.session.user_id;
-            return res.redirect('/');
-          };
-          req.locals.user = user;
-          if (user.get('banned')) {
-            req.error('You have been temporarily banned for misuse, please try again later. ( HAHA )');
-            delete req.session.user_id;
-            return res.redirect('/');
-          }
-
-          next();
-
-        })
-        .otherwise(function(er) {
+    models.User.forge({id: req.session.user_id}).fetch()
+      .then(function(user) {
+        if ( !user ) {
+          // For some reason they have a session that has an invalid user token
           delete req.session.user_id;
-          req.error('You have been logged out, this may be a problem with our database.  Please log back in or try again later');
-          res.redirect('/login');
-        });
-    },
+          return res.redirect('/');
+        };
+        req.locals.user = user;
+        if (user.get('banned')) {
+          req.error('You have been temporarily banned for misuse, please try again later. ( HAHA )');
+          delete req.session.user_id;
+          return res.redirect('/');
+        }
 
-    loadPermissions: function(req, res, next) {
+        next();
 
-      when().then(function(){
-        if (req.locals.user) return;
-
-        var deferred = when.defer();
-        userMiddleware.load(req, res, function(){
-          deferred.resolve();
-        });
-        return deferred.promise;
       })
-      .then(function(){
-        loadPermissions(req, res, next);
+      .otherwise(function(er) {
+        delete req.session.user_id;
+        req.error('You have been logged out, this may be a problem with our database.  Please log back in or try again later');
+        res.redirect('/login');
       });
-
-    },
-
   };
 
-  function loadPermissions(req, res, next) {
+  userMiddleware.loadPermissions = [
+    userMiddleware.load,
+    function (req, res, next) {
 
-    if (! req.locals.user ) {
+      if (req.locals.permissions) return next();
 
-      req.locals.permissions = new models.Permissions;
-      req.hasPermission = function(type) { };
-      next();
+      if (! req.locals.user ) {
 
-    } else {
-
-      req.locals.user.loadPermissions().then(function(permissions){
-        req.locals.permissions = permissions;
-        req.hasPermission = function(type) {
-          return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
-        };
+        req.locals.permissions = new models.Permissions;
+        req.hasPermission = function(type) { };
         next();
-      });
 
-    }
+      } else {
 
-  }
+        console.log(req.locals.user);
+        req.locals.user.loadPermissions().then(function(permissions){
+          req.locals.permissions = permissions;
+          req.hasPermission = function(type) {
+            return req.locals.user.get('admin') || req.locals.permissions.findWhere({name: type});
+          };
+          next();
+        });
+
+      };
+
+    },
+  ];
+
+  return userMiddleware;
+
 };
