@@ -137,3 +137,9 @@ Requires `config/index.js` -- customize for your directory structure
         limbs:  join(__dirname, '../core/limbs'),
       },
     }
+
+
+
+#TODO: Example app
+
+#TODO: Publish facebook auth limb
