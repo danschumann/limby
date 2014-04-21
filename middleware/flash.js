@@ -6,7 +6,8 @@ var
 // see lib/error for possible format of args
 module.exports = function(limby) {
 
-  return function(req, res, next) {
+  return function limbyFlash(req, res, next) {
+    console.log('EXTEND'.red);
 
     _.each(['error', 'notification'], function(method){
       req[method] = extendErrorMaker(req.session, method + 's');

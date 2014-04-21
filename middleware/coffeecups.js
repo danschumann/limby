@@ -59,10 +59,17 @@ module.exports = function(limby, models) {
 
       joinTemplates();
 
-      options.app.get(options.url || '/__templates.js', function(req, res, next) {
-        res.setHeader('content-type', 'text/javascript');
-        res.send(output);
-      });
+    });
+
+    options.url = options.url ||'/__templates.js';
+
+    // We can return mw right away since we want it loaded early
+    options.app.use( function(req, res, next) {
+      if (req.url !== options.url)
+        return next();
+
+      res.setHeader('content-type', 'text/javascript');
+      res.send(output);
     });
   };
 }

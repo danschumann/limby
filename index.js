@@ -6,6 +6,7 @@ var
   pm          = require('print-messages'),
   _           = require('underscore'),
   path        = require('path'),
+  http        = require('http'),
   j           = path.join,
   express     = require('express'),
   fs          = require('final-fs'),
@@ -39,14 +40,20 @@ var Limby = function(unformattedConfig) {
 };
 
 Limby.prototype.loadNative = function() {
-  return when.map([
-    // Base limby stuff -- mostly handles user management
-    this.loadModels(),
-    this.loadMiddleware(),
-    this.loadControllers(),
-    this.loadViews(),
-    this.loadQueries()
-  ])
+
+  var limby = this;
+
+  // models are needed by other stuff like controllers
+  return limby.loadModels()
+    .then(function(){
+      return when.map([
+        // Base limby stuff -- mostly handles user management
+        limby.loadMiddleware(),
+        limby.loadControllers(),
+        limby.loadViews(),
+        limby.loadQueries()
+      ]);
+    });
 };
 
 Limby.prototype.loadQueries = function() {
@@ -70,7 +77,15 @@ Limby.prototype.loadLimbs = function() {
   limby.widgets = {};
   limby.limbs = {};
 
-  return when(fs.readdir(limby.paths.limbs))
+  return when()
+  .then(function(){
+    return fs.readdir(limby.paths.limbs);
+  })
+  .otherwise(function(er){ 
+    // Limbs does not exist
+    console.log('Error loading limbs directory.. not used?'.red, er);
+    return [];
+  })
   .then(function(branches){
 
     // We find the path to the base application relative to limbs
@@ -226,9 +241,9 @@ Limby.prototype.route = function() {
   // Pass in an object that is available on the view `this` (`@`) object
   limby.config.viewOptions = limby.config.viewOptions || {};
 
-
+  console.log('flash'.red);
   app.use(limby.middleware.flash);
-  app.use(function(req, res, next) {
+  app.use(function limbyMW(req, res, next) {
 
     // While its unlikely, `req.locals` could already be set from other middleware.
     req.locals = req.locals || {};
@@ -258,6 +273,7 @@ Limby.prototype.route = function() {
         limby: limby,
         config: limby.config,
         req: req,
+        headScripts: [],
         _: _,
       });
       options = _.extend(defaults, options);
@@ -277,6 +293,7 @@ Limby.prototype.route = function() {
 
     next();
   });
+
 
   // some middleware may define their own routes
   limby.unwrap(['middleware']);
@@ -298,6 +315,7 @@ Limby.prototype.route = function() {
   }]);
 
   app.listen.apply(app, args);
+  //limby.server.listen.apply(limby.server, args);
 
 };
 
@@ -342,11 +360,13 @@ Limby.prototype.extend = function(key) {
   });
 
   // Route Limb App
-  if (_.isString(limby.limbs[key].app))
-    require(limby.limbs[key].app)(limby, subApp);
+  if (_.isString(limby.limbs[key].app)) {
+    var appPath = limby.limbs[key].app;
+    require(appPath)(limby, subApp);
 
-  // We nest the entire sub app under its base route
-  app.use('/' + key, subApp);
+    // We nest the entire sub app under its base route
+    app.use('/' + key, subApp);
+  }
 
 };
 
@@ -372,24 +392,40 @@ Limby.prototype.unwrap = function(keys) {
   _.each(limby.limbs, function(branch, branchName) {
 
     _.each(keys || ['models', 'controllers', 'mailers'], function(folder){
-      var files = branch[folder];
 
-      // models are for ease of doing hasManys,etc
-      _.each(files, function(path, key) {
+      var unwrapSingle = function(val, key, container) {
+
+        // recursion
+        if (_.isObject(val)) {
+
+          container[key] = {}
+
+          _.each(val, function(v, k) {
+            unwrapSingle(v, k, container[key])
+          });
+          return;
+
+        } else {
+          var path = val;
+        }
 
         var closure = require(path);
         var unwrapped = closure(limby, branch.models);
 
         if (folder == 'models' || folder == 'middleware') {
-          delete files[key];
+          delete container[key];
           // fileOutput is {  MyModel: bookshelf.Model..., MyCollection: bookshelf.Collection... }
-          _.extend(files, unwrapped);
+          _.extend(container, unwrapped);
         } else
-          files[key] = unwrapped;
-      });
-    });
+          container[key] = unwrapped;
 
+      };
+
+      unwrapSingle(branch[folder], folder, branch);
+
+    });
   });
+
 };
 
 Limby.prototype.eachWidget = function(str, callback) {

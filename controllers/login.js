@@ -25,6 +25,7 @@ module.exports = function(limby, models) {
           res.redirect('/');
         })
         .otherwise(function(errors){
+          console.log('whatttttt'.red, req.error);
           req.error(errors);
           res.view('login', {body: req.body});
         });

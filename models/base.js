@@ -57,7 +57,9 @@ module.exports = function(limby){
       this.mailers = {};
 
       var instance = this;
+      console.log('mailers'.blue, mailers);
       _.each(mailers, function(method, name){
+        console.log(method);
         instance.mailers[name] = _.bind(method, instance);
       });
     },
