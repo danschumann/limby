@@ -4,6 +4,7 @@ module.exports = function(limby, models) {
     columns, instanceMethods, classMethods, options,
 
     config     = limby.config,
+    loginColumn = config.login.column,
     bookshelf  = limby.bookshelf,
     _          = require('underscore'),
     pm         = require('print-messages'),
@@ -79,7 +80,7 @@ module.exports = function(limby, models) {
     checkPassword: function(pass) {
 
       if (!this.get('password'))
-        return when.reject("Cannot log in because you didn't create a password on signup -- did you use Facebook or LDAP?")
+        return when.reject("Cannot log in because you didn't create a password on signup -- try using Facebook or LDAP if that's what you did to sign up.");
 
       else
         return nodefn.call(bcrypt.compare, pass, this.get('password'));
@@ -107,7 +108,7 @@ module.exports = function(limby, models) {
       return this.fetch()
         .then(function(){
           if (!user || !user.id)
-           return user.reject("Could not find that username");
+           return user.reject("Could not find that account");
         });
     },
 
@@ -151,48 +152,13 @@ module.exports = function(limby, models) {
 
     },
 
-    loginLDAP: function(username, password) {
-
-      var
-        user = this,
-        ldapUser;
-
-      return nodefn.call(limby.ldapAuthenticate, username, password)
-        .otherwise(function(err){
-          return user.reject('Those credentials were not right');
-        })
-        .then(function(_ldapUser){
-          // We found
-          ldapUser = _ldapUser;
-          return user.fetch()
-        })
-        .then(function(){
-          if ( !user.id ) {
-            return user
-              .set({first_name: ldapUser.givenName, last_name: ldapUser.sn, email: ldapUser.mail})
-              .save();
-          } else
-            return user;
-        })
-        .otherwise(function(err){
-          if(user.errored()) return user.reject(); // Already errored out
-
-          return user.reject('Unknown error, try contacting db admin');
-        });
-
-    },
-
     loginStrategy: function(username, password) {
 
       var user = this;
-
-      if (config.ldap.enabled) {
-        return this.loginLDAP(username, password);
-      } else
-        return this.mustLoad()
-          .then(function(){
-            return user.checkPassword(password);
-          })
+      return this.mustLoad()
+        .then(function(){
+          return user.checkPassword(password);
+        });
 
     },
 
@@ -257,8 +223,8 @@ module.exports = function(limby, models) {
     login: function(attributes) {
       var user;
 
-      user = new User({username: attributes.username});
-      user.validateSync('username');
+      user = new User(_.pick(attributes, loginColumn));
+      user.validateSync(loginColumn);
 
       // We don't actually want to set the password to the user
       if (!attributes.password)
@@ -267,7 +233,7 @@ module.exports = function(limby, models) {
       if ( user.errored() ) return user.reject();
 
       return user
-        .loginStrategy(attributes.username, attributes.password)
+        .loginStrategy(user.get(loginColumn), attributes.password)
         .then(function(match){
           if (match)
             return when.resolve(user);
@@ -281,9 +247,9 @@ module.exports = function(limby, models) {
       var user; 
 
       // Make sure we have a username
-      user = new User({username: attributes.username})
+      user = new User(attributes)
 
-      return user.validate('username')
+      return user.validate(loginColumn)
         .then(function(){
 
           // Make sure username exists

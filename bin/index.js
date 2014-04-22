@@ -85,7 +85,6 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
       } else if ( command == 'rollback' ) 
         return Migrations.rollback(argv)
       else if ( !command || command == 'migrate' )  {
-        console.log('buh'.red);
         return Migrations.migrate(argv)
       } else {
 
@@ -97,5 +96,9 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
     .then(function(){
       process.exit(0);
     });
+  })
+  .otherwise(function(er){
+    console.log('migration err'.red, er);
   });
+
 }

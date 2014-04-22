@@ -19,12 +19,6 @@ module.exports = function(limby){
     validator = new Validator(),
     check = _.bind(validator.check, validator);
 
-  // TODO: separate from main limby module
-  if (!GLOBAL.limbyBin && config.ldap && config.ldap.enabled){
-    // Add ldapAuthenticate method to bookshelf
-    require('../lib/ldap')(limby);
-  };
-
   bookshelf.Model = bookshelf.Model.extend({
 
     initialize: function () {
@@ -57,9 +51,7 @@ module.exports = function(limby){
       this.mailers = {};
 
       var instance = this;
-      console.log('mailers'.blue, mailers);
       _.each(mailers, function(method, name){
-        console.log(method);
         instance.mailers[name] = _.bind(method, instance);
       });
     },
@@ -79,9 +71,7 @@ module.exports = function(limby){
     // returns promise -- rejected if errors
     validate: function() {
 
-      this._validate.apply(this, arguments);
-
-      if (this.errored())
+      if (this._validate.apply(this, arguments))
         return this.reject();
       else
         return when(this);
@@ -89,9 +79,7 @@ module.exports = function(limby){
 
     validateSync: function(){
 
-      this._validate.apply(this, arguments);
-
-      if (this.errored())
+      if (this._validate.apply(this, arguments))
         return this.errors;
     },
 
@@ -110,6 +98,8 @@ module.exports = function(limby){
       _.each(keys, function(key) {
         self.singleValidation(key, self.get(key));
       });
+
+      return this.errored();
 
     },
 

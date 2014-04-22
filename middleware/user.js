@@ -50,7 +50,6 @@ module.exports = function(limby, models) {
 
       } else {
 
-        console.log(req.locals.user);
         req.locals.user.loadPermissions().then(function(permissions){
           req.locals.permissions = permissions;
           req.hasPermission = function(type) {

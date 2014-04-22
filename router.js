@@ -18,7 +18,7 @@ module.exports = function(limby){
     authentication  = middleware.authentication;
 
   app.get  ('/',
-    limby.if(function(req){console.log(req.session); return !req.session.user_id }, controllers.base.welcome),
+    limby.if(function(req){ return !req.session.user_id }, controllers.base.welcome),
     user.load,
     user.loadPermissions,
     controllers.base.dashboard
@@ -27,7 +27,6 @@ module.exports = function(limby){
   app.get  ('/signup', authentication.non, controllers.signup.index);
   app.post ('/signup', authentication.non, controllers.signup.post);
 
-  console.log('login'.red);
   app.get  ('/login',  authentication.non, controllers.login.index);
   app.post ('/login',  authentication.non, controllers.login.post);
   app.get  ('/logout', authentication.user, controllers.logout);

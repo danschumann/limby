@@ -10,11 +10,11 @@ module.exports = function(limby, models) {
 
     post: function(req, res, next){
 
-      var attributes = _.pick(req.body, 'username');
+      var attributes = _.pick(req.body, limby.config.login.column);
 
       User.forgot_password(attributes)
         .then(function(user){
-          res.view('forgot_password_sent', {username: req.body.username});
+          res.view('forgot_password_sent', attributes);
         })
         .otherwise(function(errors){
           req.error(errors);

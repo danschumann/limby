@@ -7,10 +7,21 @@ var
 module.exports = function(limby) {
 
   return function limbyFlash(req, res, next) {
-    console.log('EXTEND'.red);
+
+    console.log(req.session);
 
     _.each(['error', 'notification'], function(method){
-      req[method] = extendErrorMaker(req.session, method + 's');
+      req[method] = function(){
+        console.log('req.' + method + ' has been depreciated.  Use req.flash.[danger|success|warning|info]'.yellow);
+        extendErrorMaker(req.session, method + 's');
+      };
+    });
+
+    // New way -- twitter bootstrap style
+    req.flash = req.flash || {};
+    req.session.flash = req.session.flash || {};
+    _.each(['danger', 'success', 'warning', 'info'], function(method){
+      req.flash[method] = extendErrorMaker(req.session, method + 's');
     });
 
     next();

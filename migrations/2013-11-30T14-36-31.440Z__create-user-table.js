@@ -14,10 +14,6 @@ module.exports = {
       table.string('password_token');
       table.bigInteger('password_token_expires');
       table.boolean('admin');
-
-      table.boolean('notify_start_vote');
-      table.boolean('notify_end_vote');
-      table.boolean('notify_pickup');
     }).then(function(){
       console.log('created users'.green);
     });

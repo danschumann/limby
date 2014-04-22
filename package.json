@@ -10,16 +10,13 @@
   "dependencies": {
     "bcrypt": "~0.7.7",
     "bookshelf": "~0.5.8",
-    "client-sessions": "~0.6.0",
+    "client-sessions": "^0.6.0",
     "coffee-script": "^1.7.1",
     "coffeecup": "~0.3.21",
     "colors": "~0.6.2",
     "ect": "~0.5.4",
-    "express": "3.*",
+    "express": "^4.0.0",
     "final-fs": "~1.4.4",
-    "ldapauth": "~2.2.4",
-    "ldapauth-fork": "~2.2.11",
-    "ldapjs": "~0.7.0",
     "loaddir": "^1.0.6",
     "mysql": "~2.0.0",
     "nib": "~1.0.1",
@@ -31,7 +28,12 @@
     "stylus": "^0.41.3",
     "underscore": "1.5.2",
     "validator": "~2.0.0",
-    "when": "~2.6.0"
+    "when": "~2.6.0",
+    "static-favicon": "^1.0.2",
+    "cookie-parser": "^1.0.1",
+    "serve-static": "^1.0.4",
+    "body-parser": "^1.0.2",
+    "debug": "^0.8.0"
   },
   "license": "MIT"
 }
