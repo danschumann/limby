@@ -2,6 +2,7 @@
 
 // Top level entry point
 require('../lib/bootstrap');
+require('when/monitor/console');
 
 var
   commands = ['rollback', 'migrate'],
@@ -10,9 +11,12 @@ var
   Limby = require('../index'),
   join = require('path').join,
 
+  debug = require('debug')('limby:bin'),
   argv = require('optimist').argv,
   fs = require('fs'),
   when = require('when');
+
+debug('starting')
 
 // we need to remove the first arg if it is a path
 // this happens when running 'node path/to/limby/bin/index.js' on windows
@@ -21,23 +25,26 @@ if (argv._[0]) {
   // the path of this bin file ( this file you're reading right now )
   var thisPath = join(__dirname, __filename);
 
+  // absolute path
   if (argv._[0][0] == '/') {
-    // they used absolute path
 
+    // If the arg is the same as the path we ditch it
     if (thisPath == join(argv._[0]))
       argv._.shift()
 
+  // relative path
   } else {
-    // relative path
 
+    // If the arg is the same as the path we ditch it
     if (thisPath == join(process.cwd(), argv._[0]))
       argv._.shift()
   }
-} 
+}
 
 var command = argv._[0];
 
 if (argv._[0] == 'g' && argv._[1] == 'migration') {
+  debug('generating migration');
 
   counter = 10;
   var dir = join(process.cwd());
@@ -60,21 +67,23 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
 
 } else {
     
-  // We skip loading some dependencies like ldap in bin mode
-  GLOBAL.limbyBin = true;
-
+  debug('constructor')
   var limby = new Limby(join(process.cwd(), 'config'));
 
+  debug('loadNative');
   return limby.loadNative()
   .then(function(){
+    debug('loadLimbs');
     return limby.loadLimbs();
   })
   .then(function(){
 
+    debug('starting migrations');
     var Migrations = limby.models.Migrations;
 
     return when().then(function(){
       if ( command == 'redo' ) {
+        debug('starting redo');
         var step = argv.step;
         // Clone so decrementing argv.step doesn't affect migrate
         return Migrations.rollback(argv)
@@ -82,12 +91,13 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
             argv.step = step; // We decremented it in the first part
             return Migrations.migrate(argv)
           });
-      } else if ( command == 'rollback' ) 
+      } else if ( command == 'rollback' ) {
+        debug('starting rollback');
         return Migrations.rollback(argv)
-      else if ( !command || command == 'migrate' )  {
+      } else if ( !command || command == 'migrate' )  {
+        debug('starting migrate');
         return Migrations.migrate(argv)
       } else {
-
         console.log("Please supply a command", commands);
         console.log("If you meant to start the server, please run `node index.js` from the root directory(../) or include limby in your project");
 
@@ -98,7 +108,8 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
     });
   })
   .otherwise(function(er){
-    console.log('migration err'.red, er);
+    console.log('migration err'.red, er, er.stack);
+    throw er;
   });
 
 }

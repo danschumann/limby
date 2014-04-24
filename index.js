@@ -3,6 +3,7 @@ var
   sepReg = require('./lib/regexes').sepReg,
   pm          = require('print-messages'),
   _           = require('underscore'),
+  lo          = require('lodash'),
   loaddir     = require('loaddir')
   path        = require('path'),
   j           = path.join,
@@ -22,13 +23,12 @@ var
 
   loadBranch  = require('./lib/load_branch'),
   //loaddir     = function(options){ options.debug=true; return require('loaddir')(options); }
-  loaddir     = require('loaddir')
+  loaddir     = require('loaddir'),
+  flashRenderer = require('./lib/flash_renderer')
   ;
  
 require('./lib/mysql_date_format');
 require('./lib/bootstrap');
-
-
 
 var Limby = function(unformattedConfig) {
 
@@ -38,12 +38,12 @@ var Limby = function(unformattedConfig) {
   // When initializing limby, this is also the order that it should be done
   require('./lib/load_native') // limby.loadNative()
 
-
   // We don't care if they call `Limby()` or `new Limby`
   if (!(this instanceof Limby)) return new Limby(unformattedConfig);
 
   require('./lib/config-loader')(this, unformattedConfig);
   require('./lib/send_mail')(this);
+  require('./lib/debug')(this);
 
   // for application wide things like views and models that are not native to limby
   this.local = {}
@@ -71,7 +71,7 @@ Limby.prototype.loadLimbs = function() {
   })
   .otherwise(function(er){ 
     // Limbs does not exist
-    console.log('Error loading limbs directory.. not used?'.red, er);
+    console.log('Couldn\'t find limbs directory.. not used?'.yellow);
     return [];
   })
   .then(function(branches){
@@ -94,6 +94,7 @@ Limby.prototype.loadLimbs = function() {
       // Now that we loaded the core app, lets name it correctly
       // baseRel is probably '..'
       limby.core = limby.limbs.core = limby.limbs[baseRel];
+      limby.controllers = lo.merge(limby.controllers, limby.core.controllers);
       delete limby.limbs[baseRel];
 
       return limby;
@@ -117,7 +118,7 @@ Limby.prototype.route = function() {
   var app = limby.app;
 
   if (limby.config.middleware.favicon)
-    app.use(favicon(limby.config.favicon));
+    app.use(favicon(limby.config.middleware.favicon));
 
   if (limby.config.middleware.bodyParser)
     app.use(bodyParser(limby.config.middleware.bodyParser));
@@ -146,9 +147,6 @@ Limby.prototype.route = function() {
   //routers.api     (app);
   //routers.admin   (app);
   
-  // Pass in an object that is available on the view `this` (`@`) object
-  limby.config.viewOptions = limby.config.viewOptions || {};
-
   debug('route2');
   app.use(limby.middleware.flash);
   app.use(function limbyMW(req, res, next) {
@@ -180,6 +178,7 @@ Limby.prototype.route = function() {
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
         config: limby.config,
+        flashRenderer: flashRenderer,
         req: req,
         headScripts: [],
         _: _,
@@ -224,8 +223,9 @@ Limby.prototype.route = function() {
     pm.log('Limby server listening on port ', limby.config.server.port);
   }]);
 
-  app.listen.apply(app, args);
-  //limby.server.listen.apply(limby.server, args);
+  //app.listen.apply(app, args);
+  limby.server = http.createServer(app);
+  limby.server.listen.apply(limby.server, args);
 
 };
 

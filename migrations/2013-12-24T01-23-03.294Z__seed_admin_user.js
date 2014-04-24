@@ -10,7 +10,6 @@ module.exports = {
     return limby.models.User.forge({
       first_name: 'Dan',
       last_name: 'Schumann',
-      username: 'd@d.d',
       email: 'd@d.d',
       password: 'asdfasdf',
       admin: true,

@@ -1,4 +1,4 @@
-module.exports = function(limby){
+module.exports = function(limby) {
 
   var
     bookshelf,
@@ -71,19 +71,6 @@ module.exports = function(limby){
     // returns promise -- rejected if errors
     validate: function() {
 
-      if (this._validate.apply(this, arguments))
-        return this.reject();
-      else
-        return when(this);
-    },
-
-    validateSync: function(){
-
-      if (this._validate.apply(this, arguments))
-        return this.errors;
-    },
-
-    _validate: function(){
       var
         self = this;
         keys = arguments;
@@ -95,22 +82,28 @@ module.exports = function(limby){
       else if (_.isArray(arguments[0]))
         keys = arguments[0];
 
-      _.each(keys, function(key) {
-        self.singleValidation(key, self.get(key));
-      });
-
-      return this.errored();
+      // Settle runs all validations even if some are rejected
+      return when.settle(_.map(keys, function(key) {
+        return self.singleValidation(key, self.get(key));
+      }));
 
     },
 
     singleValidation: function(key, val) {
 
+      var v;
       try {
-        this.validations[key].call(this, val);
+        v = this.validations[key].call(this, val);
       } catch (er) {
-        this.error(key, er);
+        this.error(key, er)
       };
-      return this;
+
+      // To use your own key, call this.error('mykey', '...') inside of the validation
+      // and return when.reject(null)
+      return when(v).otherwise(function(er){
+        if (er) this.error(key, er);
+      });
+
     },
 
     errored: function() {
@@ -118,7 +111,10 @@ module.exports = function(limby){
     },
 
     reject: function(errors) {
-      if (errors) this.error.apply(this, arguments); // could be multiple args
+
+      // They're adding errors as they reject
+      if (errors)
+        this.error.apply(this, arguments); 
 
       return when.reject(this.errors);
     },
@@ -146,4 +142,5 @@ module.exports = function(limby){
   bookshelf.Model.prototype.error = require('../lib/error')(null, 'errors');
 
   {bookshelf: bookshelf};
+
 };

@@ -6,11 +6,12 @@ module.exports = {
 
     return data.schema.createTable('users', function(table){
       table.increments('id').primary();
-      table.string('username').unique();
+      //table.string('username').unique();
       table.string('email').unique();
       table.string('first_name');
       table.string('last_name');
       table.string('password');
+
       table.string('password_token');
       table.bigInteger('password_token_expires');
       table.boolean('admin');

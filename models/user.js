@@ -35,33 +35,56 @@ module.exports = function(limby, models) {
     ],
 
     validations: {
+
+      // Only run before first time saving
+      unique_email: function() {
+
+        var user = this;
+
+        return User.emailExists(this.get('email'))
+          .then(function(exists) {
+            if (exists) {
+              user.error('email', 'That email is already in use');
+              return when.reject();
+            };
+          });
+      },
+
       first_name: function(val){
-        this.check(val || '', 'First name must be between 2 and 45 characters').len(2, 45); 
+        this.check(val || '', 'Must be between 2 and 45 characters').len(2, 45); 
       },
+
       last_name: function(val){
-        this.check(val || '', 'Last name must be between 2 and 45 characters').len(2, 45);
+        this.check(val || '', 'Must be between 2 and 45 characters').len(2, 45);
       },
+
       email: function(val){
         this.check(val || '', 'Must be a valid email').isEmail();
       },
+
       username: function(val){
-        this.check(val || '', 'Username must be between 3 and 45 characters').len(3, 45);
+        this.check(val || '', 'Must be between 3 and 45 characters').len(3, 45);
       },
+
       password: function(val){
-        this.check(val || '', 'Password must be between 6 and 255 characters').len(6, 255);
+        this.check(val || '', 'Must be between 6 and 255 characters').len(6, 255);
       },
+
       confirm_email: function(val){
         if ( val !== this.get('email') )
           throw new Error('Emails must match');
       },
+
       confirm_username: function(val){
         if ( val !== this.get('username') )
           throw new Error('Usernames must match');
       },
+
       confirm_password: function(val){
         if ( val !== this.get('password') )
           throw new Error('Passwords must match');
       },
+
     },
 
     group_users: function(){
@@ -152,9 +175,13 @@ module.exports = function(limby, models) {
 
     },
 
-    loginStrategy: function(username, password) {
+    loginStrategy: function(_username, _password) {
 
-      var user = this;
+      var
+        user = this,
+        password = user.get('password');
+      user.unset('password');
+
       return this.mustLoad()
         .then(function(){
           return user.checkPassword(password);
@@ -178,68 +205,61 @@ module.exports = function(limby, models) {
 
     },
 
+    loginParams: function(body) {
+
+      var attributes = {
+        email:          _.escape(body.email),
+        password:                body.password,
+      };
+
+      this.set(attributes);
+      return this.validate(
+        'email',
+        'password'
+      );
+
+    },
+
+    signupParams: function(body) {
+
+      var attributes = {
+        first_name:     _.escape(body.first_name),
+        last_name:      _.escape(body.last_name),
+        email:          _.escape(body.email),
+        confirm_email:  _.escape(body.confirm_email),
+        password:                body.password,
+      };
+
+      this.set(attributes);
+      return this.validate(
+        'first_name',
+        'last_name',
+        'email',
+        'confirm_email',
+        'password'
+      );
+
+    },
+
   };
 
   classMethods = {
 
-    signup: function(attributes) {
-
-      attributes.email = attributes.username;
-      attributes.confirm_email = attributes.confirm_username;
-
-      var user = User.forge(attributes);
-
-      user.validateSync([
-        'first_name',
-        'last_name',
-        'username',
-        'confirm_username',
-        'confirm_email',
-        'password',
-      ]);
-
-      return User.emailExists(attributes.email)
-        .then(function(exists){
-          if (exists)
-            user.error('email', 'That email is already in use');
-
-          // Now we can reject since we have all possible errors
-          if ( user.errored() ) return user.reject();
-        })
-
-        .then(function(){
-          return user.hashPassword()
-        })
-        .then(function(){
-          return user.save({method: 'insert'})
-        })
-        .then(function(){
-          //user.mailers.signup();
-          return user;
-        });
-    },
-
     // Takes raw data
-    login: function(attributes) {
-      var user;
-
-      user = new User(_.pick(attributes, loginColumn));
-      user.validateSync(loginColumn);
-
-      // We don't actually want to set the password to the user
-      if (!attributes.password)
-        user.singleValidation('password', attributes.password);
-
-      if ( user.errored() ) return user.reject();
-
-      return user
-        .loginStrategy(user.get(loginColumn), attributes.password)
-        .then(function(match){
+    login: function(body) {
+      var user = User.forge();
+      
+      return user.loginParams(body)
+        .then(function() {
+          console.log('heheheheh'.red, user.toJSON());
+          return user.loginStrategy();
+        })
+        .then(function(match) {
           if (match)
-            return when.resolve(user);
+            return user;
           else
-            return when.reject({password: 'That password did not match'});
-        });
+            return user.reject({password: 'That password did not match'});
+        })
 
     },
 

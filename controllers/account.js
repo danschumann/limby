@@ -4,10 +4,11 @@ module.exports = function(limby, models) {
   var
     User = models.User;
 
-  return {
+  var controller = {
 
     index: function(req, res, next){
-      res.view('account/index')
+      // body is from post passing back to this method
+      res.view('account/index', {body: req.body})
     },
 
     post: function(req, res, next){
@@ -19,14 +20,16 @@ module.exports = function(limby, models) {
 
       req.locals.user.editAccount(attributes)
         .then(function(user){
-          req.notification('You have successfully editted your account');
+          req.flash.success('You have successfully editted your account');
           res.redirect('/');
         })
         .otherwise(function(errors){
-          req.error(errors);
-          res.view('account', {body: req.body});
+          req.flash.danger(errors);
+          controller.index(req, res, next);
         });
     },
 
   };
+
+  return controller;
 }

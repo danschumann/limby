@@ -4,30 +4,19 @@ module.exports = function(limby, models) {
 
   return {
 
-    index: function(req, res, next){
+    index: function(req, res, next) {
       res.view('login');
     },
 
-    post: function(req, res, next){
+    post: function(req, res, next) {
 
-      var attributes = _.pick(req.body, limby.config.login.column, 'password');
-
-      User.login(attributes)
-        .then(function(user){
-
-          // They created a new account somehow ( LDAP, Facebook )
-          if (user.newAccount)
-            req.notification(
-              "Using email address: <strong>" +
-              user.get('email') +
-              "</strong>.  If you'd like to use a different one, please <a href=\"/email\">change your email</a>"
-            );
-
+      return User.login(req.body)
+        .then(function(user) {
           req.session.user_id = user.get('id');
-          req.session.admin = user.get('admin');
           res.redirect('/');
         })
-        .otherwise(function(errors){
+        .otherwise(function(errors) {
+          console.log(errors, errors.stack);
           req.error(errors);
           res.view('login', {body: req.body});
         });

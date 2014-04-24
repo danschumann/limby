@@ -4,6 +4,8 @@ var
 
   tableName = 'migrations',
 
+  debug     = require('debug')('limby:migrations'),
+
   when      = require('when'),
   keys      = require('when/keys'),
   sequence  = require('when/sequence'),
@@ -148,11 +150,13 @@ module.exports = function(limby) {
     
     migrate: function(options){
       
+      debug('migrate')
       options = options || {};
       var files;
 
       return this.getFiles()
         .then(function(_files){
+          debug('got files')
           files = _files;
           return Migrations.ensureTable()
         })
@@ -160,6 +164,7 @@ module.exports = function(limby) {
           return Migrations.fileNames(options.path)
         })
         .then(function(existingFileNames){
+          debug('got filenames')
           var pending = _.compact(_.map(files, function(set){
 
             var fileName = set[0];
