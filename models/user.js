@@ -24,7 +24,6 @@ module.exports = function(limby, models) {
       'first_name', 
       'last_name', 
       'email', 
-      'username', 
       'password', 
       'password_token', 
       'password_token_expires', 
@@ -59,11 +58,7 @@ module.exports = function(limby, models) {
       },
 
       email: function(val){
-        this.check(val || '', 'Must be a valid email').isEmail();
-      },
-
-      username: function(val){
-        this.check(val || '', 'Must be between 3 and 45 characters').len(3, 45);
+        this.check(val || '', 'Must be valid').isEmail();
       },
 
       password: function(val){
@@ -72,17 +67,12 @@ module.exports = function(limby, models) {
 
       confirm_email: function(val){
         if ( val !== this.get('email') )
-          throw new Error('Emails must match');
-      },
-
-      confirm_username: function(val){
-        if ( val !== this.get('username') )
-          throw new Error('Usernames must match');
+          throw new Error('Must match');
       },
 
       confirm_password: function(val){
         if ( val !== this.get('password') )
-          throw new Error('Passwords must match');
+          throw new Error('Must match');
       },
 
     },
@@ -175,11 +165,12 @@ module.exports = function(limby, models) {
 
     },
 
-    loginStrategy: function(_username, _password) {
+    loginStrategy: function() {
 
       var
         user = this,
         password = user.get('password');
+
       user.unset('password');
 
       return this.mustLoad()
@@ -236,6 +227,7 @@ module.exports = function(limby, models) {
         'last_name',
         'email',
         'confirm_email',
+        'unique_email',
         'password'
       );
 
@@ -266,13 +258,13 @@ module.exports = function(limby, models) {
     forgot_password: function(attributes) {
       var user; 
 
-      // Make sure we have a username
+      // Make sure we have a email
       user = new User(attributes)
 
       return user.validate(loginColumn)
         .then(function(){
 
-          // Make sure username exists
+          // Make sure email exists
           return user.mustLoad()
 
         })
@@ -295,15 +287,6 @@ module.exports = function(limby, models) {
         // Email them the token
         .then(function(){
           user.mailers.forgot_password();
-        });
-
-    },
-
-    usernameExists: function(username) {
-
-      return this.forge({username: username}).fetch()
-        .then(function(user){
-          return user !== null;
         });
 
     },

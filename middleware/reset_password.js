@@ -10,10 +10,10 @@ module.exports = function(limby, models) {
       User.forge({id: req.query.user_id}).fetch()
       .then(function(user){
         if (user.get('password_token') !== req.query.token)
-          req.error({reset_password: 'That token is not correct, please <a href="/forgot_password"> try again </a>'});
+          req.flash.danger({token_incorrect: 'That token is not correct, please <a href="/forgot_password"> try again </a>'});
 
         else if ( user.get('password_token_expires') < (new Date).getTime() )
-          req.error({reset_password: 'That token has expired, please <a href="/forgot_password"> try again </a>.'});
+          req.flash.danger({token_expired: 'That token has expired, please <a href="/forgot_password"> try again </a>.'});
         else
           // Remember user for POSTing a new password
           req.locals.user = user;
@@ -21,7 +21,7 @@ module.exports = function(limby, models) {
         next();
       })
       .otherwise(function(){
-        req.error('Cannot get that user');
+        req.flash.danger('Cannot get that user');
         next();
       });
     },

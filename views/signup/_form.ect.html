@@ -1,30 +1,61 @@
-<form class="signup<%- @req.locals.signupClasses %>" action="/signup" method="post">
-  <h3>Group Lunches Sign Up</h3>
-  <div class="gold_description">
-    By signing up,  we can better serve you(food).
-  </div>
-  <% @body ?= {first_name: '', last_name: '', username: '', confirm_username: ''} %>
+<form class="signup user-form" action="<%- @signupURL || '/signup' %>" method="post">
 
-  <div>
-    <input value="<%- @body.first_name %>" name="first_name" placeholder="first name" />
-    <input value="<%- @body.last_name %>" name="last_name" placeholder="last name" />
-  </div>
+  <% @body ?= {first_name: '', last_name: '', email: '', confirm_email: ''} %>
 
-  <div>
-    <input class="username_input" value="<%- @body.username %>" name="username" placeholder="username" />
+  <div class="form-row form-row-input">
+    <div class="form-label required">
+      First Name
+    </div>
+    <div class="form-entry">
+      <input value="<%- @body.first_name %>" name="first_name" />
+    </div>
   </div>
-  <div>
-    <input class="username_input" value="<%- @body.confirm_username %>" name="confirm_username" placeholder="confirm username" />
-  </div>
+  <%- @renderFlash 'first_name' %>
 
-  <div>
-    <input name="password" type="password" placeholder="password" />
+  <div class="form-row form-row-input">
+    <div class="form-label required">
+      Last Name
+    </div>
+    <div class="form-entry">
+      <input value="<%- @body.last_name %>" name="last_name" />
+    </div>
   </div>
+  <%- @renderFlash 'last_name' %>
 
-  <div class="tiny_note">
-    By clicking "Sign up" you are agreeing to the <a href="/terms" target="_blank"> terms and services</a>
+  <div class="form-row form-row-input">
+    <div class="form-label required">
+      Email
+    </div>
+    <div class="form-entry">
+      <input class="email_input" value="<%- @body.email %>" name="email" />
+    </div>
   </div>
+  <%- @renderFlash 'email' %>
 
-  <input type="submit" value="Sign up" />
+  <div class="form-row form-row-input">
+    <div class="form-label required">
+      Confirm Email
+    </div>
+    <div class="form-entry">
+      <input class="email_input" value="<%- @body.confirm_email %>" name="confirm_email" />
+    </div>
+  </div>
+  <%- @renderFlash 'confirm_email' %>
+
+  <div class="form-row form-row-input">
+    <div class="form-label required">
+      Password
+    </div>
+    <div class="form-entry">
+      <input name="password" type="password" />
+    </div>
+  </div>
+  <%- @renderFlash 'password' %>
+
+  <%# Adding your own fields -- maybe confirm password? %>
+  <%- @limby.renderWidgets('signup', this) %>
+
+  <div class="form-row form-row-submit">
+    <input class="button" type="submit" value="Sign up" />
+  </div>
 </form>
-

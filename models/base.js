@@ -85,7 +85,11 @@ module.exports = function(limby) {
       // Settle runs all validations even if some are rejected
       return when.settle(_.map(keys, function(key) {
         return self.singleValidation(key, self.get(key));
-      }));
+      }))
+      .then(function(){
+        if (self.errored()) return self.reject();
+      })
+      ;
 
     },
 

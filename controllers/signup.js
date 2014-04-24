@@ -34,7 +34,10 @@ module.exports = function(limby, models) {
         .otherwise(function(errors){
 
           // Error
-          req.error(errors);
+          if (user.errored())
+            req.error(user.errors);
+          else
+            req.error('Unknown error');
 
           // Remember fields to put back into form
           req.locals.signup = user.toJSON();

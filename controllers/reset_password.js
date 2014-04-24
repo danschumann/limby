@@ -15,7 +15,7 @@ module.exports = function(limby, models) {
 
       var attributes = _.pick(req.body, 'password', 'confirm_password');
 
-      if ( !req.locals.user || _.size(req.session.errors) )
+      if ( !req.locals.user )
         return res.view('reset_password');
 
       var user = req.locals.user;

@@ -24,7 +24,7 @@ var
   loadBranch  = require('./lib/load_branch'),
   //loaddir     = function(options){ options.debug=true; return require('loaddir')(options); }
   loaddir     = require('loaddir'),
-  flashRenderer = require('./lib/flash_renderer')
+  renderFlash = require('./lib/flash_renderer')
   ;
  
 require('./lib/mysql_date_format');
@@ -178,7 +178,7 @@ Limby.prototype.route = function() {
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
         config: limby.config,
-        flashRenderer: flashRenderer,
+        renderFlash: renderFlash,
         req: req,
         headScripts: [],
         _: _,

@@ -1,21 +1,31 @@
-<form class="login<%- @req.locals.loginClasses %>" action="/login" method="post">
+<form class="login-form user-form login<%- @req.locals.loginClasses %>" action="/login" method="post">
   <% @body ?= {email: ''} %>
-  <div>
-    <label>email</label>
-    <div class="description">
+
+  <div class="form-row form-row-input">
+
+    <div class="form-label">Email:</div>
+
+    <div class="form-entry">
+      <input value="<%- @body.email %>" name="email" />
     </div>
-    <input value="<%- @body.email %>" name="email" />
   </div>
-  <div>
-    <label>password</label>
-    <div class="description">
-      same as your computer password
+
+  <div class="form-row form-row-input">
+
+    <div class="form-label">password</div>
+
+    <div class="form-entry">
+      <input <% if @body.email : %>autofocus<% end %> name="password" type="password" />
     </div>
-    <input <% if @body.email : %>autofocus<% end %> name="password" type="password" />
+
   </div>
-  <div>
-    <input type="submit" value="Log in" />
-    <br />
+
+  <div class="form-row form-row-link">
     <a href="/forgot_password">Forgot Password</a>
   </div>
+
+  <div class="form-row form-row-submit">
+    <input type="submit" value="Log in" />
+  </div>
+
 </form>
