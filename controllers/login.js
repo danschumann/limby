@@ -21,7 +21,6 @@ module.exports = function(limby, models) {
           return user.loginStrategy();
         })
         .then(function(match) {
-          console.log(user, user.errors);
           if (!match)
             return user.reject({password: 'That password did not match'});
         })
@@ -30,7 +29,6 @@ module.exports = function(limby, models) {
           res.redirect('/');
         })
         .otherwise(function(er) {
-          console.log('ahdfhasdfhads'.red, er, er.stack);
           req.error(user.errors);
           res.view('login', {body: {email: _.escape(req.body.email)}});
         });

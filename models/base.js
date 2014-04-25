@@ -23,6 +23,8 @@ module.exports = function(limby) {
 
     initialize: function () {
 
+      this.errors = {};
+
       if (_.isObject(this.mailers)) this._bindMailers();
 
       if (this.mapAttributes) {
@@ -106,17 +108,19 @@ module.exports = function(limby) {
 
     singleValidation: function(key, val) {
 
+      var self = this;
+
       var v;
       try {
-        v = this.validations[key].call(this, val);
+        v = self.validations[key].call(self, val);
       } catch (er) {
-        this.error(key, er)
+        self.error(key, er)
       };
 
       // To use your own key, call this.error('mykey', '...') inside of the validation
       // and return when.reject(null)
       return when(v).otherwise(function(er){
-        if (er) this.error(key, er);
+        if (er) self.error(key, er);
       });
 
     },
@@ -124,6 +128,10 @@ module.exports = function(limby) {
     errored: function() {
       return _.size(this.errors) > 0;
     },
+
+    // Allow models to easily push errors   modelInstance.error('doh')
+    // see lib/error for possible format of args
+    error: require('../lib/error')(null, 'errors'),
 
     reject: function(errors) {
 
@@ -151,10 +159,6 @@ module.exports = function(limby) {
     },
 
   });
-
-  // Allow models to easily push errors   modelInstance.error('doh')
-  // see lib/error for possible format of args
-  bookshelf.Model.prototype.error = require('../lib/error')(null, 'errors');
 
   {bookshelf: bookshelf};
 
