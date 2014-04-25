@@ -15,7 +15,7 @@
 
   <div class="form-row form-row-input">
     <div class="form-label required">
-      New Email
+      New Email:
     </div>
     <div class="form-entry">
       <input value="<%- @body.email %>" name="email" />
@@ -25,7 +25,7 @@
 
   <div class="form-row form-row-input">
     <div class="form-label required">
-      Confirm New Email
+      Confirm New Email:
     </div>
     <div class="form-entry">
       <input value="<%- @body.confirm_email %>" name="confirm_email" />
@@ -34,6 +34,6 @@
   <%- @renderFlash 'confirm_email' %>
 
   <div class="form-row form-row-submit">
-    <input class="button" type="submit" value="Change Email" />
+    <input class="button" type="submit" value="Change Email &raquo;" />
   </div>
 </form>
