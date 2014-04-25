@@ -1,11 +1,11 @@
 {
   "name": "limby",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
   "scripts": {},
-  "repository": "",
+  "repository": "https://github.com/danschumann/limby",
   "author": "Dan Schumann",
   "dependencies": {
     "bcrypt": "~0.7.7",

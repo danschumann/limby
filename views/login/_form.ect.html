@@ -6,26 +6,28 @@
     <div class="form-label">Email:</div>
 
     <div class="form-entry">
-      <input value="<%- @body.email %>" name="email" />
+      <input value="<%- @body.email %>" autofocus name="email" />
     </div>
   </div>
+  <%- @renderFlash('email') %>
 
   <div class="form-row form-row-input">
 
-    <div class="form-label">password</div>
+    <div class="form-label">Password</div>
 
     <div class="form-entry">
-      <input <% if @body.email : %>autofocus<% end %> name="password" type="password" />
+      <input name="password" type="password" />
     </div>
 
   </div>
+  <%- @renderFlash('password') %>
 
   <div class="form-row form-row-link">
     <a href="/forgot_password">Forgot Password</a>
   </div>
 
   <div class="form-row form-row-submit">
-    <input type="submit" value="Log in" />
+    <input class="button" type="submit" value="<%- @loginButtonText || 'Log in' %>" />
   </div>
 
 </form>

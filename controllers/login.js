@@ -10,15 +10,29 @@ module.exports = function(limby, models) {
 
     post: function(req, res, next) {
 
-      return User.login(req.body)
-        .then(function(user) {
+      var user = User.forge({
+        email: _.escape(req.body.email),
+        password: req.body.password,
+      });
+
+      user
+        .validateBatch('login')
+        .then(function() {
+          return user.loginStrategy();
+        })
+        .then(function(match) {
+          console.log(user, user.errors);
+          if (!match)
+            return user.reject({password: 'That password did not match'});
+        })
+        .then(function() {
           req.session.user_id = user.get('id');
           res.redirect('/');
         })
-        .otherwise(function(errors) {
-          console.log(errors, errors.stack);
-          req.error(errors);
-          res.view('login', {body: req.body});
+        .otherwise(function(er) {
+          console.log('ahdfhasdfhads'.red, er, er.stack);
+          req.error(user.errors);
+          res.view('login', {body: {email: _.escape(req.body.email)}});
         });
 
     },

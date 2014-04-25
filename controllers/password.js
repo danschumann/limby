@@ -5,7 +5,7 @@ module.exports = function(limby, models) {
     when  = require('when'),
     _     = require('underscore');
 
-  return {
+  var controller = {
 
     index: function(req, res, next){
       res.view('account/password');
@@ -13,31 +13,47 @@ module.exports = function(limby, models) {
 
     post: function(req, res, next){
 
-      var attributes = _.pick(req.body, 'password', 'confirm_password');
+      var
+        checkerPromise,
+        attributes = _.pick(req.body, 'password', 'confirm_password'),
+        user = req.locals.user;
 
-      var user = req.locals.user;
+      if (user.get('password'))
+        checkerPromise = user.checkPassword(req.body.current_password);
+      else
+        // They signed up through facebook, etc and have no password
+        checkerPromise = true;
 
-      when().then(function(){
-        if (user.get('password'))
-          return user.checkPassword(req.body.current_password);
-        else // if they don't have a password they can't match it...
-          return true;
-      })
+      when(checkerPromise)
       .then(function(matches){
         if ( !matches )
-          return user.reject('current_password', 'Please enter your current password correctly');
+          user.error('current_password', 'Not entered correctly.');
+
+        // We continue on to maybe get more errors
+        return user
+          .set(attributes)
+          .validate('password', 'confirm_password');
+      })
+      .then(function(){
+        if (user.errored())
+          return user.reject();
         else
-          return user.changePassword(attributes);
+          return user.hashPassword();
       })
-      .then(function(user){
-        req.notification('You have successfully editted your account');
-        res.redirect('/');
+      .then(function(){
+        return user.save();
       })
-      .otherwise(function(errors){
-        req.error(errors);
-        res.view('account/password', {body: req.body});
+      .then(function(){
+        req.flash.success('You have successfully updated your password');
+        res.redirect('/account');
+      })
+      .otherwise(function(){
+        req.flash.danger(user.errors);
+        controller.index(req, res, next);
       });
     },
 
   };
+
+  return controller;
 };

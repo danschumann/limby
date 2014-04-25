@@ -43,7 +43,21 @@ module.exports = function(limby, models) {
         return User.emailExists(this.get('email'))
           .then(function(exists) {
             if (exists) {
-              user.error('email', 'That email is already in use');
+              user.error('email', 'Already in use');
+              return when.reject();
+            };
+          });
+      },
+
+      // opposite of unique_email
+      email_exists: function() {
+
+        var user = this;
+
+        return User.emailExists(this.get('email'))
+          .then(function(exists) {
+            if (!exists) {
+              user.error('email', 'Not a registered email');
               return when.reject();
             };
           });
@@ -75,6 +89,15 @@ module.exports = function(limby, models) {
           throw new Error('Must match');
       },
 
+    },
+
+    validationBatches: {
+      editAccount: [ 'first_name', 'last_name' ],
+      signup: [ 'first_name', 'last_name',
+                'email', 'confirm_email',
+                'unique_email', 'password'
+      ],
+      login: [ 'email_exists', 'email', 'password' ],
     },
 
     group_users: function(){
@@ -125,43 +148,10 @@ module.exports = function(limby, models) {
         });
     },
 
-    changeEmail: function(attributes){
-      var user = this;
-
-      return user
-        .set(attributes)
-        .validate('email', 'confirm_email')
-        .then(function(){
-          return user.save();
-        });
-
-    },
-
     editAccount: function(attributes){
       var user = this;
 
       return user
-        .set(attributes)
-        .validate('first_name', 'last_name')
-        .then(function(){
-          return user.save();
-        });
-
-    },
-
-    // Just changes -- Assumes they already verified password
-    changePassword: function(attributes){
-      var user = this;
-
-      return user
-        .set(attributes)
-        .validate('password', 'confirm_password')
-        .then(function(){
-          return user.hashPassword();
-        })
-        .then(function(){
-          return user.save();
-        });
 
     },
 
@@ -196,64 +186,9 @@ module.exports = function(limby, models) {
 
     },
 
-    loginParams: function(body) {
-
-      var attributes = {
-        email:          _.escape(body.email),
-        password:                body.password,
-      };
-
-      this.set(attributes);
-      return this.validate(
-        'email',
-        'password'
-      );
-
-    },
-
-    signupParams: function(body) {
-
-      var attributes = {
-        first_name:     _.escape(body.first_name),
-        last_name:      _.escape(body.last_name),
-        email:          _.escape(body.email),
-        confirm_email:  _.escape(body.confirm_email),
-        password:                body.password,
-      };
-
-      this.set(attributes);
-      return this.validate(
-        'first_name',
-        'last_name',
-        'email',
-        'confirm_email',
-        'unique_email',
-        'password'
-      );
-
-    },
-
   };
 
   classMethods = {
-
-    // Takes raw data
-    login: function(body) {
-      var user = User.forge();
-      
-      return user.loginParams(body)
-        .then(function() {
-          console.log('heheheheh'.red, user.toJSON());
-          return user.loginStrategy();
-        })
-        .then(function(match) {
-          if (match)
-            return user;
-          else
-            return user.reject({password: 'That password did not match'});
-        })
-
-    },
 
     forgot_password: function(attributes) {
       var user; 

@@ -14,8 +14,19 @@ module.exports = function(limby, models) {
 
       var user = User.forge();
 
-      // This method can be wrapped or overwritten
-      return user.signupParams(req.body) // will throw if not valid
+      var attributes = req.locals.attributes || {};
+      
+      console.log('pospospslalted', attributes);
+
+      _.each(['first_name', 'last_name', 'email', 'confirm_email'], function(key){
+        attributes[key] = _.escape(req.body[key]);
+      });
+
+      attributes.password = req.body.password;
+
+      return user
+        .set(attributes)
+        .validateBatch('signup')
         .then(function(){
           return user.hashPassword()
         })
@@ -31,13 +42,8 @@ module.exports = function(limby, models) {
           res.redirect('/');
 
         })
-        .otherwise(function(errors){
-
-          // Error
-          if (user.errored())
-            req.error(user.errors);
-          else
-            req.error('Unknown error');
+        .otherwise(function(){
+          req.flash.danger(user.errors);
 
           // Remember fields to put back into form
           req.locals.signup = user.toJSON();

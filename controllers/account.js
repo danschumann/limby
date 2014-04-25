@@ -12,19 +12,25 @@ module.exports = function(limby, models) {
     },
 
     post: function(req, res, next){
+
       // Other limbs could add attributes if they are accepting more
       var attributes = req.locals.attributes || {};
       
       attributes.first_name = attributes.first_name || _.escape(req.body.first_name);
       attributes.last_name = attributes.last_name || _.escape(req.body.last_name);
 
-      req.locals.user.editAccount(attributes)
-        .then(function(user){
-          req.flash.success('You have successfully editted your account');
-          res.redirect('/');
+      req.locals.user
+        .set(attributes)
+        .validateBatch('editAccount')
+        .then(function(){
+          return req.locals.user.save();
         })
-        .otherwise(function(errors){
-          req.flash.danger(errors);
+        .then(function(){
+          req.flash.success('You have successfully editted your account');
+          res.redirect('/account');
+        })
+        .otherwise(function(er){
+          req.flash.danger(req.locals.user.errors);
           controller.index(req, res, next);
         });
     },

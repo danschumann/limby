@@ -1,17 +1,6 @@
 <% extend @limby.layout('account') %>
 
 <div class="edit-account-container">
-  <div class="account-links">
-
-    <span class="account-link">
-      <a href="/email">Change Email</a>
-    </span>
-
-    <span class="account-link">
-      <a href="/password">Change Password</a>
-    </span>
-
-  </div>
 
   <% @body ?= {first_name: '', last_name: ''} %>
   <% @user = @req.locals.user.toJSON() %>
@@ -19,30 +8,53 @@
   <div class="section-header">
     Edit Account
   </div>
+
+  <div class="alert alert-info">
+    <div class="form-row form-row-text">
+
+      <div class="form-label">
+        Email:
+      </div>
+      <div class="form-entry">
+        <strong><%- @req.locals.user.get('email') %></strong>
+        <br />
+        <a href="/email">Edit</a>
+      </div>
+    </div>
+
+    <div class="form-row form-row-text">
+
+      <div class="form-label">
+        Password:
+      </div>
+      <div class="form-entry">
+        <a href="/password">Edit</a>
+      </div>
+
+    </div>
+  </div>
+
   <form class="user-form" action="/account" method="post">
 
     <div class="form-row form-row-input">
-
       <div class="form-label required">
         First Name:
       </div>
-
       <div class="form-entry">
         <input value="<%- @body.first_name || @user.first_name %>" name="first_name" />
       </div>
     </div>
+    <%- @renderFlash 'first_name' %>
 
     <div class="form-row form-row-input">
-
       <div class="form-label required">
         Last Name:
       </div>
-
       <div class="form-entry">
         <input value="<%- @body.last_name || @user.last_name %>" name="last_name" />
       </div>
-
     </div>
+    <%- @renderFlash 'last_name' %>
 
     <%- @limby.renderWidgets('account/index', this) %>
 

@@ -93,6 +93,17 @@ module.exports = function(limby) {
 
     },
 
+    // These are arrays that match `validations`
+    // Used mainly for pages like editAccount that can have widgets add attributes to the form
+    validationBatches: {
+      //editAccount: ['first_name', 'last_name']
+    },
+
+    // Applies several validations from named sets
+    validateBatch: function(setName) {
+      return this.validate.apply(this, this.validationBatches[setName]);
+    },
+
     singleValidation: function(key, val) {
 
       var v;

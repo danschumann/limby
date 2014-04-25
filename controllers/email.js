@@ -3,10 +3,10 @@ module.exports = function(limby, models) {
     when = require('when'),
     User = models.User;
 
-  return {
+  var controller = {
 
     index: function(req, res, next){
-      res.view('account/email');
+      res.view('account/email', {body: req.locals.attributes || {}});
     },
 
     post: function(req, res, next){
@@ -14,35 +14,36 @@ module.exports = function(limby, models) {
       // clone so we don't mess up their actual record
       var user = req.locals.user.clone();
 
-      var attributes = _.pick(req.body, 'email', 'confirm_email');
+      req.locals.attributes = req.locals.attributes || {};
+
+      req.locals.attributes.email = req.body.email;
+      req.locals.attributes.confirm_email = req.body.confirm_email;
 
       when().then(function(){
 
-        if (req.body.email == user.get('email'))
-          return user.reject('current_email', 'That email is the same as your current one');
+        if (req.locals.attributes.email == user.get('email'))
+          return user.reject('email', 'Not different from your current email');
 
         else
-          return User.emailExists(req.body.email);
+          return user
+            .set(req.locals.attributes)
+            .validate('email', 'confirm_email', 'unique_email')
 
       })
-      .then(function(exists){
-
-        if (exists)
-          return user.reject('email', 'That email already exists');
-
-        else
-          return user.changeEmail(attributes);
-
+      .then(function(){
+        return user.save();
       })
       .then(function(user){
-        req.notification('You have successfully changed your email');
-        res.redirect('/');
+        req.flash.success('You have successfully changed your email');
+        res.redirect('/account');
       })
-      .otherwise(function(errors){
-        req.error(errors);
-        res.view('account/email', {body: req.body});
+      .otherwise(function(){
+        req.flash.danger(user.errors);
+        controller.index(req, res, next);
       });
     },
 
   };
+
+  return controller;
 };
