@@ -43,7 +43,7 @@ var Limby = function(unformattedConfig) {
 
   require('./lib/config-loader')(this, unformattedConfig);
   require('./lib/send_mail')(this);
-  require('./lib/debug')(this);
+  require('./lib/mask_passwords')(this);
 
   // for application wide things like views and models that are not native to limby
   this.local = {}
@@ -264,7 +264,7 @@ Limby.prototype.extend = function(key) {
     subApp.use(limby.middleware.coffeescript({src: coffeePath}));
 
   debug('extend coffeecups'.blue, key);
-  var cupsPath = j(limby.paths.limbs, limbPath, 'views/coffeecups');
+  var cupsPath = j(limby.paths.limbs, limbPath, 'frontend/templates');
   if (fs.existsSync(cupsPath))
     limby.middleware.coffeecups({path: cupsPath, app: subApp});
 

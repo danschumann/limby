@@ -29,7 +29,7 @@ module.exports = function(limby, models) {
           res.redirect('/');
         })
         .otherwise(function(er) {
-          req.error(user.errors);
+          req.flash.danger(user.errors);
           res.view('login', {body: {email: _.escape(req.body.email)}});
         });
 

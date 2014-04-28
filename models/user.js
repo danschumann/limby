@@ -43,7 +43,9 @@ module.exports = function(limby, models) {
         return User.emailExists(this.get('email'))
           .then(function(exists) {
             if (exists) {
+              // add errors to email key
               user.error('email', 'Already in use');
+              // blank 'email_exists' key
               return when.reject();
             };
           });
@@ -57,8 +59,12 @@ module.exports = function(limby, models) {
         return User.emailExists(this.get('email'))
           .then(function(exists) {
             if (!exists) {
+
+              // add errors to email key
               user.error('email', 'Not a registered email');
+              // blank 'email_exists' key
               return when.reject();
+
             };
           });
       },
@@ -115,10 +121,9 @@ module.exports = function(limby, models) {
 
     checkPassword: function(pass) {
 
-      if (!this.get('password'))
-        return when.reject("Cannot log in because you didn't create a password on signup -- try using Facebook or LDAP if that's what you did to sign up.");
-
-      else
+      if (!this.get('password')) {
+        return this.reject('password', "Cannot log in because you didn't create a password on signup -- try using Facebook or LDAP if that's what you did to sign up.");
+      } else
         return nodefn.call(bcrypt.compare, pass, this.get('password'));
 
     },
