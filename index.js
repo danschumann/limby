@@ -236,43 +236,52 @@ Limby.prototype.extend = function(key) {
   debug('extend'.blue, key);
   var limby = this;
   var app = limby.app;
+  var subApp;
+  var limb = limby.limbs[key]
 
   var limbPath, limbUrl;
   if (key == 'core') {
-    limbPath = path.relative(limby.paths.limbs, limby.paths.core);
+    limbPath = limby.paths.core;
     limbUrl = '';
-  } else
-    limbUrl = limbPath = key;
+  } else {
+    limbPath = j(limb.paths.limbs, key)
+    limbUrl = key;
+  }
 
   subApp = express();
 
-  subApp.set('limby', limby);
 
   debug('extend'.blue, key);
   _.extend(subApp.settings, app.settings);
   _.extend(subApp.engines, app.engines);
 
   _.each(['public', 'vendor'], function(staticKey) {
-    var staticPath = j(limby.paths.limbs, limbPath, staticKey);
-    if (fs.existsSync(staticPath))
-      subApp.use(serveStatic(staticPath));
+    if (limb[staticKey])
+      subApp.use(serveStatic(j(limbPath, staticKey)));
   })
 
+  debug('limb config'.blue, key);
+
+  var limbConfig;
+  if (limb.config)
+    limbConfig = require(limb.config);
+  else
+    limbConfig = {};
+
   debug('extend coffeescripts'.blue, key);
-  var coffeePath = j(limby.paths.limbs, limbPath, 'frontend');
-  if (fs.existsSync(coffeePath))
-    subApp.use(limby.middleware.coffeescript({src: coffeePath}));
+  if (limb.frontend)
+    subApp.use(limby.middleware.coffeescript({src: j(limbPath, 'frontend')}));
 
   debug('extend coffeecups'.blue, key);
-  var cupsPath = j(limby.paths.limbs, limbPath, 'frontend/templates');
-  if (fs.existsSync(cupsPath))
-    limby.middleware.coffeecups({path: cupsPath, app: subApp});
+  limbConfig.coffeecups = limbConfig.coffeecups || {};
+  var cupsPath = limbConfig.coffeecups.path || j(limbPath, 'frontend/templates');
+  if (limbConfig.coffeecups.path || fs.existsSync(cupsPath))
+    limby.middleware.coffeecups({path: cupsPath, key: limbConfig.coffeecups.key, app: subApp});
 
   // Stylesheets
   debug('extend stylesheets'.blue, key);
-  var stylesheetsPath = j(limby.paths.limbs, limbPath, 'stylesheets');
-  if (fs.existsSync(stylesheetsPath))
-    app.use(limby.middleware.stylus({ src: stylesheetsPath, baseURL: '/' + limbUrl }));
+  if (limb.stylesheets)
+    app.use(limby.middleware.stylus({ src: j(limbPath, 'stylesheets'), baseURL: '/' + limbUrl }));
 
   subApp.use(function(req, res, next) {
     // The relative path to the views are now within modules 
@@ -282,18 +291,15 @@ Limby.prototype.extend = function(key) {
   });
 
   // Route Limb App
-  debug('extend require app'.blue, key, limby.limbs[key].app);
-  if (_.isString(limby.limbs[key].app)) {
-    var appPath = limby.limbs[key].app;
-    var r = require(appPath);
-    debug('extend require app2'.blue, key, limby.limbs[key].app);
-    r(limby, subApp);
-    debug('extend require app3'.blue, key, limby.limbs[key].app);
-
+  debug('extend require app'.blue, key, limb.app);
+  if (_.isString(limb.app)) {
+    limb.app = require(limb.app);
+    debug('extend call app'.blue, key, limb.app);
+    limb.app(limby, subApp);
   }
 
   // We nest the entire sub app under its base route
-  debug('extend app.use'.blue, key);
+  debug('extend app.use'.blue, key, limbUrl);
   app.use('/' + limbUrl, subApp);
 
 };
