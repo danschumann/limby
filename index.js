@@ -244,7 +244,7 @@ Limby.prototype.extend = function(key) {
     limbPath = limby.paths.core;
     limbUrl = '';
   } else {
-    limbPath = j(limb.paths.limbs, key)
+    limbPath = j(limby.paths.limbs, key)
     limbUrl = key;
   }
 

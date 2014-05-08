@@ -1,3 +1,5 @@
-<div class="alert-list">
-  <%- @renderFlash() %>
-</div>
+<% if msgs = @renderFlash() : %>
+  <div class="alert-list">
+    <%- msgs %>
+  </div>
+<% end %>

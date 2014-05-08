@@ -7,7 +7,7 @@
       First Name:
     </div>
     <div class="form-entry">
-      <input value="<%- @body.first_name %>" name="first_name" />
+      <input class="form-control" type="text" value="<%- @body.first_name %>" name="first_name" />
     </div>
   </div>
   <%- @renderFlash 'first_name' %>
@@ -17,7 +17,7 @@
       Last Name:
     </div>
     <div class="form-entry">
-      <input value="<%- @body.last_name %>" name="last_name" />
+      <input class="form-control" type="text" value="<%- @body.last_name %>" name="last_name" />
     </div>
   </div>
   <%- @renderFlash 'last_name' %>
@@ -27,7 +27,7 @@
       Email:
     </div>
     <div class="form-entry">
-      <input class="email_input" value="<%- @body.email %>" name="email" />
+      <input class="form-control" type="text" class="email_input" value="<%- @body.email %>" name="email" />
     </div>
   </div>
   <%- @renderFlash 'email' %>
@@ -37,7 +37,7 @@
       Confirm Email:
     </div>
     <div class="form-entry">
-      <input class="email_input" value="<%- @body.confirm_email %>" name="confirm_email" />
+      <input class="form-control" type="text" class="email_input" value="<%- @body.confirm_email %>" name="confirm_email" />
     </div>
   </div>
   <%- @renderFlash 'confirm_email' %>
@@ -47,7 +47,7 @@
       Password:
     </div>
     <div class="form-entry">
-      <input name="password" type="password" />
+      <input class="form-control" name="password" type="password" />
     </div>
   </div>
   <%- @renderFlash 'password' %>
@@ -56,6 +56,6 @@
   <%- @limby.renderWidgets('signup', this) %>
 
   <div class="form-row form-row-submit">
-    <input class="button" type="submit" value="<%- @signupButtonText || 'Sign up' %>" />
+    <input class="btn btn-primary" type="submit" value="<%- @signupButtonText || 'Sign up' %>" />
   </div>
 </form>

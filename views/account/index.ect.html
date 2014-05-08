@@ -13,7 +13,7 @@
     <div class="form-row form-row-text">
 
       <div class="form-label">
-        Email:
+        Email
       </div>
       <div class="form-entry">
         <strong><%- @req.locals.user.get('email') %></strong>
@@ -25,7 +25,7 @@
     <div class="form-row form-row-text">
 
       <div class="form-label">
-        Password:
+        Password
       </div>
       <div class="form-entry">
         <a href="/password">Edit</a>
@@ -41,7 +41,7 @@
         First Name:
       </div>
       <div class="form-entry">
-        <input value="<%- @body.first_name || @user.first_name %>" name="first_name" />
+        <input class="form-control" type="text" value="<%- @body.first_name || @user.first_name %>" name="first_name" />
       </div>
     </div>
     <%- @renderFlash 'first_name' %>
@@ -51,7 +51,7 @@
         Last Name:
       </div>
       <div class="form-entry">
-        <input value="<%- @body.last_name || @user.last_name %>" name="last_name" />
+        <input class="form-control" type="text" value="<%- @body.last_name || @user.last_name %>" name="last_name" />
       </div>
     </div>
     <%- @renderFlash 'last_name' %>
@@ -59,7 +59,7 @@
     <%- @limby.renderWidgets('account/index', this) %>
 
     <div class="form-row form-row-submit">
-      <input class="account_save button" type="submit" value="Save &raquo;" />
+      <input class="account_save btn btn-primary" type="submit" value="Save &raquo;" />
     </div>
 
   </form>
