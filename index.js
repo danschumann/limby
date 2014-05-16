@@ -16,11 +16,13 @@ var
   ECT         = require('ect'),
 
   bodyParser      = require('body-parser'),
+  multipart       = require('connect-multiparty'),
   cookieParser    = require('cookie-parser'),
   clientSessions  = require('client-sessions'),
   serveStatic     = require('serve-static'),
   favicon         = require('static-favicon'),
 
+  breadcrumbs  = require('./lib/breadcrumbs'),
   loadBranch  = require('./lib/load_branch'),
   //loaddir     = function(options){ options.debug=true; return require('loaddir')(options); }
   loaddir     = require('loaddir'),
@@ -120,8 +122,10 @@ Limby.prototype.route = function() {
   if (limby.config.middleware.favicon)
     app.use(favicon(limby.config.middleware.favicon));
 
-  if (limby.config.middleware.bodyParser)
+  if (limby.config.middleware.bodyParser) {
     app.use(bodyParser(limby.config.middleware.bodyParser));
+    app.use(multipart());
+  }
 
   if (limby.config.middleware.cookieParser)
     app.use(cookieParser(limby.config.middleware.cookieParser));
@@ -155,9 +159,6 @@ Limby.prototype.route = function() {
     req.locals = req.locals || {};
     req.locals.loaded = req.locals.loaded || {};
 
-    // Loaded keys goes here
-    req[limby.key] = req[limby.key] || {};
-
     req.limby = limby;
 
     // Internal limby stuff
@@ -179,6 +180,7 @@ Limby.prototype.route = function() {
         limby: limby,
         config: limby.config,
         renderFlash: renderFlash,
+        breadcrumbs: breadcrumbs,
         req: req,
         headScripts: [],
         _: _,
@@ -264,7 +266,7 @@ Limby.prototype.extend = function(key) {
 
   var limbConfig;
   if (limb.config)
-    limbConfig = require(limb.config);
+    limbConfig = limb.config = require(limb.config);
   else
     limbConfig = {};
 
@@ -273,10 +275,10 @@ Limby.prototype.extend = function(key) {
     subApp.use(limby.middleware.coffeescript({src: j(limbPath, 'frontend')}));
 
   debug('extend coffeecups'.blue, key);
-  limbConfig.coffeecups = limbConfig.coffeecups || {};
-  var cupsPath = limbConfig.coffeecups.path || j(limbPath, 'frontend/templates');
-  if (limbConfig.coffeecups.path || fs.existsSync(cupsPath))
-    limby.middleware.coffeecups({path: cupsPath, key: limbConfig.coffeecups.key, app: subApp});
+  cupsConfig = limbConfig.coffeecups || {};
+  var cupsPath = cupsConfig.path || j(limbPath, 'frontend/templates');
+  if (cupsConfig.path || fs.existsSync(cupsPath))
+    limby.middleware.coffeecups({path: cupsPath, key: cupsConfig.key, app: subApp, url: cupsConfig.url});
 
   // Stylesheets
   debug('extend stylesheets'.blue, key);

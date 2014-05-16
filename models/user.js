@@ -43,9 +43,9 @@ module.exports = function(limby, models) {
         return User.emailExists(this.get('email'))
           .then(function(exists) {
             if (exists) {
-              // add errors to email key
+              // add errors to `email` key
               user.error('email', 'Already in use');
-              // blank 'email_exists' key
+              // and use a blank `unique_email` key
               return when.reject();
             };
           });
@@ -56,13 +56,14 @@ module.exports = function(limby, models) {
 
         var user = this;
 
-        return User.emailExists(this.get('email'))
+        return User.emailExists(user.get('email'))
           .then(function(exists) {
             if (!exists) {
 
-              // add errors to email key
-              user.error('email', 'Not a registered email');
-              // blank 'email_exists' key
+              // explicitly add errors to `email` key
+              // logOn set in controllers/login
+              user.error('email', 'No account exists for this email address. ' + (user.logOn ? '  Need an account?  <a href="/signup">Register here.</a>' : '') );
+              // and use a blank `email_exists` key
               return when.reject();
 
             };
@@ -78,7 +79,7 @@ module.exports = function(limby, models) {
       },
 
       email: function(val){
-        this.check(val || '', 'Must be valid').isEmail();
+        this.check(val || '', 'Must be valid a email address ( example@domain.com )').isEmail();
       },
 
       password: function(val){

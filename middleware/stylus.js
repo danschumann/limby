@@ -27,7 +27,6 @@ module.exports = function(limby, models) {
         var s = stylus(this.fileContents)
           .set('paths', [options.src])
           .use(nib());
-        var mixinPath = join(options.src, 'mixins');
 
         // we don't know the implications of changing a mixin so we touch every stylesheet
         if (this.baseName == 'mixins') {
@@ -38,6 +37,10 @@ module.exports = function(limby, models) {
           loaded_paths.push(this.path);
         }
 
+        var baseMixinPath = join(limby.paths.core, 'stylesheets/mixins');
+        if ( fs.existsSync(baseMixinPath + '.styl') ) s = s.import(baseMixinPath);
+
+        var mixinPath = join(options.src, 'mixins');
         if ( fs.existsSync(mixinPath + '.styl') ) s = s.import(mixinPath);
 
         s.render(function(err, css){

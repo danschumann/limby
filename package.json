@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -35,7 +35,8 @@
     "body-parser": "^1.0.2",
     "debug": "^0.8.0",
     "underscore.string": "^2.3.3",
-    "lodash": "^2.4.1"
+    "lodash": "^2.4.1",
+    "connect-multiparty": "^1.0.3"
   },
   "license": "MIT"
 }
