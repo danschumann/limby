@@ -4,7 +4,6 @@ var
   pm          = require('print-messages'),
   _           = require('underscore'),
   lo          = require('lodash'),
-  loaddir     = require('loaddir')
   path        = require('path'),
   j           = path.join,
   http        = require('http'),
@@ -13,7 +12,6 @@ var
   when        = require('when'),
   sequence    = require('when/sequence'),
   debug       = require('debug')('limby:base'),
-  ECT         = require('ect'),
 
   bodyParser      = require('body-parser'),
   multipart       = require('connect-multiparty'),
@@ -24,8 +22,6 @@ var
 
   breadcrumbs  = require('./lib/breadcrumbs'),
   loadBranch  = require('./lib/load_branch'),
-  //loaddir     = function(options){ options.debug=true; return require('loaddir')(options); }
-  loaddir     = require('loaddir'),
   renderFlash = require('./lib/flash_renderer')
   ;
  
@@ -174,7 +170,7 @@ Limby.prototype.route = function() {
 
     res.limby = {};
 
-    res.view = function(path, options) {
+    res.view = function(path, options, cb) {
 
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
@@ -188,9 +184,14 @@ Limby.prototype.route = function() {
       options = _.extend(defaults, options);
 
       // Within a limb
-      if (req._limby.relativeViewPath)
-        res.render( j(req._limby.relativeViewPath, 'views', path), options);
-      else {
+      if (req._limby.relativeViewPath) {
+        var args = [
+          j(req._limby.relativeViewPath, 'views', path),
+          options,
+        ];
+        if (cb) args.push(cb);
+        res.render.apply(res, args);
+      } else {
 
         // path is `accounts/index`, limby.views[path] is `accounts/index.ect.html`
         var view = limby.views[j(path)] || limby.views[j(path, 'index')];
@@ -293,10 +294,10 @@ Limby.prototype.extend = function(key) {
   });
 
   // Route Limb App
-  debug('extend require app'.blue, key, limb.app);
+  debug('extend require app'.blue, key);
   if (_.isString(limb.app)) {
     limb.app = require(limb.app);
-    debug('extend call app'.blue, key, limb.app);
+    debug('extend call app'.blue, key);
     limb.app(limby, subApp);
   }
 

@@ -1,13 +1,13 @@
 <% extend @limby.layout('account') %>
 
-<div class="edit-account-container">
+<div class="edit-account panel panel-body container">
 
   <% @body ?= {first_name: '', last_name: ''} %>
   <% @user = @req.locals.user.toJSON() %>
 
-  <div class="section-header">
+  <h1>
     Edit Account
-  </div>
+  </h1>
 
   <div class="alert alert-info">
     <div class="form-row form-row-text">
@@ -22,16 +22,17 @@
       </div>
     </div>
 
-    <div class="form-row form-row-text">
-
-      <div class="form-label">
-        Password
+    <% unless @config.forms?.account?.password is false : %>
+      <div class="form-row form-row-text">
+        <div class="form-label">
+          Password
+        </div>
+        <div class="form-entry">
+          <a href="/password">Edit</a>
+        </div>
       </div>
-      <div class="form-entry">
-        <a href="/password">Edit</a>
-      </div>
+    <% end %>
 
-    </div>
   </div>
 
   <form class="user-form" action="/account" method="post">

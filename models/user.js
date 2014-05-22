@@ -67,6 +67,11 @@ module.exports = function(limby, models) {
               return when.reject();
 
             };
+          })
+          .otherwise(function(){
+            console.log('unknown error'.red);
+            user.error('email', 'Could not lookup that email, an unknown error has occured');
+            return when.reject();
           });
       },
 
