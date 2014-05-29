@@ -43,10 +43,13 @@ module.exports = function(limby, models) {
         var mixinPath = join(options.src, 'mixins');
         if ( fs.existsSync(mixinPath + '.styl') ) s = s.import(mixinPath);
 
+        // replace() -- windows fix
+        self.urlPath = join((options.baseURL || ''), '/stylesheets/', self.relativePath, self.baseName + '.css').replace(/\\/g, '/');
+
+        options.callback && options.callback.call(self, s, stylesheets);
+
         s.render(function(err, css){
-          var url_path = join((options.baseURL || ''), '/stylesheets/', self.relativePath, self.baseName + '.css');
-          // replace() -- windows fix
-          stylesheets[url_path.replace(/\\/g, '/')] = css;
+          stylesheets[self.urlPath] = css;
           if (err) console.log('css error'.red, err);
         });
 

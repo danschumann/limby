@@ -1,6 +1,6 @@
 var
 
-  sepReg = require('./lib/regexes').sepReg,
+  sepReg      = require('./lib/regexes').sepReg,
   pm          = require('print-messages'),
   _           = require('underscore'),
   lo          = require('lodash'),
@@ -48,6 +48,8 @@ var Limby = function(unformattedConfig) {
 
   this.app = express();
 
+  this.renderFlash = renderFlash;
+
   return this;
 
 };
@@ -69,7 +71,7 @@ Limby.prototype.loadLimbs = function() {
   })
   .otherwise(function(er){ 
     // Limbs does not exist
-    console.log('Couldn\'t find limbs directory.. not used?'.yellow);
+    debug('Couldn\'t find limbs directory.. not used?'.yellow);
     return [];
   })
   .then(function(branches){
@@ -170,7 +172,17 @@ Limby.prototype.route = function() {
 
     res.limby = {};
 
+    res.limbyView = function(){
+     delete req._limby.relativeViewPath;
+     return res.view.apply(this, arguments);
+    };
+
     res.view = function(path, options, cb) {
+
+      if (_.isFunction(options)) {
+        cb = options;
+        option = {};
+      };
 
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
@@ -180,30 +192,44 @@ Limby.prototype.route = function() {
         req: req,
         headScripts: [],
         _: _,
+        limb: limby.limbs[req._limby.key]
       });
       options = _.extend(defaults, options);
 
       // Within a limb
       if (req._limby.relativeViewPath) {
+
         var args = [
           j(req._limby.relativeViewPath, 'views', path),
           options,
         ];
         if (cb) args.push(cb);
-        res.render.apply(res, args);
+        return res.render.apply(res, args);
+
       } else {
 
         // path is `accounts/index`, limby.views[path] is `accounts/index.ect.html`
         var view = limby.views[j(path)] || limby.views[j(path, 'index')];
         if (!view) throw new Error('that view was not found');
-        return res.send(limby._render(view, options));
-      }
+
+        if (cb) {
+
+          var html;
+          try {
+            html = limby._render(view, options);
+          } catch (er) {
+            return cb(er, null);
+          }
+          return cb(null, html);
+
+        } else
+          return res.send(limby._render(view, options));
+      };
 
     };
 
     next();
   });
-
 
   // some middleware may define their own routes
   limby.unwrap(['middleware']);
@@ -284,7 +310,10 @@ Limby.prototype.extend = function(key) {
   // Stylesheets
   debug('extend stylesheets'.blue, key);
   if (limb.stylesheets)
-    app.use(limby.middleware.stylus({ src: j(limbPath, 'stylesheets'), baseURL: '/' + limbUrl }));
+    app.use(limby.middleware.stylus({
+      src: j(limbPath, 'stylesheets'),
+      baseURL: '/' + limbUrl,
+      callback: limbConfig.stylus && limbConfig.stylus.callback }));
 
   subApp.use(function(req, res, next) {
     // The relative path to the views are now within modules 

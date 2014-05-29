@@ -10,7 +10,6 @@ module.exports = function(limby, models) {
     pm         = require('print-messages'),
     when       = require('when'),
 
-    check      = bookshelf.check,
     nodefn     = require('when/node/function');
 
   instanceMethods = {

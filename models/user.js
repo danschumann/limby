@@ -12,7 +12,6 @@ module.exports = function(limby, models) {
     crypto     = require('crypto'),
     bcrypt     = require('bcrypt'),
 
-    check      = bookshelf.check,
     nodefn     = require('when/node/function');
 
   instanceMethods = {
@@ -69,26 +68,29 @@ module.exports = function(limby, models) {
             };
           })
           .otherwise(function(){
-            console.log('unknown error'.red);
             user.error('email', 'Could not lookup that email, an unknown error has occured');
             return when.reject();
           });
       },
 
       first_name: function(val){
-        this.check(val || '', 'Must be between 2 and 45 characters').len(2, 45); 
+        if (!this.validator.isLength(val || '', 2, 45))
+          return when.reject('Must be between 2 and 45 characters');
       },
 
       last_name: function(val){
-        this.check(val || '', 'Must be between 2 and 45 characters').len(2, 45);
+        if (!this.validator.isLength(val || '', 2, 45))
+          return when.reject('Must be between 2 and 45 characters');
       },
 
       email: function(val){
-        this.check(val || '', 'Must be valid a email address ( example@domain.com )').isEmail();
+        if (!this.validator.isEmail(val || ''))
+          return when.reject('Must be valid a email address ( example@domain.com )');
       },
 
       password: function(val){
-        this.check(val || '', 'Must be between 6 and 255 characters').len(6, 255);
+        if (!this.validator.isLength(val || '', 6, 255))
+          return when.reject('Must be between 6 and 255 characters');
       },
 
       confirm_email: function(val){
@@ -96,6 +98,7 @@ module.exports = function(limby, models) {
           throw new Error('Must match');
       },
 
+      // Not used by default, push 'confirm_password' to User.prototype.validationBatches[signup|...]
       confirm_password: function(val){
         if ( val !== this.get('password') )
           throw new Error('Must match');

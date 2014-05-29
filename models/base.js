@@ -5,7 +5,7 @@ module.exports = function(limby) {
     config      = limby.config,
     argsToArray = function(args) { return Array.prototype.slice.call(args, 0) },
     _           = require('underscore'),
-    Validator   = require('validator').Validator,
+    validator   = require('validator'),
     Bookshelf   = require('bookshelf'),
     when        = require('when'),
     join        = require('path').join;
@@ -14,10 +14,6 @@ module.exports = function(limby) {
   limby.bookshelf = bookshelf = Bookshelf.initialize(limby.config.bookshelf);
   limby.knex = bookshelf.knex;
   limby.schema = bookshelf.schema = limby.knex.schema;
-
-  var
-    validator = new Validator(),
-    check = _.bind(validator.check, validator);
 
   bookshelf.Model = bookshelf.Model.extend({
 
@@ -64,7 +60,7 @@ module.exports = function(limby) {
     },
 
     // For easy access
-    check: check,
+    validator: validator,
 
     // Args: ([empty runs all validations]) or
     // ( 'key1', 'key2'.....'keyx') or

@@ -16,8 +16,6 @@ module.exports = function(limby, models) {
 
       var attributes = req.locals.attributes || {};
       
-      console.log('pospospslalted', attributes);
-
       _.each(['first_name', 'last_name', 'email', 'confirm_email'], function(key){
         attributes[key] = _.escape(req.body[key]);
       });

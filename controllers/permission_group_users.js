@@ -9,7 +9,6 @@ module.exports = function(limby, models) {
 
     toggle: function(req, res, next) {
 
-      console.log('hey'.zebra, req.params.user_id);
       PermissionGroup.forge({id: req.params.group_id}).fetch({
         withRelated: {
           permission_group_users: function(qb) {
@@ -38,7 +37,6 @@ module.exports = function(limby, models) {
 
         }
 
-        console.log('heeheh'.blue, group);
       });
 
     },
