@@ -1,10 +1,10 @@
 <% @_.each @formGroup, (group) => : %>
-  <% {title, type} = group %>
+  <% {value, title, type, className} = group %>
   <% if type == 'submit': %>
     <% {buttonClass, buttonText} = group %>
     <div class="form-group">
       <div class="col-md-10 col-md-offset-2">
-        <input class="<%- buttonClass || 'btn' %>" type="submit" value="<%- buttonText || 'Submit &raquo;' %>" />
+        <input class="<%- className || 'btn' %>" type="submit" value="<%- value || 'Submit &raquo;' %>" />
       </div>
     </div>
   <% else : %>
@@ -26,7 +26,7 @@
               <% @_.each group.options, (opt) => : %>
                 <option
                   <%- opt.value && 'value="' + opt.value + '"' %>
-                  <%- opt.value == group.selected && 'selected' %>
+                  <%- opt.value == group.value && 'selected' %>
                   ><%- opt.title %></option>
               <% end %>
 
@@ -34,7 +34,7 @@
           <% end %>
           <% else: %>
             <input
-              class="form-control"
+              class="form-control <%- group.className %>"
               type="<%- group.type || 'text' %>"
               value="<%- value %>"
               name="<%- name %>"

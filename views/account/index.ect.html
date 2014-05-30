@@ -46,8 +46,8 @@
       <%- @limby.renderWidgets('account/index', this) %>
 
       <% @formGroup = [
-        buttonClass: @limb.config.forms.email.buttonClass
-        buttonText: 'Save &raquo;'
+        className: @limb.config.forms.email.buttonClass
+        value: 'Save &raquo;'
         type: 'submit'
       ] %>
       <% include @limby.views['partials/form_group'] %>
