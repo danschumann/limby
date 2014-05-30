@@ -1,39 +1,33 @@
 <% extend @limby.layout('account') %>
 
-<form class="change-email user-form" action="/email" method="post">
+<%- @breadcrumbs {'account': 'Account', 'active': 'Change Email'} %>
 
-  <div class="section-header">Change Email</div>
+<div class="<%- @limb.config.forms.email.containerClass %>">
+  <form role="form" class="<%- @limb.config.forms.email.className %>" action="/email" method="post">
 
-  <div class="form-row form-row-text">
-      <div class="form-label">
-        Current Email: 
-      </div>
-      <div class="form-entry">
-        <strong><%- @req.locals.user.get('email') %></strong>
-      </div>
-  </div>
+    <div class="panel-heading">Change Email</div>
 
-  <div class="form-row form-row-input">
-    <div class="form-label required">
-      New Email:
+    <div class="panel-body">
+
+      <% @formGroup = [
+        type: 'html'
+        title: 'Current Email:'
+        html: '<div class="form-control" disabled>' + (@req.locals.user.get("email") ? '') + '</div>'
+      ,
+        title: 'New Email:'
+        name: 'email'
+        value: @formData.email
+      ,
+        title: 'Confirm New Email:'
+        name: 'confirm_email'
+        value: @formData.confirm_email
+      ,
+        buttonClass: @limb.config.forms.email.buttonClass
+        buttonText: 'Change Email &raquo;'
+        type: 'submit'
+      ] %>
+      <% include @limby.views['partials/form_group'] %>
+
     </div>
-    <div class="form-entry">
-      <input class="form-control" type="text" value="<%- @body.email %>" name="email" />
-    </div>
-  </div>
-  <%- @renderFlash 'email' %>
-
-  <div class="form-row form-row-input">
-    <div class="form-label required">
-      Confirm New Email:
-    </div>
-    <div class="form-entry">
-      <input class="form-control" type="text" value="<%- @body.confirm_email %>" name="confirm_email" />
-    </div>
-  </div>
-  <%- @renderFlash 'confirm_email' %>
-
-  <div class="form-row form-row-submit">
-    <input class="btn btn-primary" type="submit" value="Change Email &raquo;" />
-  </div>
-</form>
+  </form>
+</div>

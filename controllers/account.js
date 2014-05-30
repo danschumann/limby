@@ -11,7 +11,7 @@ module.exports = function(limby, models) {
       res.view('account/index', {body: req.body})
     },
 
-    post: function(req, res, next){
+    post: function(req, res, next) {
 
       // Other limbs could add attributes if they are accepting more
       var attributes = req.locals.attributes || {};
@@ -26,7 +26,7 @@ module.exports = function(limby, models) {
           return req.locals.user.save();
         })
         .then(function(){
-          req.flash.success('You have successfully editted your account');
+          req.flash.success('You have successfully edited your account. &nbsp;<a href="/">Home</a>');
           res.redirect('/account');
         })
         .otherwise(function(er){

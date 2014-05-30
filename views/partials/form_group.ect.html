@@ -1,0 +1,51 @@
+<% @_.each @formGroup, (group) => : %>
+  <% {title, type} = group %>
+  <% if type == 'submit': %>
+    <% {buttonClass, buttonText} = group %>
+    <div class="form-group">
+      <div class="col-md-10 col-md-offset-2">
+        <input class="<%- buttonClass || 'btn' %>" type="submit" value="<%- buttonText || 'Submit &raquo;' %>" />
+      </div>
+    </div>
+  <% else : %>
+    <% # default # type text # %>
+
+    <% {name, value} = group %>
+    <% err = @renderFlash name %>
+    <div class="form-group <%- err && 'has-feedback has-error' %>">
+      <label class="control-label col-md-2">
+        <span class="required"><%- title %></span>
+      </label>
+      <div class="col-md-10">
+        <% switch type : %>
+          <% when 'html' : %>
+            <%- group.html %>
+          <% end %>
+          <% when 'select': %>
+            <select class="form-control" name="company">
+              <% @_.each group.options, (opt) => : %>
+                <option
+                  <%- opt.value && 'value="' + opt.value + '"' %>
+                  <%- opt.value == group.selected && 'selected' %>
+                  ><%- opt.title %></option>
+              <% end %>
+
+            </select>
+          <% end %>
+          <% else: %>
+            <input
+              class="form-control"
+              type="<%- group.type || 'text' %>"
+              value="<%- value %>"
+              name="<%- name %>"
+            />
+          <% end %>
+        <% end %>
+        <%- err && '<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span>' %>
+      </div>
+    </div>
+    <%- err %>
+
+  <% end %>
+
+<% end %>

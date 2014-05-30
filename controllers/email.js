@@ -1,12 +1,13 @@
 module.exports = function(limby, models) {
   var
     when = require('when'),
+    _    = require('underscore'),
     User = models.User;
 
   var controller = {
 
     index: function(req, res, next){
-      res.view('account/email', {body: req.locals.attributes || {}});
+      res.view('account/email', {formData: req.locals.attributes || {}});
     },
 
     post: function(req, res, next){
@@ -16,8 +17,8 @@ module.exports = function(limby, models) {
 
       req.locals.attributes = req.locals.attributes || {};
 
-      req.locals.attributes.email = req.body.email;
-      req.locals.attributes.confirm_email = req.body.confirm_email;
+      req.locals.attributes.email = _.escape(req.body.email);
+      req.locals.attributes.confirm_email = _.escape(req.body.confirm_email);
 
       when().then(function(){
 

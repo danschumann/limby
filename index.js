@@ -14,6 +14,7 @@ var
   debug       = require('debug')('limby:base'),
 
   bodyParser      = require('body-parser'),
+  coreDefaults    = require('./lib/core_defaults'),
   multipart       = require('connect-multiparty'),
   cookieParser    = require('cookie-parser'),
   clientSessions  = require('client-sessions'),
@@ -95,7 +96,8 @@ Limby.prototype.loadLimbs = function() {
       // baseRel is probably '..'
       limby.core = limby.limbs.core = limby.limbs[baseRel];
       limby.controllers = lo.merge(limby.controllers, limby.core.controllers);
-      delete limby.limbs[baseRel];
+      if (baseRel !== 'core') // delete the weird '..' limb name
+        delete limby.limbs[baseRel];
 
       return limby;
     });
@@ -183,6 +185,8 @@ Limby.prototype.route = function() {
         cb = options;
         option = {};
       };
+
+      req._limby.key = req._limby.key || 'core';
 
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
         limby: limby,
@@ -291,11 +295,28 @@ Limby.prototype.extend = function(key) {
 
   debug('limb config'.blue, key);
 
+  // This loads config for all limbs, but special stuff for core
   var limbConfig;
-  if (limb.config)
-    limbConfig = limb.config = require(limb.config);
-  else
-    limbConfig = {};
+  if (limb.config) {
+
+    limbConfig = require(limb.config);
+
+    var defaults = limby.core == limb ? coreDefaults : {};
+
+    // unwrap 
+    if (_.isFunction(limbConfig))
+      // Pass in default core settings for merging if its the core
+      limbConfig = limbConfig(limby, defaults);
+
+    limbConfig = limb.config = lo.merge(defaults, limbConfig);
+
+  } else {
+    if (limb == limby.core)
+      limbConfig = limb.config = coreDefaults;
+    else
+      limbConfig = {};
+  }
+
 
   debug('extend coffeescripts'.blue, key);
   if (limb.frontend)

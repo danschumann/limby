@@ -175,10 +175,12 @@ module.exports = function(limby, models) {
         user = this,
         password = user.get('password');
 
+      // We're checking this password, we unset it
       user.unset('password');
 
       return this.mustLoad()
         .then(function(){
+          // After loading the user (mustLoad), we have the actual password on user
           return user.checkPassword(password);
         });
 

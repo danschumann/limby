@@ -1,67 +1,56 @@
 <% extend @limby.layout('account') %>
 
-<div class="edit-account panel panel-body container">
+<%- @breadcrumbs {'account': 'Account'} %>
 
-  <% @body ?= {first_name: '', last_name: ''} %>
-  <% @user = @req.locals.user.toJSON() %>
+<div class="<%- @limb.config.forms.account.containerClass %>">
+  <form role="form" class="<%- @limb.config.forms.account.className %>" action="/account" method="post">
 
-  <h1>
-    Edit Account
-  </h1>
+    <% @body ?= {first_name: '', last_name: ''} %>
+    <% @user = @req.locals.user.toJSON() %>
 
-  <div class="alert alert-info">
-    <div class="form-row form-row-text">
-
-      <div class="form-label">
-        Email
-      </div>
-      <div class="form-entry">
-        <strong><%- @req.locals.user.get('email') %></strong>
-        <br />
-        <a href="/email">Edit</a>
-      </div>
+    <div class="panel-heading">
+      Edit Account
     </div>
 
-    <% unless @config.forms?.account?.password is false : %>
-      <div class="form-row form-row-text">
-        <div class="form-label">
-          Password
-        </div>
-        <div class="form-entry">
+    <div class="panel-body">
+
+      <% @formGroup = [
+        type: 'html'
+        title: 'Email:'
+        html: '
+        <div class="form-control" disabled>
+          <strong class="pull-right">' + @req.locals.user.get('email') + '</strong>
+          <a href="/email">Edit</a>
+        </div>'
+      ,
+        type: 'html'
+        title: 'Password:'
+        html: '
+        <div class="form-control" disabled>
           <a href="/password">Edit</a>
-        </div>
-      </div>
-    <% end %>
+        </div>'
+      ,
+        title: 'First Name:'
+        name: 'first_name'
+        value: @body.first_name || @user.first_name
+      ,
+        title: 'Last Name:'
+        name: 'last_name'
+        value: @body.last_name || @user.last_name
+      ] %>
 
-  </div>
+      <% if @limb.config.forms?.account?.password is false then @formGroup.splice(1,1) %>
 
-  <form class="user-form" action="/account" method="post">
+      <% include @limby.views['partials/form_group'] %>
 
-    <div class="form-row form-row-input">
-      <div class="form-label required">
-        First Name:
-      </div>
-      <div class="form-entry">
-        <input class="form-control" type="text" value="<%- @body.first_name || @user.first_name %>" name="first_name" />
-      </div>
-    </div>
-    <%- @renderFlash 'first_name' %>
+      <%- @limby.renderWidgets('account/index', this) %>
 
-    <div class="form-row form-row-input">
-      <div class="form-label required">
-        Last Name:
-      </div>
-      <div class="form-entry">
-        <input class="form-control" type="text" value="<%- @body.last_name || @user.last_name %>" name="last_name" />
-      </div>
-    </div>
-    <%- @renderFlash 'last_name' %>
-
-    <%- @limby.renderWidgets('account/index', this) %>
-
-    <div class="form-row form-row-submit">
-      <input class="account_save btn btn-primary" type="submit" value="Save &raquo;" />
-    </div>
+      <% @formGroup = [
+        buttonClass: @limb.config.forms.email.buttonClass
+        buttonText: 'Save &raquo;'
+        type: 'submit'
+      ] %>
+      <% include @limby.views['partials/form_group'] %>
 
   </form>
 </div>
