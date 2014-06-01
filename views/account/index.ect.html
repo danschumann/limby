@@ -41,7 +41,7 @@
 
       <% if @limb.config.forms?.account?.password is false then @formGroup.splice(1,1) %>
 
-      <% include @limby.views['partials/form_group'] %>
+      <% include @limby.viewPath('partials/form_group') %>
 
       <%- @limby.renderWidgets('account/index', this) %>
 
@@ -50,7 +50,8 @@
         value: 'Save &raquo;'
         type: 'submit'
       ] %>
-      <% include @limby.views['partials/form_group'] %>
+      <% include @limby.viewPath 'partials/form_group' %>
+    </div>
 
   </form>
 </div>
