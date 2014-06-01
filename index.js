@@ -31,18 +31,13 @@ require('./lib/bootstrap');
 
 var Limby = function(unformattedConfig) {
 
-  // Make sure prototype is extended
-  // This constructor method is likely to be a single call anyway
-  //
-  // When initializing limby, this is also the order that it should be done
-  require('./lib/load_native') // limby.loadNative()
-
   // We don't care if they call `Limby()` or `new Limby`
   if (!(this instanceof Limby)) return new Limby(unformattedConfig);
 
   require('./lib/config-loader')(this, unformattedConfig);
   require('./lib/send_mail')(this);
   require('./lib/mask_passwords')(this);
+  require('./lib/loaddir_config')(this);
 
   // for application wide things like views and models that are not native to limby
   this.local = {}
@@ -54,6 +49,10 @@ var Limby = function(unformattedConfig) {
   return this;
 
 };
+
+// 
+// extends limby.loadNative() and helper methods
+_.extend(Limby.prototype, require('./lib/load_native'))
 
 // Each module is like a mini application
 Limby.prototype.loadLimbs = function() {
