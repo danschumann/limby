@@ -10,25 +10,29 @@
 
     <div class="panel-heading">
       Edit Account
+      <div class="pull-right bump-right">
+        <a class="btn btn-default btn-sm push-right" href="/email">
+          Change Email
+        </a>
+        <% if @limb.config.forms?.account?.password isnt false : %>
+          <a class="btn btn-default btn-sm" href="/password">
+            Change Password
+          </a>
+        <% end %>
+      </div>
+      <span class="glyphicon glyphicon-edit pull-right bump-down"></span>
     </div>
 
-    <div class="panel-body">
+    <div class="panel-body pad-top-xl">
 
       <% @formGroup = [
         type: 'html'
         title: 'Email:'
         html: '
-        <div class="form-control" disabled>
-          <strong class="pull-right">' + @req.locals.user.get('email') + '</strong>
-          <a href="/email">Edit</a>
-        </div>'
-      ,
-        type: 'html'
-        title: 'Password:'
-        html: '
-        <div class="form-control" disabled>
-          <a href="/password">Edit</a>
-        </div>'
+        <div class="marg-bottom-md">
+          <strong class="inline-block push-down">' + @req.locals.user.get('email') + '</strong>
+        </div>
+        '
       ,
         title: 'First Name:'
         name: 'first_name'
@@ -39,7 +43,6 @@
         value: @body.last_name || @user.last_name
       ] %>
 
-      <% if @limb.config.forms?.account?.password is false then @formGroup.splice(1,1) %>
 
       <% include @limby.viewPath('partials/form_group') %>
 

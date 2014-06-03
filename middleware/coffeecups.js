@@ -1,3 +1,5 @@
+var debug = require('debug')('limby:coffeecups');
+
 module.exports = function(limby, models) {
 
   // Frontend templates are compiled into 1 file
@@ -20,7 +22,11 @@ module.exports = function(limby, models) {
       path: options.path,
 
       compile: function(){
-        return coffeescript.compile(this.fileContents);
+        try{
+          return coffeescript.compile(this.fileContents);
+        } catch (er) {
+          debug('Error compiling', er, er.stack);
+        };
       },
 
       callback: function(){
