@@ -1,9 +1,10 @@
+<% @formGroupHorizontal ?= true %>
 <% @_.each @formGroup, (group) => : %>
   <% {value, title, type, className} = group %>
   <% if type == 'submit': %>
     <% {buttonClass, buttonText} = group %>
-    <div class="form-group">
-      <div class="col-md-10 col-md-offset-2">
+    <div class="form-group form-group-submit">
+      <div class="<%- @formGroupHorizontal && 'col-md-9 col-md-offset-3' || '' %> ">
         <input class="<%- className || 'btn' %>" type="submit" value="<%- value || 'Submit &raquo;' %>" />
       </div>
     </div>
@@ -13,10 +14,12 @@
     <% {name, value} = group %>
     <% err = @renderFlash name %>
     <div class="form-group <%- err && 'has-feedback has-error' %>">
-      <label class="control-label col-md-2">
-        <span class="required"><%- title %></span>
-      </label>
-      <div class="col-md-10">
+      <% if group.label isnt false : %>
+        <label class="control-label <%- @formGroupHorizontal && 'col-md-3' || '' %>">
+          <span class="<%- group.required && 'required' || '' %>"><%- title %></span>
+        </label>
+      <% end %>
+      <div class="<%- @formGroupHorizontal && 'col-md-9' || '' %>">
         <% switch type : %>
           <% when 'html' : %>
             <%- group.html %>

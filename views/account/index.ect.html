@@ -10,17 +10,17 @@
 
     <div class="panel-heading">
       Edit Account
-      <div class="pull-right bump-right">
-        <a class="btn btn-default btn-sm push-right" href="/email">
+      <div class="pull-right edit-actions">
+        <a class="btn btn-default btn-xs marg-xs-left-7" href="/email">
           Change Email
         </a>
         <% if @limb.config.forms?.account?.password isnt false : %>
-          <a class="btn btn-default btn-sm" href="/password">
+          <a class="btn btn-default btn-xs" href="/password">
             Change Password
           </a>
         <% end %>
       </div>
-      <span class="glyphicon glyphicon-edit pull-right bump-down"></span>
+      <span class="glyphicon glyphicon-edit pull-right marg-xs-3"></span>
     </div>
 
     <div class="panel-body pad-top-xl">
@@ -30,7 +30,7 @@
         title: 'Email:'
         html: '
         <div class="marg-bottom-md">
-          <strong class="inline-block push-down">' + @req.locals.user.get('email') + '</strong>
+          <strong class="inline-block pad-xs-top-7">' + @req.locals.user.get('email') + '</strong>
         </div>
         '
       ,
@@ -49,8 +49,8 @@
       <%- @limby.renderWidgets('account/index', this) %>
 
       <% @formGroup = [
-        className: @limb.config.forms.email.buttonClass
-        value: 'Save &raquo;'
+        className: @limb.config.forms.account.buttonClass
+        value: @limb.config.forms.account.buttonText
         type: 'submit'
       ] %>
       <% include @limby.viewPath 'partials/form_group' %>

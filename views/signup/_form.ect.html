@@ -1,61 +1,46 @@
-<form class="signup user-form" action="<%- @signupURL || '/signup' %>" method="post">
+<div class="<%- @limb.config.forms.signup.containerClass %>">
+  <form class="<%- @limb.config.forms.signup.className %>" action="<%- @signupURL || '/signup' %>" method="post">
 
   <% @body ?= {first_name: '', last_name: '', email: '', confirm_email: ''} %>
 
-  <div class="form-row form-row-input">
-    <div class="form-label required">
-      First Name:
-    </div>
-    <div class="form-entry">
-      <input class="form-control" type="text" value="<%- @body.first_name %>" name="first_name" />
-    </div>
-  </div>
-  <%- @renderFlash 'first_name' %>
-
-  <div class="form-row form-row-input">
-    <div class="form-label required">
-      Last Name:
-    </div>
-    <div class="form-entry">
-      <input class="form-control" type="text" value="<%- @body.last_name %>" name="last_name" />
-    </div>
-  </div>
-  <%- @renderFlash 'last_name' %>
-
-  <div class="form-row form-row-input">
-    <div class="form-label required">
-      Email:
-    </div>
-    <div class="form-entry">
-      <input class="form-control" type="text" class="email_input" value="<%- @body.email %>" name="email" />
-    </div>
-  </div>
-  <%- @renderFlash 'email' %>
-
-  <div class="form-row form-row-input">
-    <div class="form-label required">
-      Confirm Email:
-    </div>
-    <div class="form-entry">
-      <input class="form-control" type="text" class="email_input" value="<%- @body.confirm_email %>" name="confirm_email" />
-    </div>
-  </div>
-  <%- @renderFlash 'confirm_email' %>
-
-  <div class="form-row form-row-input">
-    <div class="form-label required">
-      Password:
-    </div>
-    <div class="form-entry">
-      <input class="form-control" name="password" type="password" />
-    </div>
-  </div>
-  <%- @renderFlash 'password' %>
+  <% @formGroup = [
+    title: 'First Name:'
+    name: 'first_name'
+    value: @body.first_name
+    required: true
+  ,
+    title: 'Last Name:'
+    name: 'last_name'
+    value: @body.last_name
+    required: true
+  ,
+    title: 'Email:'
+    name: 'email'
+    value: @body.email
+    required: true
+  ,
+    title: 'Confirm Email:'
+    name: 'confirm_email'
+    value: @body.confirm_email
+    required: true
+  ,
+    title: 'Password:'
+    name: 'password'
+    type: 'password'
+    required: true
+  ] %>
+  <% @formGroupHorizontal = @limb.config.forms.signup.horizontal %>
+  <% include @limby.viewPath 'partials/form_group' %>
 
   <%# Adding your own fields -- maybe confirm password? %>
   <%- @limby.renderWidgets('signup', this) %>
 
-  <div class="form-row form-row-submit">
-    <input class="btn btn-primary" type="submit" value="<%- @signupButtonText || 'Sign up' %>" />
-  </div>
-</form>
+  <% @formGroup = [
+    className: @limb.config.forms.signup.buttonClass
+    value: @limb.config.forms.signup.buttonText
+    type: 'submit'
+  ] %>
+  <% include @limby.viewPath 'partials/form_group' %>
+
+  </form>
+</div>

@@ -1,44 +1,37 @@
-<form role="form" class="login-form user-form login<%- @req.locals.loginClasses %>" action="/login" method="post">
+<div class="<%- @limb.config.forms.login.containerClass %>">
+  <form role="form" class="<%- @limb.config.forms.login.className %>" action="/login" method="post">
+
   <% @body ?= {email: ''} %>
 
-  <div class="form-row form-row-input">
+  <% @formGroup = [
+    title: 'Email:'
+    name: 'email'
+    value: @body.email
+    required: true
+  ,
+    title: 'Password:'
+    name: 'password'
+    type: 'password'
+    required: true
+  ] %>
+  <% @formGroupHorizontal = @limb.config.forms.signup.horizontal %>
+  <% include @limby.viewPath 'partials/form_group' %>
 
-    <div class="form-label required">
-      Email:
-    </div>
+  <% if @limb.config.forms.login.forgotPassword isnt false : %>
 
-    <div class="form-entry">
-      <input class="form-control" type="text" value="<%- @body.email %>" autofocus name="email" />
-    </div>
-  </div>
-  <%- @renderFlash('email') %>
+  <% @formGroup = [
+    label: false
+    type: 'html'
+    html: '<a href="/forgot_password">Forgot Password</a>'
+  ] %>
+  <% include @limby.viewPath 'partials/form_group' %>
 
-  <div class="form-row form-row-input">
+  <% @formGroup = [
+    className: @limb.config.forms.login.buttonClass
+    value: @limb.config.forms.login.buttonText
+    type: 'submit'
+  ] %>
+  <% include @limby.viewPath 'partials/form_group' %>
 
-    <div class="form-label required">
-      Password:
-    </div>
-
-    <div class="form-entry">
-      <input class="form-control" name="password" type="password" />
-    </div>
-
-  </div>
-  <%- @renderFlash('password') %>
-
-  <% if @loginForgotPassword isnt false : %>
-    <div class="form-row form-row-link">
-      <div class="form-label">
-        <a href="/forgot_password">Forgot Password</a>
-      </div>
-
-      <div class="form-entry">
-      </div>
-    </div>
-  <% end %>
-
-  <div class="form-row form-row-submit">
-    <input class="btn btn-primary" type="submit" value="<%- @loginButtonText || 'Log in' %>" />
-  </div>
-
-</form>
+  </form>
+</div>
