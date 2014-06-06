@@ -9,35 +9,36 @@
 
   <div class="<%- @limb.config.forms.login.panelBodyClass %>">
 
-  <% @formGroup = [
-    title: 'Email:'
-    name: 'email'
-    value: @body.email
-    required: true
-  ,
-    title: 'Password:'
-    name: 'password'
-    type: 'password'
-    required: true
-  ] %>
-  <% @formGroupHorizontal = @limb.config.forms.login.horizontal %>
-  <% include @limby.viewPath 'partials/form_group' %>
+    <% @formGroup = [
+      title: 'Email:'
+      name: 'email'
+      value: @body.email
+      required: true
+    ,
+      title: 'Password:'
+      name: 'password'
+      type: 'password'
+      required: true
+    ] %>
+    <% @formGroupHorizontal = @limb.config.forms.login.horizontal %>
+    <% include @limby.viewPath 'partials/form_group' %>
+  
+    <% if @limb.config.forms.login.forgotPassword isnt false : %>
+  
+    <% @formGroup = [
+      label: false
+      type: 'html'
+      html: '<a href="/forgot_password">Forgot Password</a>'
+    ] %>
+    <% include @limby.viewPath 'partials/form_group' %>
+  
+    <% @formGroup = [
+      className: @limb.config.forms.login.buttonClass
+      value: @limb.config.forms.login.buttonText
+      type: 'submit'
+    ] %>
+    <% include @limby.viewPath 'partials/form_group' %>
 
-  <% if @limb.config.forms.login.forgotPassword isnt false : %>
-
-  <% @formGroup = [
-    label: false
-    type: 'html'
-    html: '<a href="/forgot_password">Forgot Password</a>'
-  ] %>
-  <% include @limby.viewPath 'partials/form_group' %>
-
-  <% @formGroup = [
-    className: @limb.config.forms.login.buttonClass
-    value: @limb.config.forms.login.buttonText
-    type: 'submit'
-  ] %>
-  <% include @limby.viewPath 'partials/form_group' %>
-
+  </div>
   </form>
 </div>

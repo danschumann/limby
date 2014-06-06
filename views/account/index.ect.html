@@ -2,16 +2,19 @@
 
 <%- @breadcrumbs {'account': 'Account'} %>
 
+<% include @limby.viewPath 'notifications' %>
+
 <div class="<%- @limb.config.forms.account.containerClass %>">
   <form role="form" class="<%- @limb.config.forms.account.className %>" action="/account" method="post">
 
     <% @body ?= {first_name: '', last_name: ''} %>
     <% @user = @req.locals.user.toJSON() %>
 
-    <div class="panel-heading">
-      Edit Account
+    <div class="<%- @limb.config.forms.account.panelHeadingClass %>">
+      <%- @limb.config.forms.account.panelHeading %>
       <div class="pull-right edit-actions">
-        <a class="btn btn-default btn-xs marg-xs-left-7" href="/email">
+        <span class="glyphicon glyphicon-edit"></span>
+        <a class="btn btn-default btn-xs" href="/email">
           Change Email
         </a>
         <% if @limb.config.forms?.account?.password isnt false : %>
@@ -20,19 +23,14 @@
           </a>
         <% end %>
       </div>
-      <span class="glyphicon glyphicon-edit pull-right marg-xs-3"></span>
     </div>
 
-    <div class="panel-body pad-top-xl">
+    <div class="<%- @limb.config.forms.account.panelBodyClass %>">
 
       <% @formGroup = [
         type: 'html'
         title: 'Email:'
-        html: '
-        <div class="marg-bottom-md">
-          <strong class="inline-block pad-xs-top-7">' + @req.locals.user.get('email') + '</strong>
-        </div>
-        '
+        html: '<strong class="inline-block pad-xs-top-7">' + @req.locals.user.get('email') + '</strong>'
       ,
         title: 'First Name:'
         name: 'first_name'
@@ -42,7 +40,6 @@
         name: 'last_name'
         value: @body.last_name || @user.last_name
       ] %>
-
 
       <% include @limby.viewPath('partials/form_group') %>
 

@@ -1,5 +1,6 @@
 <% @req.locals.navLogin = false %>
 <% extend @limby.layout 'base' %>
+<%- @breadcrumbs {'login': @limb.config.forms.login.panelHeading} %>
 
 <div class="login-index">
   <% include @limby.viewPath('login/_form') %>

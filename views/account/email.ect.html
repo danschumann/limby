@@ -5,14 +5,16 @@
 <div class="<%- @limb.config.forms.email.containerClass %>">
   <form role="form" class="<%- @limb.config.forms.email.className %>" action="/email" method="post">
 
-    <div class="panel-heading">Change Email</div>
+    <div class="<%- @limb.config.forms.email.panelHeadingClass %>">
+      <%- @limb.config.forms.email.panelHeading %>
+    </div>
 
-    <div class="panel-body pad-top-xl">
+    <div class="<%- @limb.config.forms.email.panelBodyClass %>">
 
       <% @formGroup = [
         type: 'html'
         title: 'Current Email:'
-        html: '<div class="form-control" disabled>' + (@req.locals.user.get("email") ? '') + '</div>'
+        html: '<strong class="inline-block pad-xs-top-7">' + @req.locals.user.get('email') + '</strong>'
       ,
         title: 'New Email:'
         name: 'email'
@@ -23,7 +25,7 @@
         value: @formData.confirm_email
       ,
         className: @limb.config.forms.email.buttonClass
-        value: 'Change Email &raquo;'
+        value: @limb.config.forms.email.buttonText
         type: 'submit'
       ] %>
       <% include @limby.viewPath 'partials/form_group' %>

@@ -26,7 +26,7 @@ module.exports = function(limby, models) {
           return req.locals.user.save();
         })
         .then(function(){
-          req.flash.success('You have successfully edited your account. &nbsp;<a href="/">Home</a>');
+          req.flash.success('You have successfully edited your account.');
           res.redirect('/account');
         })
         .otherwise(function(er){
