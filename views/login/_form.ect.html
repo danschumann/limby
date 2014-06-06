@@ -1,7 +1,13 @@
+<% @body ?= {email: ''} %>
+
 <div class="<%- @limb.config.forms.login.containerClass %>">
   <form role="form" class="<%- @limb.config.forms.login.className %>" action="/login" method="post">
+    
+  <div class="<%- @limb.config.forms.login.panelHeadingClass %>">
+    <%- @limb.config.forms.login.panelHeading %>
+  </div>
 
-  <% @body ?= {email: ''} %>
+  <div class="<%- @limb.config.forms.login.panelBodyClass %>">
 
   <% @formGroup = [
     title: 'Email:'
@@ -14,7 +20,7 @@
     type: 'password'
     required: true
   ] %>
-  <% @formGroupHorizontal = @limb.config.forms.signup.horizontal %>
+  <% @formGroupHorizontal = @limb.config.forms.login.horizontal %>
   <% include @limby.viewPath 'partials/form_group' %>
 
   <% if @limb.config.forms.login.forgotPassword isnt false : %>

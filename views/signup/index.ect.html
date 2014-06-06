@@ -2,8 +2,5 @@
 <% extend @limby.layout('base') %>
 
 <div class="signup-index">
-  <% if @limby.core.views?.signup?.header : %>
-    <% include @limby.core.views.signup.header %>
-  <% end : %>
   <% include @limby.viewPath('signup/_form') %>
 </div>
