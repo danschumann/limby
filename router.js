@@ -24,8 +24,10 @@ module.exports = function(limby){
     controllers.base.dashboard
   );
 
-  app.get  ('/signup', authentication.non, controllers.signup.index);
-  app.post ('/signup', authentication.non, controllers.signup.post);
+  formConfig = limby.core.config.forms
+
+  app.get  (formConfig.signup.action, authentication.non, controllers.signup.index);
+  app.post (formConfig.signup.action, authentication.non, controllers.signup.post);
 
   app.get  ('/login',  authentication.non, controllers.login.index);
   app.post ('/login',  authentication.non, controllers.login.post);

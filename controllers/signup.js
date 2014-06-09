@@ -12,7 +12,8 @@ module.exports = function(limby, models) {
 
     post: function(req, res, next) {
 
-      var user = User.forge();
+      // Could have been supplied by middleware
+      var user = req.locals.user || User.forge();
 
       var attributes = req.locals.attributes || {};
       
@@ -25,6 +26,9 @@ module.exports = function(limby, models) {
       return user
         .set(attributes)
         .validateBatch('signup')
+        .then(function(){
+          return user.trigger('signup') // any middleware supplied user could have callbacks
+        })
         .then(function(){
           return user.hashPassword()
         })
