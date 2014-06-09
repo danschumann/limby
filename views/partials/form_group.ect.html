@@ -35,6 +35,13 @@
 
             </select>
           <% end %>
+          <% when 'textarea' : %>
+            <textarea
+              class="form-control <%- group.className %>"
+              type="<%- group.type || 'text' %>"
+              name="<%- name %>"
+            ><%- value %></textarea>
+          <% end %>
           <% else: %>
             <input
               class="form-control <%- group.className %>"

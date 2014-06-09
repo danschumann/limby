@@ -2,43 +2,44 @@
 
 <div class="<%- @limb.config.forms.login.containerClass %>">
   <form role="form" class="<%- @limb.config.forms.login.className %>" action="/login" method="post">
+      
+    <div class="<%- @limb.config.forms.login.panelHeadingClass %>">
+      <%- @limb.config.forms.login.panelHeading %>
+    </div>
+  
+    <div class="<%- @limb.config.forms.login.panelBodyClass %>">
+  
+      <% @formGroup = [
+        title: 'Email:'
+        name: 'email'
+        value: @body.email
+        required: true
+      ,
+        title: 'Password:'
+        name: 'password'
+        type: 'password'
+        required: true
+      ] %>
+      <% @formGroupHorizontal = @limb.config.forms.login.horizontal %>
+      <% include @limby.viewPath 'partials/form_group' %>
     
-  <div class="<%- @limb.config.forms.login.panelHeadingClass %>">
-    <%- @limb.config.forms.login.panelHeading %>
-  </div>
+      <% if @limb.config.forms.login.forgotPassword isnt false : %>
+    
+        <% @formGroup = [
+          type: 'html'
+          html: '<a href="/forgot_password">Forgot Password</a>'
+        ] %>
+        <% include @limby.viewPath 'partials/form_group' %>
 
-  <div class="<%- @limb.config.forms.login.panelBodyClass %>">
-
-    <% @formGroup = [
-      title: 'Email:'
-      name: 'email'
-      value: @body.email
-      required: true
-    ,
-      title: 'Password:'
-      name: 'password'
-      type: 'password'
-      required: true
-    ] %>
-    <% @formGroupHorizontal = @limb.config.forms.login.horizontal %>
-    <% include @limby.viewPath 'partials/form_group' %>
+      <% end %>
+    
+      <% @formGroup = [
+        className: @limb.config.forms.login.buttonClass
+        value: @limb.config.forms.login.buttonText
+        type: 'submit'
+      ] %>
+      <% include @limby.viewPath 'partials/form_group' %>
   
-    <% if @limb.config.forms.login.forgotPassword isnt false : %>
-  
-    <% @formGroup = [
-      label: false
-      type: 'html'
-      html: '<a href="/forgot_password">Forgot Password</a>'
-    ] %>
-    <% include @limby.viewPath 'partials/form_group' %>
-  
-    <% @formGroup = [
-      className: @limb.config.forms.login.buttonClass
-      value: @limb.config.forms.login.buttonText
-      type: 'submit'
-    ] %>
-    <% include @limby.viewPath 'partials/form_group' %>
-
-  </div>
+    </div>
   </form>
 </div>

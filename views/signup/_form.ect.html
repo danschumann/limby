@@ -1,51 +1,53 @@
 <% @body ?= {first_name: '', last_name: '', email: '', confirm_email: ''} %>
+<% config = @limb.config.forms.signup %>
 
-<div class="<%- @limb.config.forms.signup.containerClass %>">
-  <form class="<%- @limb.config.forms.signup.className %>" action="/signup" method="post">
+<div class="<%- config.containerClass %>">
+  <form class="<%- config.className %>" action="<%- config.action %>" method="post">
 
-  <div class="<%- @limb.config.forms.signup.panelHeadingClass %>">
-    <%- @limb.config.forms.signup.panelHeading %>
-  </div>
+    <div class="<%- config.panelHeadingClass %>">
+      <%- config.panelHeading %>
+    </div>
 
-  <div class="<%- @limb.config.forms.signup.panelBodyClass %>">
-    <% @formGroup = [
-      title: 'First Name:'
-      name: 'first_name'
-      value: @body.first_name
-      required: true
-    ,
-      title: 'Last Name:'
-      name: 'last_name'
-      value: @body.last_name
-      required: true
-    ,
-      title: 'Email:'
-      name: 'email'
-      value: @body.email
-      required: true
-    ,
-      title: 'Confirm Email:'
-      name: 'confirm_email'
-      value: @body.confirm_email
-      required: true
-    ,
-      title: 'Password:'
-      name: 'password'
-      type: 'password'
-      required: true
-    ] %>
-    <% @formGroupHorizontal = @limb.config.forms.signup.horizontal %>
-    <% include @limby.viewPath 'partials/form_group' %>
+    <div class="<%- config.panelBodyClass %>">
+      <% @formGroup = @_.compact [
+        title: 'First Name:'
+        name: 'first_name'
+        value: @body.first_name
+        required: true
+      ,
+        title: 'Last Name:'
+        name: 'last_name'
+        value: @body.last_name
+        required: true
+      ,
+        title: 'Email:'
+        name: 'email'
+        value: @body.email
+        required: true
+      ,
+        title: 'Confirm Email:'
+        name: 'confirm_email'
+        value: @body.confirm_email
+        required: true
+      ,
+        if config.password isnt false
+          title: 'Password:'
+          name: 'password'
+          type: 'password'
+          required: true
+      ] %>
+      <% @formGroupHorizontal = config.horizontal %>
+      <% include @limby.viewPath 'partials/form_group' %>
 
-    <%# Adding your own fields -- maybe confirm password? %>
-    <%- @limby.renderWidgets('signup', this) %>
+      <%# Adding your own fields -- maybe confirm password? %>
+      <%- @limby.renderWidgets('signup', this) %>
 
-    <% @formGroup = [
-      className: @limb.config.forms.signup.buttonClass
-      value: @limb.config.forms.signup.buttonText
-      type: 'submit'
-    ] %>
-    <% include @limby.viewPath 'partials/form_group' %>
+      <% @formGroup = [
+        className: config.buttonClass
+        value: config.buttonText
+        type: 'submit'
+      ] %>
+      <% include @limby.viewPath 'partials/form_group' %>
 
     </div>
   </form>

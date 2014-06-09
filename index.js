@@ -14,7 +14,6 @@ var
   debug       = require('debug')('limby:base'),
 
   bodyParser      = require('body-parser'),
-  coreDefaults    = require('./lib/core_defaults'),
   multipart       = require('connect-multiparty'),
   cookieParser    = require('cookie-parser'),
   clientSessions  = require('client-sessions'),
@@ -80,11 +79,13 @@ Limby.prototype.loadLimbs = function() {
     // so we can treat it like another limb
     var baseRel;
 
-    if (limby.paths.core)
-      branches.push(baseRel = path.relative(limby.paths.limbs, limby.paths.core));
+    if (limby.paths.core) {
+      baseRel = path.relative(limby.paths.limbs, limby.paths.core);
+      branches.push(baseRel);
+    }
 
     return when.map(branches, function(branchName){
-      return loadBranch(limby, branchName)
+      return loadBranch(limby, branchName, branchName == baseRel)
     })
     .then(function() {
       debug('loadLimbs:unwrap');
@@ -266,12 +267,14 @@ Limby.prototype.route = function() {
 //
 Limby.prototype.extend = function(key) {
   debug('extend'.blue, key);
-  var limby = this;
-  var app = limby.app;
-  var subApp;
-  var limb = limby.limbs[key]
 
-  var limbPath, limbUrl;
+  var limby = this,
+    app = limby.app,
+    subApp,
+    limb = limby.limbs[key],
+    limbConfig = limb.config,
+    limbPath, limbUrl;
+
   if (key == 'core') {
     limbPath = limby.paths.core;
     limbUrl = '';
@@ -291,31 +294,6 @@ Limby.prototype.extend = function(key) {
     if (limb[staticKey])
       subApp.use(serveStatic(j(limbPath, staticKey)));
   })
-
-  debug('limb config'.blue, key);
-
-  // This loads config for all limbs, but special stuff for core
-  var limbConfig;
-  if (limb.config) {
-
-    limbConfig = require(limb.config);
-
-    var defaults = limby.core == limb ? coreDefaults : {};
-
-    // unwrap 
-    if (_.isFunction(limbConfig))
-      // Pass in default core settings for merging if its the core
-      limbConfig = limbConfig(limby, defaults);
-
-    limbConfig = limb.config = lo.merge(defaults, limbConfig);
-
-  } else {
-    if (limb == limby.core)
-      limbConfig = limb.config = coreDefaults;
-    else
-      limbConfig = {};
-  }
-
 
   debug('extend coffeescripts'.blue, key);
   if (limb.frontend)
