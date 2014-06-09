@@ -14,7 +14,7 @@ module.exports = function(limby, models) {
     var javascripts = {};
 
     loaddir({
-      fast_watch: true,
+      fastWatch: options.fastWatch,
 
       path: options.src,
 

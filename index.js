@@ -318,8 +318,12 @@ Limby.prototype.extend = function(key) {
 
 
   debug('extend coffeescripts'.blue, key);
+  csConfig = limbConfig.coffeescripts || {};
   if (limb.frontend)
-    subApp.use(limby.middleware.coffeescript({src: j(limbPath, 'frontend')}));
+    subApp.use(limby.middleware.coffeescript({
+      src: csConfig.src || j(limbPath, 'frontend'),
+      fastWatch: csConfig.fastWatch,
+    }));
 
   debug('extend coffeecups'.blue, key);
   cupsConfig = limbConfig.coffeecups || {};
