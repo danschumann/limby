@@ -10,7 +10,7 @@ module.exports = function(limby, models) {
 
     post: function(req, res, next) {
 
-      var user = User.forge({
+      var user = req.locals.user || User.forge({
         email: _.escape(req.body.email),
         password: req.body.password,
       });
@@ -27,8 +27,16 @@ module.exports = function(limby, models) {
             return user.reject({password: 'That password did not match'});
         })
         .then(function() {
+
+          user.trigger('login');
           req.session.user_id = user.get('id');
-          res.redirect('/');
+
+          if (req.session.previousURL) {
+            var url = req.session.previousURL;
+            delete req.session.previousURL;
+            res.redirect(url);
+          } else
+            res.redirect('/');
         })
         .otherwise(function(er) {
           if (user.errors.email)

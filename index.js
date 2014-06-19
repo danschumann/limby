@@ -251,14 +251,19 @@ Limby.prototype.route = function() {
     limby.extend(branchName);
   });
 
+
+  var deferred = when.defer()
+
   // _.compact because we may or may not have a host specified
   var args = _.compact([limby.config.server.port, limby.config.server.host, function(){
     pm.log('Limby server listening on port ', limby.config.server.port);
+    deferred.resolve(limby)
   }]);
 
   //app.listen.apply(app, args);
   limby.server = http.createServer(app);
   limby.server.listen.apply(limby.server, args);
+  return deferred.promise;
 
 };
 
@@ -296,7 +301,7 @@ Limby.prototype.extend = function(key) {
   })
 
   debug('extend coffeescripts'.blue, key);
-  csConfig = limbConfig.coffeescripts || {};
+  var csConfig = limbConfig.coffeescripts || {};
   if (limb.frontend)
     subApp.use(limby.middleware.coffeescript({
       src: csConfig.src || j(limbPath, 'frontend'),
@@ -304,7 +309,7 @@ Limby.prototype.extend = function(key) {
     }));
 
   debug('extend coffeecups'.blue, key);
-  cupsConfig = limbConfig.coffeecups || {};
+  var cupsConfig = limbConfig.coffeecups || {};
   var cupsPath = cupsConfig.path || j(limbPath, 'frontend/templates');
   if (cupsConfig.path || fs.existsSync(cupsPath))
     limby.middleware.coffeecups({path: cupsPath, key: cupsConfig.key, app: subApp, url: cupsConfig.url});

@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -9,7 +9,8 @@
   "author": "Dan Schumann",
   "dependencies": {
     "bcrypt": "~0.7.7",
-    "bookshelf": "~0.5.8",
+    "bookshelf": "0.7.3",
+    "knex": "0.6.16",
     "client-sessions": "^0.6.0",
     "coffee-script": "^1.7.1",
     "coffeecup": "~0.3.21",
@@ -34,6 +35,7 @@
     "serve-static": "^1.0.4",
     "body-parser": "^1.0.2",
     "debug": "^0.8.0",
+    "param-bindings": "0.0.3",
     "underscore.string": "^2.3.3",
     "lodash": "^2.4.1",
     "connect-multiparty": "^1.0.3"

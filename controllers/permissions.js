@@ -17,10 +17,6 @@ module.exports = function(limby, models) {
       .then(function(permissions){
         output.permissions = permissions;
 
-        return when.map(permissions.map(function(perm){
-          if (perm.get('parent_id'))
-            perm.load('parent');
-        }));
       })
       .then(function(groups){
 

@@ -1,5 +1,12 @@
 # if this gets too slow we can create a flag on permissions to be ~'always_loaded'
-select perms.* from limby_permissions `perms`
+select
+  perms.*,
+  group_roles.id `group_role_id`,
+  groups.id group_id,
+  group_users.id group_users_id,
+  null user_role_id,
+  false is_role
+from limby_permissions `perms`
 
   inner join limby_permission_group_roles `group_roles` on 
     perms.id = group_roles.limby_permission_id
@@ -14,7 +21,14 @@ select perms.* from limby_permissions `perms`
 
 union
 
-select perms.* from limby_permissions `perms`
+select
+  perms.*,
+  null `group_role_id`,
+  null group_id,
+  null group_users_id,
+  user_roles.id user_role_id,
+  true is_role
+from limby_permissions `perms`
 
   inner join limby_permission_user_roles `user_roles` on
     user_roles.limby_permission_id = perms.id

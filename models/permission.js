@@ -29,6 +29,7 @@ module.exports = function(limby, models) {
 
     morphParents: [ ], // extend this in other files
     parent: function() {
+      console.log('morphy.res'.red, this.morphParents);
       return this.morphTo.apply(this, ['parent'].concat(this.morphParents));
     },
 

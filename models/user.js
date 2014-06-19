@@ -1,4 +1,5 @@
 module.exports = function(limby, models) {
+
   var
     User, Users,
     columns, instanceMethods, classMethods, options,
@@ -120,6 +121,11 @@ module.exports = function(limby, models) {
     },
 
     // Only roles that are specific to 1 user, nothing to do with groups
+    permissions: function(){
+      return this.belongsToMany(models.Permission).through(models.PermissionUserRole);
+    },
+
+    // Only roles that are specific to 1 user, nothing to do with groups
     permission_roles: function(){
       return this.hasMany(models.PermissionUserRoles);
     },
@@ -152,21 +158,14 @@ module.exports = function(limby, models) {
         })
     },
 
-    mustLoad: function(){
+    mustLoad: function() {
       var user = this;
 
       return this.fetch()
-        .then(function(){
+        .then(function() {
           if (!user || !user.id)
            return user.reject("Could not find that account");
         });
-    },
-
-    editAccount: function(attributes){
-      var user = this;
-
-      return user
-
     },
 
     loginStrategy: function() {
@@ -186,8 +185,44 @@ module.exports = function(limby, models) {
 
     },
 
-    fullName: function(){
+    fullName: function(name){
       return this.get('first_name') + ' ' + this.get('last_name');
+    },
+
+    // should be used only for individual roles -- nothing to do with groups
+    revoke: function(attrs) {
+
+      var
+        user = this,
+        perm;
+
+      perm = this.related('permissions').findWhere({name: name, is_role: true});
+
+      if (perm) {
+        perm.get('user_role_id');
+      }
+
+    },
+
+    grant: function(attrs) {
+
+      var user = this;
+
+      if (this.related('permissions').findWhere({name: attrs.name}))
+        return when.resolve(); // already granted
+      else
+        return limby.models.Permission.firstOrCreate(attrs)
+        .then(function(perm) {
+          return limby.models.PermissionUserRole.forge({
+            user_id: user.id,
+            limby_permission_id: perm.id,
+          }).save();
+        });
+
+    },
+
+    can: function(name) {
+      return this.related('permissions').findWhere({name: name});
     },
 
     loadPermissions: function() {
@@ -197,6 +232,8 @@ module.exports = function(limby, models) {
       // union permissions through roles and groups
       return limby.knex.raw(limby.queries.user_permissions, [user.id, user.id])
         .then(function(results){
+          user.related('permissions').add(results[0]);
+          console.log('hey'.red, results[0]);
           return models.Permissions.forge(results && results[0]);
         });
 

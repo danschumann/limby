@@ -55,7 +55,7 @@ if checked = user.related('group_users').findWhere({limby_permission_group_id: g
             data-permission_id="<%- perm.id %>"
             <%- if user.related('permission_roles').findWhere({limby_permission_id: perm.id}) then 'checked' else '' %>
             />
-            <%- if perm.get('parent_id') then perm.related('parent').permissionName() else perm.get 'name' %>
+            <%- perm.get 'name' %>
           </div>
         <% end %>
       </div>

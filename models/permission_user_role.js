@@ -23,6 +23,14 @@ module.exports = function(limby, models) {
       'user_id',
     ],
 
+    permission: function(){
+      this.belongsTo(models.Permission);
+    },
+
+    user: function(){
+      this.belongsTo(models.User);
+    },
+
     validations: { },
 
   };

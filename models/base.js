@@ -6,13 +6,17 @@ module.exports = function(limby) {
     argsToArray = function(args) { return Array.prototype.slice.call(args, 0) },
     _           = require('underscore'),
     validator   = require('validator'),
-    Bookshelf   = require('bookshelf'),
+    bookshelf   = require('bookshelf'),
+    knex        = require('knex'),
     when        = require('when'),
+    wrap        = require('param-bindings'),
     join        = require('path').join;
 
   // Bookshelf Init -- DB connect
-  limby.bookshelf = bookshelf = Bookshelf.initialize(limby.config.bookshelf);
-  limby.knex = bookshelf.knex;
+  knex = knex(limby.config.bookshelf);
+  limby.bookshelf = bookshelf = bookshelf(knex);
+  limby.knex = knex;
+  wrap(knex, 'raw');
   limby.schema = bookshelf.schema = limby.knex.schema;
 
   bookshelf.Model = bookshelf.Model.extend({
@@ -149,7 +153,9 @@ module.exports = function(limby) {
 
       return this.forge(options).fetch()
         .then(function(model) {
-          if (!model || !model.id)
+          if (model && model.id)
+            return model
+          else
             return self.forge(options).save();
         })
     },
