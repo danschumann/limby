@@ -1,22 +1,52 @@
-<% @title = ((@customer_request?.id && 'Edit') || 'New') + ' Customer Request -- ' %>
+<%
+@title = ((@customer_request?.id && 'Edit') || 'New') + ' Customer Request -- '
+@crumbs =
+  admin: 'Admin'
+  tags: 'Tags'
+  active: (@tag? && 'Edit' || 'New')  + ' Tag'
+%>
 
-<% extend @limby.layout() %>
+<% extend @limby.layout('admin') %>
 
 <% block 'head' : %>
   <link rel="stylesheet" type="text/css" href="/whiteboard/stylesheets/customer_request.css" />
 <% end %>
 
-<form
-class="tags"
-action="/tags<%- @tag?.id && ('/' + @tag?.id) %>"
-enctype="multipart/form-data"
-method="post">
-
-  <h3><%- (@tag? && 'Edit') || 'New' %> Tag</h3>
-
-  <div class="customer_request_inputs">
-    <input class="gl_name" value="<%- @tag?.get('name') %>" name="name" placeholder="Name" />
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <% if @tag : %>
+      <a
+        class="pull-right btn btn-primary btn-xs"
+        href="/admin/tags/<%- @tag?.id %>/delete"
+        onclick="javascript: return confirm('Delete? Are you sure?');"
+      >
+        <span class="glyphicon glyphicon-remove"></span>
+      </a>
+    <% end %>
+    <%- (@tag? && 'Edit') || 'New' %> Tag
   </div>
+  <div class="panel-body">
+    <form
+    class="form form-horizontal"
+    action="/admin/tags<%- @tag?.id && ('/' + @tag?.id) %>"
+    enctype="multipart/form-data"
+    method="post">
 
-  <input type="submit" value="Save" />
-</form>
+      <% @formGroup = [
+        title: 'Name:'
+        name: 'name'
+        value: @body.name || @tag?.get 'name'
+        labelClass: 'col-md-2'
+        inputContainerClass: 'col-md-10'
+      ] %>
+
+      <% include @limby.viewPath('partials/form_group') %>
+
+      <div class="form-group">
+        <div class="col-md-10 col-md-offset-2">
+          <input class="btn btn-primary btn-lg" type="submit" value="Save" />
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

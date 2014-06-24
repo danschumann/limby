@@ -1,12 +1,13 @@
 module.exports = function(limby, models) {
 
   var
+    controller,
     when = require('when'),
     bookshelf = limby.bookshelf,
     Tags  = limby.models.Tags;
     Tag   = limby.models.Tag;
 
-  return {
+  return controller = {
 
     // Creating is done through occurrences and customer_requests
     index: function(req, res, next) {
@@ -21,12 +22,14 @@ module.exports = function(limby, models) {
     edit: function(req, res, next) {
 
       var users, tags;
+      if (req.body.name)
+        req.body.name = _.escape(req.body.name)
 
       Tag.forge({id: req.params.tag_id }).fetch()
       .then(function(tag) {
-
         res.view('tags/edit', {
           tag: tag,
+          body: req.body,
         });
       });
 
@@ -42,7 +45,7 @@ module.exports = function(limby, models) {
       })
       .then(function() {
         req.notification('Deleted tag');
-        res.redirect('/tags');
+        res.redirect('/admin/tags');
       });
 
     },
@@ -61,11 +64,19 @@ module.exports = function(limby, models) {
       })
       .then(function() {
         tag.set({name: _.escape(req.body.name)});
+        return tag.validate();
+      })
+      .then(function() {
         return tag.save();
       })
       .then(function() {
         req.notification(req.params.tag_id ? 'Updated tag' : 'Created tag');
-        res.redirect('/tags');
+        res.redirect('/admin/tags');
+      })
+      .otherwise(function(er) {
+        if ( !tag.errored() ) console.log('unknown error'.red, er, er.stack);
+        req.flash.danger(tag.errored() ? tag.errors : 'Unknown Error')
+        controller.edit(req, res, next);
       });
 
     },

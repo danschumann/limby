@@ -7,7 +7,6 @@ $(function() {
     $.post('/admin/permissions/' + $role.attr('data-permission_id') + '/users/' + user_id,
       {toggle: $role.is(':checked') || undefined},
       function(res) {
-        console.log(res);
       }
     );
 
@@ -19,7 +18,6 @@ $(function() {
     $.post('/admin/permissions/groups/' + $pgu.attr('data-group_id') + '/users/' + $pgu.attr('data-user_id'),
       {toggle: $pgu.is(':checked') || undefined},
       function(res) {
-        console.log(res);
       }
     );
 

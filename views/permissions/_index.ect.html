@@ -1,18 +1,23 @@
-<div class="permissions">
-  <h1>Permissions</h1>
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Permissions</strong></div>
 
-  <table>
+  <table class="table table-striped">
     <thead>
       <tr>
-        <td>module</td>
-        <td>name</td>
+        <th>module</th>
+        <th>name</th>
       </tr>
     </thead>
     <tbody>
       <% @permissions.each (perm) => : %>
         <tr class="permission_row">
           <td><%- perm.get('module') %></td>
-          <td><%- perm.get('name') %></td>
+          <td>
+            <%- perm.get 'name' %>
+            <% if perm.get('parent_type') : %>
+               -- <%- perm.related('parent').permissionName() %>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>

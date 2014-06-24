@@ -27,9 +27,8 @@ module.exports = function(limby, models) {
 
     validations: { },
 
-    morphParents: [ ], // extend this in other files
+    morphParents: [ limby.bookshelf.Model ], // extend this in other files
     parent: function() {
-      console.log('morphy.res'.red, this.morphParents);
       return this.morphTo.apply(this, ['parent'].concat(this.morphParents));
     },
 

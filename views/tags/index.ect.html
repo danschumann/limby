@@ -1,27 +1,25 @@
-<% extend @limby.layout() %>
+<% extend @limby.layout('admin') %>
+
+<% @crumbs = admin: 'Admin', active: 'Tags' %>
 
 <% block 'head' : %>
   <link rel="stylesheet" type="text/css" href="/stylesheets/tags.css" />
 <% end %>
 
-<div class="tags">
-  <a class="edit_link" href="/tags/edit">Create</a>
-  <h1> Tags </h1>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <a class="pull-right btn btn-xs btn-primary" href="/admin/tags/edit">Create</a>
+    Tags
+  </div>
 
-  <div class="tag_list">
+  <div class="list-group">
     <% @tags.each (tag) => : %>
-      <div class="tag">
-        <a
-        class="edit_link"
-        href="/tags/<%- tag.id %>/delete"
-        onclick="javascript: return confirm('Delete? Are you sure?');"
-        >
-          x
-        </a>
-        <a href="/tags/<%- tag.id %>">
-          <%- tag.get 'name' %>
-        </a>
-      </div>
+      <a
+        href="/admin/tags/<%- tag.id %>"
+        class="list-group-item"
+      >
+        <%- tag.get 'name' %>
+      </a>
     <% end %>
   </div>
 </div>

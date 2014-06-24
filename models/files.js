@@ -88,7 +88,6 @@ module.exports = function(limby, models) {
 
         resizerInstance = new ResizerDefault();
 
-        console.log('bout to'.red, fName, path, file);
         return nodefn.call(_.bind(resizerInstance.process, resizerInstance), fName, path)
           .otherwise(function(er) {
             console.log("Couldn't resize image. do you have ImageMagick installed?".red, er);

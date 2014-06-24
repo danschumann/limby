@@ -233,7 +233,6 @@ module.exports = function(limby, models) {
       return limby.knex.raw(limby.queries.user_permissions, [user.id, user.id])
         .then(function(results){
           user.related('permissions').add(results[0]);
-          console.log('hey'.red, results[0]);
           return models.Permissions.forge(results && results[0]);
         });
 

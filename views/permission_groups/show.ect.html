@@ -1,17 +1,32 @@
-<% extend @limby.layout() %>
+<% @crumbs = 'admin': 'Admin', 'permissions': 'Permissions', active: 'Permission Group' %>
+
+<% extend @limby.layout('admin') %>
 
 <script src="/limby_static/javascripts/permission_groups.js"></script>
 
-<div class="permission_group" data-group_id="<%- @group.id %>">
-  <h1>Permission Group</h1>
+<div class="permission_group panel panel-default" data-group_id="<%- @group.id %>">
+  <div class="panel-heading">
+    <a
+      href="/admin/permissions/groups/<%- @group.id %>/destroy"
+      class="pull-right btn btn-xs btn-primary"
+      onclick="return confirm('Destroy -- are you sure?')"
+    >
+      <span class="glyphicon glyphicon-remove">
+      </span>
+    </a>
 
-  <h2><%- @group.get('name') %></h2>
+    <a href="/admin/permissions/groups/<%- @group.id %>/edit" class="pull-right btn btn-xs btn-primary marg-xs-right-7">
+      <span class="glyphicon glyphicon-pencil">
+      </span>
+    </a>
+    <%- @group.get('name') %>
+  </div>
 
-  <div>
-    <div class="users_list">
-      <h4>Users</h4>
+  <div class="panel-body">
+    <p><strong>Users</strong></p>
+    <div class="list-group">
       <% @users.each (user) => : %>
-        <div>
+        <div class="list-group-item">
           <input
             type="checkbox"
             class="permission_group_user"
@@ -24,11 +39,11 @@
     </div>
   </div>
 
-  <div>
-    <div class="roles_list">
-      <h4>Roles</h4>
+  <div class="panel-body">
+    <p><strong>Roles</strong></p>
+    <div class="list-group">
       <% @roles.each (role) => : %>
-        <div>
+        <div class="list-group-item">
           <input
             type="checkbox"
             class="permission_group_role"

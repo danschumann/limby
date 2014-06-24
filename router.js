@@ -56,17 +56,6 @@ module.exports = function(limby){
   app.get  ('/email', loggedInMW, controllers.email.index);
   app.post ('/email', loggedInMW, controllers.email.post);
 
-  // Specify your own auth
-  app.get  ('/tags/?*', loggedInMW, authentication.user);
-
-  app.get  ('/tags', loggedInMW, limby.controllers.tags.index);
-  app.get  ('/tags/edit', loggedInMW, limby.controllers.tags.edit);
-  app.get  ('/tags/:tag_id', loggedInMW, limby.controllers.tags.edit);
-  app.get  ('/tags/:tag_id/delete', loggedInMW, limby.controllers.tags.destroy);
-
-  app.post ('/tags', loggedInMW, limby.controllers.tags.update);
-  app.post ('/tags/:tag_id', loggedInMW, limby.controllers.tags.update);
-
   //
   // Admin routes
   //
@@ -75,11 +64,27 @@ module.exports = function(limby){
 
   app.get ('/admin/permissions', loggedInMW, controllers.permissions.index);
 
-  app.post ('/admin/permissions/groups', controllers.permission_groups.create);
-  app.get  ('/admin/permissions/groups/new', controllers.permission_groups.editNew);
-  app.get  ('/admin/permissions/groups/:id', controllers.permission_groups.show);
+  var pg = controllers.permission_groups;
+  app.get  ('/admin/permissions/groups/new', pg.edit);
+  app.post ('/admin/permissions/groups', pg.update);
+  app.get  ('/admin/permissions/groups/:group_id', pg.load, pg.show);
+  app.post  ('/admin/permissions/groups/:group_id', pg.load, pg.update);
+  app.get  ('/admin/permissions/groups/:group_id/edit', pg.load, pg.edit);
+  app.get  ('/admin/permissions/groups/:group_id/destroy', pg.load, pg.destroy);
+
   app.post ('/admin/permissions/groups/:group_id/users/:user_id', controllers.permission_group_users.toggle);
+
   app.post ('/admin/permissions/groups/:group_id/roles/:role_id', controllers.permission_group_roles.toggle);
   app.post ('/admin/permissions/:role_id/users/:user_id', controllers.permission_user_roles.toggle);
+
+  app.all('/admin/tags/?*', loggedInMW, authentication.permission('admin/tags'));
+
+  app.get  ('/admin/tags', limby.controllers.tags.index);
+  app.get  ('/admin/tags/edit', limby.controllers.tags.edit);
+  app.get  ('/admin/tags/:tag_id', limby.controllers.tags.edit);
+  app.get  ('/admin/tags/:tag_id/delete', limby.controllers.tags.destroy);
+
+  app.post ('/admin/tags', limby.controllers.tags.update);
+  app.post ('/admin/tags/:tag_id', limby.controllers.tags.update);
 
 };

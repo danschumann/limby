@@ -1,0 +1,29 @@
+<% title = (@group && 'Edit' || 'Create') + ' Permission Group' %>
+<% @crumbs = admin: 'Admin', permissions: 'Permissions', active: title %>
+<% extend @limby.layout('admin') %>
+
+<form class="form form-horizontal" action="/admin/permissions/groups/<%- if @group then @group.id %>" method="post">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <%- title %>
+    </div>
+    <div class="panel-body">
+
+      <% @formGroup = [
+        title: 'Name:'
+        name: 'name'
+        value: @body.name || @tag?.get 'name'
+        labelClass: 'col-md-2'
+        inputContainerClass: 'col-md-10'
+      ] %>
+
+      <% include @limby.viewPath('partials/form_group') %>
+
+      <div class="form-group">
+        <div class="col-md-10 col-md-offset-2">
+          <input class="btn btn-primary btn-lg" type="submit" value="Create" />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
