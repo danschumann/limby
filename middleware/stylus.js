@@ -29,7 +29,7 @@ module.exports = function(limby, models) {
           .use(nib());
 
         // we don't know the implications of changing a mixin so we touch every stylesheet
-        if (this.baseName == 'mixins') {
+        if (config.touch !== false && this.baseName == 'mixins') {
           _.each(loaded_paths, function(lpath) {
             fs.utimes(lpath, new Date(), new Date());
           });
