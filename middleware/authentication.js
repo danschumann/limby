@@ -34,7 +34,14 @@ module.exports = function(limby, models) {
         next();
     },
 
-    permission: function(pName) {
+    permission: function() {
+
+      // If we pass true as the first argument, we are checking if they can do ALL of the permissions
+      // (rather than ANY)
+      var
+        all = (arguments[0] === true),
+        perms = Array.prototype.slice.call(arguments, all ? 1 : 0);
+
       return function(req, res, next) {
 
         if (!req.locals.user) {
@@ -45,8 +52,13 @@ module.exports = function(limby, models) {
         // Super admins can go anywhere
         if ( req.locals.user.get('admin') ) return next();
 
-        // For now, all permissions are loaded to user object
-        if (req.locals.permissions.findWhere({name: pName}))
+        var can = _[all ? 'all' : 'any'](perms, function(pName) {
+          // Must load these from middleware.user.loadPermissions
+          return req.locals.permissions.findWhere({name: pName});
+        });
+
+        // We only care if they can do one of the permissions
+        if (can)
           return next();
         else {
           req.error('You might not have permission to view that page');

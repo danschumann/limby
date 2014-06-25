@@ -4,7 +4,7 @@
   <% if type == 'submit': %>
     <% {buttonClass, buttonText} = group %>
     <div class="form-group form-group-submit">
-      <div class="<%- @formGroupHorizontal && 'col-md-9 col-md-offset-3' || '' %> ">
+      <div class="<%- inputContainerClass || (@formGroupHorizontal && 'col-md-9 col-md-offset-3') || '' %> ">
         <input class="<%- className || 'btn' %>" type="submit" value="<%- value || 'Submit &raquo;' %>" />
       </div>
     </div>
