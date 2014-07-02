@@ -4,6 +4,8 @@ var
   pm          = require('print-messages'),
   _           = require('underscore'),
   lo          = require('lodash'),
+  events      = require('events'),
+  util        = require('util'),
   path        = require('path'),
   j           = path.join,
   http        = require('http'),
@@ -14,7 +16,7 @@ var
   debug       = require('debug')('limby:base'),
 
   bodyParser      = require('body-parser'),
-  multipart       = require('connect-multiparty'),
+  multiparty       = require('connect-multiparty'),
   cookieParser    = require('cookie-parser'),
   clientSessions  = require('client-sessions'),
   serveStatic     = require('serve-static'),
@@ -33,6 +35,7 @@ var Limby = function(unformattedConfig) {
   // We don't care if they call `Limby()` or `new Limby`
   if (!(this instanceof Limby)) return new Limby(unformattedConfig);
 
+  events.EventEmitter.call(this);
   require('./lib/config-loader')(this, unformattedConfig);
   require('./lib/send_mail')(this);
   require('./lib/mask_passwords')(this);
@@ -51,7 +54,7 @@ var Limby = function(unformattedConfig) {
 
 // 
 // extends limby.loadNative() and helper methods
-_.extend(Limby.prototype, require('./lib/load_native'))
+_.extend(Limby.prototype, require('./lib/load_native'), events.EventEmitter.prototype)
 
 // Each module is like a mini application
 Limby.prototype.loadLimbs = function() {
@@ -124,7 +127,7 @@ Limby.prototype.route = function() {
 
   if (limby.config.middleware.bodyParser) {
     app.use(bodyParser(limby.config.middleware.bodyParser));
-    app.use(multipart());
+    app.use(multiparty(limby.config.middleware.multiparty));
   }
 
   if (limby.config.middleware.cookieParser)
@@ -471,7 +474,7 @@ Limby.prototype.require = function(lPath) {
 
       // If it's a limby closure function we unwrap it
       if (argNames[0] == 'limby')
-        output = output(limby, argNames[1] == 'models' ? limb.models : null );
+        output = parent[localKey] = output(limby, argNames[1] == 'models' ? limb.models : null );
     }
   }
 

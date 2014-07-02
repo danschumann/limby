@@ -1,8 +1,6 @@
 <% extend @limby.layout('account') %>
 
-<%- @breadcrumbs {'account': 'Account'} %>
-
-<% include @limby.viewPath 'notifications' %>
+<% @crumbs = {'account': 'Account'} %>
 
 <div class="<%- @limb.config.forms.account.containerClass %>">
   <form role="form" class="<%- @limb.config.forms.account.className %>" action="/account" method="post">
@@ -34,11 +32,11 @@
       ,
         title: 'First Name:'
         name: 'first_name'
-        value: @body.first_name || @user.first_name
+        value: @body.first_name ? @user.first_name
       ,
         title: 'Last Name:'
         name: 'last_name'
-        value: @body.last_name || @user.last_name
+        value: @body.last_name ? @user.last_name
       ] %>
 
       <% include @limby.viewPath('partials/form_group') %>

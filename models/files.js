@@ -1,19 +1,33 @@
 module.exports = function(limby, models) {
 
+
   var
     File, Files,
+
+    // Since converting gifs takes a long time, we only allow one at a time
+    processing = false,
+    queue = [],
+
     columns, instanceMethods, classMethods, options,
 
     extRegex   = /\.[^\.]*$/,
     defaultFileNamer = function(baseName) { return baseName; },
     config     = limby.config,
     bookshelf  = limby.bookshelf,
+    im         = require('imagemagick'),
     _          = require('underscore'),
     pm         = require('print-messages'),
-    when       = require('when'),
 
-    papercut    = require('papercut'),
+    papercut   = require('papercut'),
+    baseName   = require('path').basename,
+    join       = require('path').join,
+    when       = require('when'),
     nodefn     = require('when/node/function');
+
+  _.each(['identify', 'convert', 'resize'], function(fnName) {
+    im[fnName] = nodefn.lift(_.bind(im[fnName], im));
+    im[fnName].path = fnName; // bugfix
+  })
 
   papercut.configure(function(){
     _.each(limby.config.papercut, function(val, key) {
@@ -54,6 +68,38 @@ module.exports = function(limby, models) {
 
     validations: { },
 
+    process: function() {
+
+      processing = true;
+      var file = this;
+
+      return when().then(function(){
+        if (file.get('type') == 'original')
+          return im.identify(['-format', '%wx%h_', file.get('tmpPath')])
+
+      })
+      .then(function(output) {
+        var args = [ file.get('tmpPath') ]
+        if (file.get('type') !== 'preview') args.push('-coalesce');
+        args.push(
+          '-resize', output ? output.split('_')[0] : '248x300',
+          join(limby.config.papercut.directory, file.get('fName'))
+        );
+
+        return im.convert(args);
+      })
+      .then(function() {
+        return file.save()
+      })
+      .otherwise(function(er) {
+        console.log("Couldn't resize image. do you have ImageMagick installed?".red, er, er.stack);
+      })
+      .then(function(){
+        processing = false;
+      });
+
+    },
+
   };
 
   classMethods = { };
@@ -66,47 +112,79 @@ module.exports = function(limby, models) {
   File = bookshelf.Model.extend(instanceMethods, classMethods);
   Files = bookshelf.Collection.extend({ model: File }, {
 
+    // Async method that empties out queue
+    tryProcessing: function(file) {
+
+      if (file)
+        queue.push(file);
+
+      if (!processing && queue.length)
+        queue.shift().process().then(function(){
+          Files.tryProcessing();
+        });
+
+    },
+
     upload: function(opts) {
+
       var
         req = opts.req,
         key = opts.key || 'Please specify req.upload({key})',
-        Resizer = opts.resizer,
         fileNamer = opts.fileNamer,
         parent = opts.parent;
 
+      (opts.flash || function() { req.flash.info('Processing image'); })();
+
       fileNamer = fileNamer || defaultFileNamer;
 
+      // Massage files into specific format
       req.files = req.files || {};
       req.files[key] = req.files[key] || [];
-
       if (!_.isArray(req.files[key]))
         req.files[key] = [req.files[key]];
 
       return when.map(req.files[key], function(file) {
+
+        if (!file.size) return;
         var path = file.path;
-        var fName = fileNamer(file.originalFilename.replace(extRegex, ''));
+        var fileName = fileNamer(file.originalFilename);
 
-        resizerInstance = new ResizerDefault();
+        var hex = baseName(path).replace(extRegex, '');
+        var previewName = fileName.replace(extRegex, '-' + hex + '-preview$&')
+        var avatarName = fileName.replace(extRegex, '-' + hex + '-avatar$&')
+        var originalName = fileName.replace(extRegex, '-' + hex + '-original$&')
 
-        return nodefn.call(_.bind(resizerInstance.process, resizerInstance), fName, path)
-          .otherwise(function(er) {
-            console.log("Couldn't resize image. do you have ImageMagick installed?".red, er);
+        console.log('what hte '.red, path, file);
+
+        return when.map([
+          { fName: avatarName,
+            type: 'avatar' }, 
+          { fName: previewName,
+            type: 'preview' }, 
+          { fName: originalName,
+            type: 'original' }, 
+        ], function(ob){
+
+          return limby.models.File.forge({
+            path: '/uploads/' + ob.fName, // urlPath
+            type: 'processing-' + ob.type,
+            parent_type: parent.tableName,
+            parent_id: parent.id,
+          }).save().then(function(file){
+            // Since this `file` will sit in queue(memory) until it compiles
+            // we can set the type on it and save it later ( when the img is done )
+            file.set({
+              type: ob.type,
+              tmpPath: path + (ob.type == 'preview' ? '[0]' : ''),
+              fName: ob.fName,
+              
+            });
+
+            Files.tryProcessing(file);
           });
-      })
-      .then(function(images) {
-
-        return when.map(images, function(imageSet) {
-          return when.map(_.map(imageSet, function(url, type) {
-            return limby.models.File.forge({
-              path: url,
-              type: type,
-              parent_type: parent.tableName,
-              parent_id: parent.id,
-            }).save();
-          }));
         });
 
-      });
+      })
     },
     
   });

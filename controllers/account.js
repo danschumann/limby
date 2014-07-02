@@ -16,21 +16,26 @@ module.exports = function(limby, models) {
       // Other limbs could add attributes if they are accepting more
       var attributes = req.locals.attributes || {};
       
-      attributes.first_name = attributes.first_name || _.escape(req.body.first_name);
-      attributes.last_name = attributes.last_name || _.escape(req.body.last_name);
+      if (attributes.first_name == null)
+        attributes.first_name = _.escape(req.body.first_name);
+      if (attributes.last_name == null)
+        attributes.last_name = _.escape(req.body.last_name);
 
-      req.locals.user
+      var user = req.locals.user.clone();
+
+      user
         .set(attributes)
         .validateBatch('editAccount')
         .then(function(){
-          return req.locals.user.save();
+          return user.save();
         })
         .then(function(){
           req.flash.success('You have successfully edited your account.');
           res.redirect('/account');
         })
         .otherwise(function(er){
-          req.flash.danger(req.locals.user.errors);
+          if ( !user.errored() ) console.log('uncaught error'.red, er, er.stack);
+          req.flash.danger(user.errored() ? user.errors : 'Unknown error');
           controller.index(req, res, next);
         });
     },
