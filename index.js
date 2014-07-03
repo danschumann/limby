@@ -266,7 +266,8 @@ Limby.prototype.route = function() {
 
   //app.listen.apply(app, args);
   limby.server = http.createServer(app);
-  limby.server.listen.apply(limby.server, args);
+  if (args.length > 1) // we don't need to listen if we don't have a port or host
+    limby.server.listen.apply(limby.server, args);
   return deferred.promise;
 
 };
