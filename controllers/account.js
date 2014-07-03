@@ -31,7 +31,7 @@ module.exports = function(limby, models) {
         })
         .then(function(){
           req.flash.success('You have successfully edited your account.');
-          res.redirect('/account');
+          res.redirect(limby.baseURL + '/account');
         })
         .otherwise(function(er){
           if ( !user.errored() ) console.log('uncaught error'.red, er, er.stack);

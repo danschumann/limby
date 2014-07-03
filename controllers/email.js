@@ -36,7 +36,7 @@ module.exports = function(limby, models) {
       })
       .then(function(user){
         req.flash.success('You have successfully changed your email');
-        res.redirect('/account');
+        res.redirect(limby.baseURL + '/account');
       })
       .otherwise(function(){
         req.flash.danger(user.errors);

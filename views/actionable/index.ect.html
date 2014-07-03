@@ -1,6 +1,6 @@
 <% extend @limby.layout() %>
 
-<a href="/admin/permissions/new">Create new permission</a>
+<a href="<%- @baseURL %>/admin/permissions/new">Create new permission</a>
 <% @results.each (permission) => : %>
   <div>
     <% @_.each permission, (attr, key) => : %>

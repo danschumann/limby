@@ -29,7 +29,7 @@ module.exports = function(limby, models) {
         })
         .otherwise(function(er) {
           req.flash.danger('Could not fetch that permission group');
-          res.redirect('/admin/permissions');
+          res.redirect(limby.baseURL + '/admin/permissions');
         });
     },
 
@@ -47,7 +47,7 @@ module.exports = function(limby, models) {
       })
       .then(function(group) {
         req.flash.success('Successfully ' + (isNew ? 'created' : 'edited') + ' group name');
-        res.redirect('/admin/permissions/groups/' + group.id);
+        res.redirect(limby.baseURL + '/admin/permissions/groups/' + group.id);
       })
       .otherwise(function(er){
         if (!group.errored()) console.log('unknown error permission_groups', er, er.stack);
@@ -88,12 +88,12 @@ module.exports = function(limby, models) {
             '<strong>' + req.locals.permission_group.get('name') + '<strong>' + 
             ' Destroyed permission group'
           );
-          res.redirect('/admin/permissions')
+          res.redirect(limby.baseURL + '/admin/permissions')
         })
         .otherwise(function(er) {
           console.log('uncaught error permission_groups destory'.red, er, er.stack);
           req.flash.danger('Unknown error while deleting');
-          res.redirect('/admin/permissions')
+          res.redirect(limby.baseURL + '/admin/permissions')
         });
     },
 

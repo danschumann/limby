@@ -154,9 +154,10 @@ module.exports = function(limby, models) {
         var avatarName = fileName.replace(extRegex, '-' + hex + '-avatar$&')
         var originalName = fileName.replace(extRegex, '-' + hex + '-original$&')
 
-        console.log('what hte '.red, path, file);
-
-        return when.map([
+        // BUGFIX:
+        // using sequence because my DB kept disconnecting only for this
+        // This might not even fix it, just trying
+        return require('when/sequence')(_.map([
           { fName: avatarName,
             type: 'avatar' }, 
           { fName: previewName,
@@ -182,7 +183,7 @@ module.exports = function(limby, models) {
 
             Files.tryProcessing(file);
           });
-        });
+        }));
 
       })
     },

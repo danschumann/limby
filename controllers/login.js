@@ -36,7 +36,7 @@ module.exports = function(limby, models) {
             delete req.session.previousURL;
             res.redirect(url);
           } else
-            res.redirect('/');
+            res.redirect(limby.baseURL + '/');
         })
         .otherwise(function(er) {
           if (user.errors.email)

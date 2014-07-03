@@ -9,7 +9,7 @@
 <% extend @limby.layout('admin') %>
 
 <% block 'head' : %>
-  <link rel="stylesheet" type="text/css" href="/whiteboard/stylesheets/customer_request.css" />
+  <link rel="stylesheet" type="text/css" href="<%- @baseURL %>/whiteboard/stylesheets/customer_request.css" />
 <% end %>
 
 <div class="panel panel-default">
@@ -17,7 +17,7 @@
     <% if @tag : %>
       <a
         class="pull-right btn btn-primary btn-xs"
-        href="/admin/tags/<%- @tag?.id %>/delete"
+        href="<%- @baseURL %>/admin/tags/<%- @tag?.id %>/delete"
         onclick="javascript: return confirm('Delete? Are you sure?');"
       >
         <span class="glyphicon glyphicon-remove"></span>
@@ -28,7 +28,7 @@
   <div class="panel-body">
     <form
     class="form form-horizontal"
-    action="/admin/tags<%- @tag?.id && ('/' + @tag?.id) %>"
+    action="<%- @baseURL %>/admin/tags<%- @tag?.id && ('/' + @tag?.id) %>"
     enctype="multipart/form-data"
     method="post">
 

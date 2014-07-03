@@ -41,7 +41,7 @@ module.exports = function(limby, models) {
           // Success
           user.mailers && _.isFunction(user.mailers.signup) && user.mailers.signup();
           req.session.user_id = user.get('id');
-          res.redirect('/');
+          res.redirect(limby.baseURL + '/');
 
         })
         .otherwise(function(){

@@ -45,7 +45,7 @@ module.exports = function(limby, models) {
       })
       .then(function(){
         req.flash.success('You have successfully updated your password');
-        res.redirect('/account');
+        res.redirect(limby.baseURL + '/account');
       })
       .otherwise(function(){
         req.flash.danger(user.errors);

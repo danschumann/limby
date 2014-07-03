@@ -2,7 +2,7 @@
 <% @crumbs = admin: 'Admin', permissions: 'Permissions', active: title %>
 <% extend @limby.layout('admin') %>
 
-<form class="form form-horizontal" action="/admin/permissions/groups/<%- if @group then @group.id %>" method="post">
+<form class="form form-horizontal" action="<%- @baseURL %>/admin/permissions/groups/<%- if @group then @group.id %>" method="post">
   <div class="panel panel-default">
     <div class="panel-heading">
       <%- title %>

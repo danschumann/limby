@@ -14,14 +14,14 @@ module.exports = function(limby, models) {
         req.session.previousURL = req.originalUrl;
         console.log('burp'.blue, req.originalUrl);
         req.error('Please log in before continuing');
-        res.redirect('/login');
+        res.redirect(limby.baseURL + '/login');
       };
     },
 
     // Only users that are not logged in may be at this page
     non: function(req, res, next) {
       if ( req.session.user_id )
-        res.redirect('/');
+        res.redirect(limby.baseURL + '/');
       else
         next();
     },
@@ -29,7 +29,7 @@ module.exports = function(limby, models) {
     admin: function(req, res, next) {
       if ( !req.locals.user || !req.locals.user.get('admin') ) {
         req.error('You must be an admin');
-        res.redirect('/');
+        res.redirect(limby.baseURL + '/');
       } else
         next();
     },
@@ -46,7 +46,7 @@ module.exports = function(limby, models) {
 
         if (!req.locals.user) {
           req.error('You must be logged in to view that page');
-          return res.redirect('/');
+          return res.redirect(limby.baseURL + '/');
         };
 
         // Super admins can go anywhere
@@ -62,7 +62,7 @@ module.exports = function(limby, models) {
           return next();
         else {
           req.error('You might not have permission to view that page');
-          res.redirect('/');
+          res.redirect(limby.baseURL + '/');
         }
 
       };
@@ -97,7 +97,7 @@ module.exports = function(limby, models) {
         next();
       } else {
         req.error('You might not have permission to view that page');
-        res.redirect('/');
+        res.redirect(limby.baseURL + '/');
       };
     });
 

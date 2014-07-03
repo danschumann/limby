@@ -2,12 +2,12 @@
 
 <% extend @limby.layout('admin') %>
 
-<script src="/limby_static/javascripts/permission_groups.js"></script>
+<script src="<%- @baseURL %>/limby_static/javascripts/permission_groups.js"></script>
 
 <div class="permission_group panel panel-default" data-group_id="<%- @group.id %>">
   <div class="panel-heading">
     <a
-      href="/admin/permissions/groups/<%- @group.id %>/destroy"
+      href="<%- @baseURL %>/admin/permissions/groups/<%- @group.id %>/destroy"
       class="pull-right btn btn-xs btn-primary"
       onclick="return confirm('Destroy -- are you sure?')"
     >
@@ -15,7 +15,7 @@
       </span>
     </a>
 
-    <a href="/admin/permissions/groups/<%- @group.id %>/edit" class="pull-right btn btn-xs btn-primary marg-xs-right-7">
+    <a href="<%- @baseURL %>/admin/permissions/groups/<%- @group.id %>/edit" class="pull-right btn btn-xs btn-primary marg-xs-right-7">
       <span class="glyphicon glyphicon-pencil">
       </span>
     </a>

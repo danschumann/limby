@@ -5,7 +5,7 @@ $(function(){
   $('.permission_group_user').change(function(e) {
     var $pgu = $(e.currentTarget)
 
-    $.post('/admin/permissions/groups/' + group_id + '/users/' + $pgu.attr('data-user_id'),
+    $.post((window.baseURL || '') + '/admin/permissions/groups/' + group_id + '/users/' + $pgu.attr('data-user_id'),
       {toggle: $pgu.is(':checked') || undefined},
       function(res) {
       }
@@ -16,7 +16,7 @@ $(function(){
   $('.permission_group_role').change(function(e) {
     var $pgu = $(e.currentTarget)
 
-    $.post('/admin/permissions/groups/' + group_id + '/roles/' + $pgu.attr('data-role_id'),
+    $.post((window.baseURL || '') + '/admin/permissions/groups/' + group_id + '/roles/' + $pgu.attr('data-role_id'),
       {toggle: $pgu.is(':checked') || undefined},
       function(res) {
       }

@@ -62,7 +62,7 @@ module.exports = function(limby, models) {
 
               // explicitly add errors to `email` key
               // logOn set in controllers/login
-              user.error('email', 'No account exists for this email address. ' + (user.logOn ? '  Need an account?  <a href="/signup">Register here.</a>' : '') );
+              user.error('email', 'No account exists for this email address. ' + (user.logOn ? '  Need an account?  <a href="' + limby.baseURL + '/signup">Register here.</a>' : '') );
               // and use a blank `email_exists` key
               return when.reject();
 

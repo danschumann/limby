@@ -32,7 +32,7 @@ module.exports = function(limby, models) {
         .then(function(){
           req.notification('You have updated your password');
           req.session.user_id = user.get('id');
-          res.redirect('/');
+          res.redirect(limby.baseURL + '/');
         })
         .otherwise(function(errors){
           req.error( errors );

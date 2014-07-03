@@ -45,7 +45,7 @@ module.exports = function(limby, models) {
       })
       .then(function() {
         req.notification('Deleted tag');
-        res.redirect('/admin/tags');
+        res.redirect(limby.baseURL + '/admin/tags');
       });
 
     },
@@ -71,7 +71,7 @@ module.exports = function(limby, models) {
       })
       .then(function() {
         req.notification(req.params.tag_id ? 'Updated tag' : 'Created tag');
-        res.redirect('/admin/tags');
+        res.redirect(limby.baseURL + '/admin/tags');
       })
       .otherwise(function(er) {
         if ( !tag.errored() ) console.log('unknown error'.red, er, er.stack);

@@ -17,13 +17,13 @@ module.exports = function(limby, models) {
         if ( !user ) {
           // For some reason they have a session that has an invalid user token
           delete req.session.user_id;
-          return res.redirect('/');
+          return res.redirect(limby.baseURL + '/');
         };
         req.locals.user = user;
         if (user.get('banned')) {
           req.error('You have been temporarily banned for misuse, please try again later. ( HAHA )');
           delete req.session.user_id;
-          return res.redirect('/');
+          return res.redirect(limby.baseURL + '/');
         }
 
         next();
@@ -32,7 +32,7 @@ module.exports = function(limby, models) {
       .otherwise(function(er) {
         delete req.session.user_id;
         req.error('You have been logged out, this may be a problem with our database.  Please log back in or try again later');
-        res.redirect('/login');
+        res.redirect(limby.baseURL + '/login');
       });
   };
 

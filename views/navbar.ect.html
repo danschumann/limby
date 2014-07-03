@@ -11,15 +11,15 @@
     <% end %>
 
     <div class="navsection right">
-      <a href="/logout"> Logout </a>
+      <a href="<%- @baseURL %>/logout"> Logout </a>
     </div>
     
     <div class="navsection right <%- accountClass %>">
-      <a href="/account"> Account </a>
+      <a href="<%- @baseURL %>/account"> Account </a>
     </div>
 
     <div class="navsection <%- baseClass %>">
-      <a href="/"> Home </a>
+      <a href="<%- @baseURL %>/"> Home </a>
     </div>
 
     <div class="navsection right">
@@ -49,20 +49,20 @@
 
         <% if tagsPerm : %>
           <div class="navsection <%- tagsClass || '' %>">
-            <a href="/tags">Tags</a>
+            <a href="<%- @baseURL %>/tags">Tags</a>
           </div>
         <% end %>
         
         <% if permsPerm : %>
           <div class="navsection <%- permissionsClass || '' %>">
-            <a href="/admin/permissions">Permissions</a>
+            <a href="<%- @baseURL %>/admin/permissions">Permissions</a>
           </div>
         <% end %>
 
       </span></span>
     <% end %>
 
-    <div class="navmiddle" style="display: none"><a href="/">Menu</a></div>
+    <div class="navmiddle" style="display: none"><a href="<%- @baseURL %>/">Menu</a></div>
 
   <% else : %>
 

@@ -1,7 +1,7 @@
 <% @body ?= {email: ''} %>
 
 <div class="<%- @limb.config.forms.login.containerClass %>">
-  <form role="form" class="<%- @limb.config.forms.login.className %>" action="/login" method="post">
+  <form role="form" class="<%- @limb.config.forms.login.className %>" action="<%- @baseURL %>/login" method="post">
       
     <div class="<%- @limb.config.forms.login.panelHeadingClass %>">
       <%- @limb.config.forms.login.panelHeading %>
@@ -27,7 +27,7 @@
     
         <% @formGroup = [
           type: 'html'
-          html: '<a href="/forgot_password">Forgot Password</a>'
+          html: '<a href="' + @baseURL + '/forgot_password">Forgot Password</a>'
         ] %>
         <% include @limby.viewPath 'partials/form_group' %>
 

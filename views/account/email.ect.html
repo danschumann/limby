@@ -1,9 +1,9 @@
 <% extend @limby.layout('account') %>
 
-<%- @breadcrumbs {'account': 'Account', 'active': 'Change Email'} %>
+<% @crumbs = {'account': 'Account', 'active': 'Change Email'} %>
 
 <div class="<%- @limb.config.forms.email.containerClass %>">
-  <form role="form" class="<%- @limb.config.forms.email.className %>" action="/email" method="post">
+  <form role="form" class="<%- @limb.config.forms.email.className %>" action="<%- @baseURL %>/email" method="post">
 
     <div class="<%- @limb.config.forms.email.panelHeadingClass %>">
       <%- @limb.config.forms.email.panelHeading %>

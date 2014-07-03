@@ -3,19 +3,19 @@
 <% @crumbs = admin: 'Admin', active: 'Tags' %>
 
 <% block 'head' : %>
-  <link rel="stylesheet" type="text/css" href="/stylesheets/tags.css" />
+  <link rel="stylesheet" type="text/css" href="<%- @baseURL %>/stylesheets/tags.css" />
 <% end %>
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <a class="pull-right btn btn-xs btn-primary" href="/admin/tags/edit">Create</a>
+    <a class="pull-right btn btn-xs btn-primary" href="<%- @baseURL %>/admin/tags/edit">Create</a>
     Tags
   </div>
 
   <div class="list-group">
     <% @tags.each (tag) => : %>
       <a
-        href="/admin/tags/<%- tag.id %>"
+        href="<%- @baseURL %>/admin/tags/<%- tag.id %>"
         class="list-group-item"
       >
         <%- tag.get 'name' %>

@@ -3,7 +3,7 @@
 <% @crumbs = {'account': 'Account'} %>
 
 <div class="<%- @limb.config.forms.account.containerClass %>">
-  <form role="form" class="<%- @limb.config.forms.account.className %>" action="/account" method="post">
+  <form role="form" class="<%- @limb.config.forms.account.className %>" action="<%- @baseURL %>/account" method="post">
 
     <% @body ?= {first_name: '', last_name: ''} %>
     <% @user = @req.locals.user.toJSON() %>
@@ -12,11 +12,11 @@
       <%- @limb.config.forms.account.panelHeading %>
       <div class="pull-right edit-actions">
         <span class="glyphicon glyphicon-edit"></span>
-        <a class="btn btn-default btn-xs" href="/email">
+        <a class="btn btn-default btn-xs" href="<%- @baseURL %>/email">
           Change Email
         </a>
         <% if @limb.config.forms?.account?.password isnt false : %>
-          <a class="btn btn-default btn-xs" href="/password">
+          <a class="btn btn-default btn-xs" href="<%- @baseURL %>/password">
             Change Password
           </a>
         <% end %>

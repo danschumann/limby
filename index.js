@@ -192,6 +192,7 @@ Limby.prototype.route = function() {
       req._limby.key = req._limby.key || 'core';
 
       var defaults = _.extend(_.clone(limby.config.viewOptions), {
+        baseURL: limby.config.baseURL,
         limby: limby,
         config: limby.config,
         renderFlash: renderFlash,
