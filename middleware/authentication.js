@@ -12,7 +12,6 @@ module.exports = function(limby, models) {
         next();
       else {
         req.session.previousURL = req.originalUrl;
-        console.log('burp'.blue, req.originalUrl);
         req.error('Please log in before continuing');
         res.redirect(limby.baseURL + '/login');
       };

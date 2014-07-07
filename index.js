@@ -149,7 +149,7 @@ Limby.prototype.route = function() {
   // Viewing as html helps out syntax highlighting
   app.engine('ect.html', limby._render);
 
-  app.use('/limby_static', serveStatic(j(__dirname, 'public')));
+  app.use('/limby_static', serveStatic(j(__dirname, 'public'), {redirect: false}));
 
   //routers.api     (app);
   //routers.admin   (app);
@@ -304,7 +304,7 @@ Limby.prototype.extend = function(key) {
 
   _.each(['public', 'vendor'], function(staticKey) {
     if (limb[staticKey])
-      subApp.use(serveStatic(j(limbPath, staticKey)));
+      app.use('/' + limbUrl, serveStatic(j(limbPath, staticKey), {redirect: false}));
   })
 
   debug('extend coffeescripts'.blue, key);
