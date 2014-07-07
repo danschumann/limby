@@ -35,7 +35,7 @@
       <% @formGroup = [
         title: 'Name:'
         name: 'name'
-        value: @body.name || @tag?.get 'name'
+        value: @body.name ? @tag?.get 'name'
         labelClass: 'col-md-2'
         inputContainerClass: 'col-md-10'
       ] %>
