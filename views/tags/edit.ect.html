@@ -1,9 +1,9 @@
+<% @req.locals.title ||= (@tag? && 'Edit' || 'New')  + ' Tag' %>
 <%
-@title = ((@customer_request?.id && 'Edit') || 'New') + ' Customer Request -- '
 @crumbs =
   admin: 'Admin'
   tags: 'Tags'
-  active: (@tag? && 'Edit' || 'New')  + ' Tag'
+  active: @req.locals.title
 %>
 
 <% extend @limby.layout('admin') %>

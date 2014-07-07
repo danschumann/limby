@@ -4,7 +4,14 @@
   <meta charset="utf-8">
 <%# user scripts -- unindented for pretty view-source %>
 <% content 'head' %>
-  <title> <%- (@title || 'Limby Default Page')  %></title>
+  <title>
+    Limby
+    <% if @req.locals.limbTitle : %>
+    <%- @req.locals.limbTitle %>
+    -
+    <% end %>
+    <%- (@title || 'Limby Default Page') %>
+  </title>
 </head>
 <body>
 

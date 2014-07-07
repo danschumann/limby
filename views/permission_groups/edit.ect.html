@@ -1,11 +1,12 @@
-<% title = (@group && 'Edit' || 'Create') + ' Permission Group' %>
-<% @crumbs = admin: 'Admin', permissions: 'Permissions', active: title %>
+<% @req.locals.title = (@group && 'Edit' || 'Create') + ' Permission Group' %>
+
+<% @crumbs = admin: 'Admin', permissions: 'Permissions', active: @req.locals.title %>
 <% extend @limby.layout('admin') %>
 
 <form class="form form-horizontal" action="<%- @baseURL %>/admin/permissions/groups/<%- if @group then @group.id %>" method="post">
   <div class="panel panel-default">
     <div class="panel-heading">
-      <%- title %>
+      <%- @req.locals.title %>
     </div>
     <div class="panel-body">
 

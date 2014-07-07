@@ -1,8 +1,20 @@
+<% @req.locals.title ||= 'Users' %>
 <% extend @limby.layout('admin') %>
+<% @headScripts.push '<script src="' + @baseURL + '/limby_static/javascripts/admin_users.js"></script>' %>
 
-<h1> Admin </h1>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Admin Users
+  </div>
 
-<ul>
-  <li>
-  </li>
-</ul>
+  <div class="list-group">
+    <% @users.each (user) => : %>
+      <div class="list-group-item">
+        <input class="admin_user" type="checkbox" data-id="<%- user.id %>" <%- if user.get('admin') then 'checked' %> />
+        <span class="name">
+          <%- user.fullName() %>
+        </span>
+      </div>
+    <% end %>
+  </div>
+</div>

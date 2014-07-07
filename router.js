@@ -46,23 +46,37 @@ module.exports = function(limby){
     authentication.user,
     user.load, 
     user.loadPermissions,
-  ]
-  app.get  ('/account', loggedInMW, controllers.account.index);
-  app.post ('/account', loggedInMW, controllers.account.post);
+  ];
 
-  app.get  ('/password', loggedInMW, controllers.password.index);
-  app.post ('/password', loggedInMW, controllers.password.post);
+  var accountTitle = function(req, res, next) {
+    req.locals.limbTitle = req.locals.limbTitle || 'Account';
+    next();
+  };
+  app.get  ('/account', accountTitle, loggedInMW, controllers.account.index);
+  app.post ('/account', accountTitle, loggedInMW, controllers.account.post);
+
+  app.get  ('/password', accountTitle, loggedInMW, controllers.password.index);
+  app.post ('/password', accountTitle, loggedInMW, controllers.password.post);
   
-  app.get  ('/email', loggedInMW, controllers.email.index);
-  app.post ('/email', loggedInMW, controllers.email.post);
+  app.get  ('/email', accountTitle, loggedInMW, controllers.email.index);
+  app.post ('/email', accountTitle, loggedInMW, controllers.email.post);
 
   //
   // Admin routes
   //
+  app.all('/admin*?',
+    function(req, res, next) { req.locals.limbTitle = req.locals.limbTitle || 'Admin'; next() },
+    loggedInMW,
+    limby.middleware.authentication.admin
+  );
 
-  app.all ('/admin/permissions*?', loggedInMW, authentication.permission('admin/permissions'))
+  app.get('/admin/?', controllers.admin.index);
+  app.post('/admin/users/:user_id', controllers.admin.toggle);
 
-  app.get ('/admin/permissions', loggedInMW, controllers.permissions.index);
+
+  app.all ('/admin/permissions*?', authentication.permission('admin/permissions'))
+
+  app.get ('/admin/permissions', controllers.permissions.index);
 
   var pg = controllers.permission_groups;
   app.get  ('/admin/permissions/groups/new', pg.edit);
@@ -77,7 +91,7 @@ module.exports = function(limby){
   app.post ('/admin/permissions/groups/:group_id/roles/:role_id', controllers.permission_group_roles.toggle);
   app.post ('/admin/permissions/:role_id/users/:user_id', controllers.permission_user_roles.toggle);
 
-  app.all('/admin/tags/?*', loggedInMW, authentication.permission('admin/tags'));
+  app.all('/admin/tags/?*', authentication.permission('admin/tags'));
 
   app.get  ('/admin/tags', limby.controllers.tags.index);
   app.get  ('/admin/tags/edit', limby.controllers.tags.edit);
