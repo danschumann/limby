@@ -47,8 +47,12 @@
           <% else: %>
             <input
               class="form-control <%- group.className %>"
+              <% if group.type == 'checkbox' : %>
+                <%- value && 'checked' || '' %>
+              <% else : %>
+                value="<%- value %>"
+              <% end %>
               type="<%- group.type || 'text' %>"
-              value="<%- value %>"
               <%- if group.autofocus then 'autofocus' %>
               name="<%- name %>"
             />

@@ -3,6 +3,7 @@ var
   sepReg      = require('./lib/regexes').sepReg,
   pm          = require('print-messages'),
   _           = require('underscore'),
+  _s          = require('underscore.string'),
   lo          = require('lodash'),
   events      = require('events'),
   util        = require('util'),
@@ -200,6 +201,7 @@ Limby.prototype.route = function() {
         req: req,
         headScripts: [],
         _: _,
+        _s: _s,
         limb: limby.limbs[req._limby.key]
       });
       options = _.extend(defaults, options);

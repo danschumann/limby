@@ -1,6 +1,5 @@
 module.exports = function(limby, models) {
 
-
   var
     File, Files,
 
@@ -14,40 +13,61 @@ module.exports = function(limby, models) {
     defaultFileNamer = function(baseName) { return baseName; },
     config     = limby.config,
     bookshelf  = limby.bookshelf,
-    im         = require('imagemagick'),
     _          = require('underscore'),
     pm         = require('print-messages'),
 
-    papercut   = require('papercut'),
     baseName   = require('path').basename,
     join       = require('path').join,
     when       = require('when'),
     nodefn     = require('when/node/function');
 
-  _.each(['identify', 'convert', 'resize'], function(fnName) {
-    im[fnName] = nodefn.lift(_.bind(im[fnName], im));
-    im[fnName].path = fnName; // bugfix
-  })
+  // Disable if they didn't configure a image resizing module to use
+  if (
+    !limby.config.imager ||
+    !limby.config.imager.module ||
+    !_.include(['canvas', 'imagemagick'], limby.config.imager.module)
+  ) {
+    var fallback = function(){ 
+      throw new Error('You must set imager.module = (canvas|imagemagick) in config to use limby Files');
+    } 
+    // Alternative to `new fallback` is `fallback.forge()`, so stub that too.
+    fallback.forge = fallback;
+    return {
+      File: fallback,
+      Files: fallback,
+    }
+  }
 
-  papercut.configure(function(){
-    _.each(limby.config.papercut, function(val, key) {
-      papercut.set(key, val);
-    });
-  });
 
-  // Papercut seems to like doing 1 image per instance of thumbnailer
-  var ResizerDefault = papercut.Schema(function(schema){
-    schema.version({
-      name: 'avatar',
-      size: '300x200',
-      process: 'resize',
-    });
+  var im, Canvas, rsz, crp;
 
-    schema.version({
-      name: 'original',
-      process: 'copy',
-    });
-  });
+  var include = function(varName, module, erMsg) {
+    try {
+      eval(varName + " = require('imagemagick');");
+    } catch (er) {
+      throw new Error(erMsg);
+    }
+
+  };
+
+  if (limby.config.imager.module == 'imagemagick') {
+
+    include('im', 'imagemagick',
+      "Please `npm install imagemagick` in your main application directory, or unset config.imager.module");
+
+    _.each(['identify', 'convert', 'resize'], function(fnName) {
+      im[fnName] = nodefn.lift(_.bind(im[fnName], im));
+      im[fnName].path = fnName; // BUGFIX: imagemagick depends on a string of what bash command to run
+    })
+
+  } else if (limby.config.imager.module == 'canvas') {
+    include('Canvas', 'canvas',
+      "Please `npm install canvas` in your main application directory, or unset config.imager.module");
+    include('rsz', 'rsz',
+      "Please `npm install rsz` in your main application directory, since you are using config.imager.module = 'canvas'");
+    include('crp', 'crp',
+      "Please `npm install crp` in your main application directory, since you are using config.imager.module = 'canvas'");
+  }
 
   instanceMethods = {
 
@@ -83,7 +103,7 @@ module.exports = function(limby, models) {
         if (file.get('type') !== 'preview') args.push('-coalesce');
         args.push(
           '-resize', output ? output.split('_')[0] : '248x300',
-          join(limby.config.papercut.directory, file.get('fName'))
+          join(limby.config.imager.directory, file.get('fName'))
         );
 
         return im.convert(args);
