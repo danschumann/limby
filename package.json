@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -31,7 +31,7 @@
     "nodemailer": "~0.5.15",
     "optimist": "~0.6.0",
     "papercut": "0.0.6",
-    "param-bindings": "0.0.3",
+    "param-bindings": "0.0.4",
     "print-messages": "~0.3.0",
     "prompt": "0.2.11",
     "serve-static": "^1.0.4",

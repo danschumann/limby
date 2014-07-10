@@ -43,6 +43,10 @@ module.exports = function(limby, models) {
             // if user error, we display it, and only one
             user.errors = { email: _.first(user.errors.email) };
           req.flash.danger(user.errors);
+          if (!user.errored()) {
+            req.flash.danger("Unknown error! Contact Portal Admin");
+            console.log('uncaught error'.red, er, er.stack);
+          }
           res.view('login', {body: {email: _.escape(req.body.email)}});
         });
 
