@@ -2,19 +2,21 @@
 <% extend @limby.layout('admin') %>
 <% @headScripts.push '<script src="' + @baseURL + '/limby_static/javascripts/admin_users.js"></script>' %>
 
-<div class="panel panel-default">
-  <div class="panel-heading">
-    Admin Users
-  </div>
+<% if @req.hasPermission('admin/super') : %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Admin Users
+    </div>
 
-  <div class="list-group">
-    <% @users.each (user) => : %>
-      <div class="list-group-item">
-        <input class="admin_user" type="checkbox" data-id="<%- user.id %>" <%- if user.get('admin') then 'checked' %> />
-        <span class="name">
-          <%- user.fullName() %>
-        </span>
-      </div>
-    <% end %>
+    <div class="list-group">
+      <% @users.each (user) => : %>
+        <div class="list-group-item">
+          <input class="admin_user" type="checkbox" data-id="<%- user.id %>" <%- if user.get('admin') then 'checked' %> />
+          <span class="name">
+            <%- user.fullName() %>
+          </span>
+        </div>
+      <% end %>
+    </div>
   </div>
-</div>
+<% end %>

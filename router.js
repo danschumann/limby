@@ -66,12 +66,13 @@ module.exports = function(limby){
   //
   app.all('/admin*?',
     function(req, res, next) { req.locals.limbTitle = req.locals.limbTitle || 'Admin'; next() },
-    loggedInMW,
-    limby.middleware.authentication.admin
+    loggedInMW
   );
 
   app.get('/admin/?', controllers.admin.index);
-  app.post('/admin/users/:user_id', controllers.admin.toggle);
+  app.post('/admin/users/:user_id',
+    authentication.permission('admin/super'),
+    controllers.admin.toggle);
 
 
   app.all ('/admin/permissions*?', authentication.permission('admin/permissions'))

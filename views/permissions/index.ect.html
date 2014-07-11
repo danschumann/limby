@@ -70,6 +70,9 @@
                   <% if perm.get('parent_type') : %>
                      -- <%- perm.related('parent').permissionName() %>
                   <% end %>
+                  <% if perm.get('seeded') : %>
+                    <div class="label label-info">Admin Permission</div>
+                  <% end %>
                 </div>
               <% end %>
             </div>

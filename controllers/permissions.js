@@ -13,9 +13,10 @@ module.exports = function(limby, models) {
       var
         output = {};
 
-      console.log('heyo'.red, models.Permissions.prototype.morphParents);
-
-      models.Permissions.forge().fetch()
+      models.Permissions.forge().query(function(qb){
+        qb.orderBy('seeded', 'desc');
+        qb.orderBy('name');
+      }).fetch()
       .then(function(permissions) {
         output.permissions = permissions;
         return when.map(permissions.map(function(p) {

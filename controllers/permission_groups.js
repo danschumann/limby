@@ -72,7 +72,10 @@ module.exports = function(limby, models) {
       })
       .then(function(users){
         output.users = users;
-        return models.Permissions.forge().fetch();
+        return models.Permissions.forge().query(function(qb){
+          qb.orderBy('seeded', 'desc');
+          qb.orderBy('name');
+        }).fetch();
       })
       .then(function(roles){
         output.roles = roles;

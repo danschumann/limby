@@ -52,6 +52,7 @@ module.exports = function(limby, models) {
 
   if (limby.config.imager.module == 'imagemagick') {
 
+    console.log('loading IMAGE MAGICK');
     include('im', 'imagemagick',
       "Please `npm install imagemagick` in your main application directory, or unset config.imager.module");
 
@@ -59,6 +60,7 @@ module.exports = function(limby, models) {
       im[fnName] = nodefn.lift(_.bind(im[fnName], im));
       im[fnName].path = fnName; // BUGFIX: imagemagick depends on a string of what bash command to run
     })
+    console.log('loading IMAGE MAGICK', im);
 
   } else if (limby.config.imager.module == 'canvas') {
     include('Canvas', 'canvas',

@@ -51,6 +51,9 @@
             <%- if @group.related('permission_group_roles').findWhere({limby_permission_id: role.id}) then 'checked' else '' %>
           />
           <%- role.get('name') %>
+          <% if role.get('seeded') : %>
+            <div class="label label-info">Admin Permission</div>
+          <% end %>
         </div>
       <% end %>
     </div>

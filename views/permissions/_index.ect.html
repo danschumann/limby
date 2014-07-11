@@ -10,13 +10,16 @@
     </thead>
     <tbody>
       <% @permissions.each (perm) => : %>
-        <tr class="permission_row">
+      <tr class="permission_row">
           <td><%- perm.get('module') %></td>
           <td>
             <%- perm.get 'name' %>
             <% if perm.get('parent_type') : %>
                -- <%- perm.related('parent').permissionName() %>
             <% end %>
+            <span class="<%- if perm.get('seeded') then 'label label-info' %>">
+              Admin Permission
+            </span>
           </td>
         </tr>
       <% end %>
