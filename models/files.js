@@ -3,6 +3,8 @@ module.exports = function(limby, models) {
   var
     File, Files,
 
+    debug = require('debug')('limby:models:file'),
+
     // Since converting gifs takes a long time, we only allow one at a time
     processing = false,
     queue = [],
@@ -52,7 +54,6 @@ module.exports = function(limby, models) {
 
   if (limby.config.imager.module == 'imagemagick') {
 
-    console.log('loading IMAGE MAGICK');
     include('im', 'imagemagick',
       "Please `npm install imagemagick` in your main application directory, or unset config.imager.module");
 
@@ -60,7 +61,6 @@ module.exports = function(limby, models) {
       im[fnName] = nodefn.lift(_.bind(im[fnName], im));
       im[fnName].path = fnName; // BUGFIX: imagemagick depends on a string of what bash command to run
     })
-    console.log('loading IMAGE MAGICK', im);
 
   } else if (limby.config.imager.module == 'canvas') {
     include('Canvas', 'canvas',
@@ -114,7 +114,7 @@ module.exports = function(limby, models) {
         return file.save()
       })
       .otherwise(function(er) {
-        console.log("Couldn't resize image. do you have ImageMagick installed?".red, er, er.stack);
+        console.log("Couldn't resize image. do you have " + limby.config.imager.module + " installed?".red, er, er.stack);
       })
       .then(function(){
         processing = false;
@@ -149,13 +149,13 @@ module.exports = function(limby, models) {
 
     upload: function(opts) {
 
+      debug('upload')
+
       var
         req = opts.req,
         key = opts.key || 'Please specify req.upload({key})',
         fileNamer = opts.fileNamer,
         parent = opts.parent;
-
-      (opts.flash || function() { req.flash.info('Processing image'); })();
 
       fileNamer = fileNamer || defaultFileNamer;
 
@@ -166,8 +166,14 @@ module.exports = function(limby, models) {
         req.files[key] = [req.files[key]];
 
       return when.map(req.files[key], function(file) {
+        debug('map files', file)
 
         if (!file.size) return;
+        (opts.flash || function() {
+          req.flash.info('Processing image');
+          this.flash = function(){}; // reset so it only does it once
+        })();
+
         var path = file.path;
         var fileName = fileNamer(file.originalFilename);
 
@@ -188,23 +194,25 @@ module.exports = function(limby, models) {
             type: 'original' }, 
         ], function(ob){
 
-          return limby.models.File.forge({
-            path: '/uploads/' + ob.fName, // urlPath
-            type: 'processing-' + ob.type,
-            parent_type: parent.tableName,
-            parent_id: parent.id,
-          }).save().then(function(file){
-            // Since this `file` will sit in queue(memory) until it compiles
-            // we can set the type on it and save it later ( when the img is done )
-            file.set({
-              type: ob.type,
-              tmpPath: path + (ob.type == 'preview' ? '[0]' : ''),
-              fName: ob.fName,
-              
-            });
+          return function(){
+            return limby.models.File.forge({
+              path: '/uploads/' + ob.fName, // urlPath
+              type: 'processing-' + ob.type,
+              parent_type: parent.tableName,
+              parent_id: parent.id,
+            }).save().then(function(file){
+              // Since this `file` will sit in queue(memory) until it compiles
+              // we can set the type on it and save it later ( when the img is done )
+              file.set({
+                type: ob.type,
+                tmpPath: path + (ob.type == 'preview' ? '[0]' : ''),
+                fName: ob.fName,
+                
+              });
 
-            Files.tryProcessing(file);
-          });
+              Files.tryProcessing(file);
+            });
+          };
         }));
 
       })
