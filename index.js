@@ -429,10 +429,36 @@ Limby.prototype.viewPath = function(path) {
 
 };
 
-Limby.prototype.renderWidgets = function(path, options) {
+Limby.prototype.renderWidgets = function(_path, options) {
   var limby = this;
 
-  return _.map(limby.widgets[path], function(widgetPath) {
+  // Sorted widget list
+  var widgets;
+  var widgConfig = (options.limb && options.limb.config && options.limb.config.widgets) ||
+    (limby.core.config && limby.core.config.widgets) ||
+    {};
+
+  // TODO: take limb names and scrape limb.views.widgets[...] instead of scraping premade widgets object
+
+  // sorted widgets
+  if (widgConfig[_path]) {
+    widgets = [];
+    _.each(widgConfig[_path], function(widgetName) {
+
+      // massaging data -- we make this what prepends the widget path
+      if (widgetName == 'core')
+        widgetName = j('views', 'widgets');
+      else
+        widgetName = j(path.relative(limby.paths.core, limby.paths.limbs), widgetName);
+
+      _.each(limby.widgets[_path], function(widgetPath){
+        if (widgetPath.match(j(path.relative(limby.paths.base, limby.paths.core), widgetName)))
+          widgets.push(widgetPath);
+      })
+    });
+  }
+
+  return _.map(widgets ||  limby.widgets[_path], function(widgetPath) {
     return limby._render(widgetPath, options);
   }).join('\n');
 
