@@ -51,12 +51,12 @@ module.exports = function(limby, models) {
         // Super admins can go anywhere
         if ( req.locals.user.get('admin') ) return next();
 
+        // Any or all of the permissions, based on first arg boolean
         var can = _[all ? 'all' : 'any'](perms, function(pName) {
           // Must load these from middleware.user.loadPermissions
           return req.locals.permissions.findWhere({name: pName});
         });
 
-        // We only care if they can do one of the permissions
         if (can)
           return next();
         else {

@@ -80,7 +80,7 @@ module.exports = function(limby){
   app.get ('/admin/permissions', controllers.permissions.index);
 
   var pg = controllers.permission_groups;
-  app.get  ('/admin/permissions/groups/new', pg.edit);
+  app.get  ('/admin/permissions/groups/create', pg.edit);
   app.post ('/admin/permissions/groups', pg.update);
   app.get  ('/admin/permissions/groups/:group_id', pg.load, pg.show);
   app.post  ('/admin/permissions/groups/:group_id', pg.load, pg.update);
@@ -95,6 +95,7 @@ module.exports = function(limby){
   app.all('/admin/tags/?*', authentication.permission('admin/tags'));
 
   app.get  ('/admin/tags', limby.controllers.tags.index);
+  app.get  ('/admin/tags/create', limby.controllers.tags.edit);
   app.get  ('/admin/tags/edit', limby.controllers.tags.edit);
   app.get  ('/admin/tags/:tag_id', limby.controllers.tags.edit);
   app.get  ('/admin/tags/:tag_id/delete', limby.controllers.tags.destroy);

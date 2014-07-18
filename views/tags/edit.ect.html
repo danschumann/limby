@@ -20,7 +20,7 @@
         href="<%- @baseURL %>/admin/tags/<%- @tag?.id %>/delete"
         onclick="javascript: return confirm('Delete? Are you sure?');"
       >
-        <span class="glyphicon glyphicon-remove"></span>
+        <span class="glyphicon glyphicon-trash"></span>
       </a>
     <% end %>
     <%- (@tag? && 'Edit') || 'New' %> Tag

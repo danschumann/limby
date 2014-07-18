@@ -345,6 +345,7 @@ Limby.prototype.extend = function(key) {
     debug('extend call app'.blue, key);
     limb.app(limby, subApp);
   }
+  limb.app = subApp;
 
   // We nest the entire sub app under its base route
   debug('extend app.use'.blue, key, limbUrl);

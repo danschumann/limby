@@ -13,9 +13,9 @@
     <div class="<%- @limb.config.forms.account.panelHeadingClass %>">
       <%- @limb.config.forms.account.panelHeading %>
       <div class="pull-right edit-actions">
-        <span class="glyphicon glyphicon-edit"></span>
         <a class="btn btn-default btn-xs" href="<%- @baseURL %>/email">
           Change Email
+          <span class="glyphicon glyphicon-edit marg-xs-left-3"></span>
         </a>
         <% if @limb.config.forms?.account?.password isnt false : %>
           <a class="btn btn-default btn-xs" href="<%- @baseURL %>/password">

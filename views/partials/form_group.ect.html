@@ -28,8 +28,8 @@
             <select class="form-control" name="<%- name %>">
               <% @_.each group.options, (opt) => : %>
                 <option
-                  <%- opt.value && 'value="' + opt.value + '"' %>
-                  <%- opt.value == group.value && 'selected' %>
+                  <%- opt.value? && 'value="' + opt.value + '"' %>
+                  <%- opt.value == group.value && 'selected' || '' %>
                   ><%- opt.title %></option>
               <% end %>
 
