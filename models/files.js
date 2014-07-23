@@ -29,121 +29,125 @@ module.exports = function(limby, models) {
     when       = require('when'),
     nodefn     = require('when/node/function');
 
-  // Disable if they didn't configure a image resizing module to use
-  if (
-    !limby.config.imager ||
-    !limby.config.imager.module ||
-    !_.include(['canvas', 'imagemagick'], limby.config.imager.module)
-  ) {
-    var fallback = function(){ 
-      throw new Error('You must set imager.module = (canvas|imagemagick) in config to use limby Files');
-    } 
-    // Alternative to `new fallback` is `fallback.forge()`, so stub that too.
-    fallback.forge = fallback;
-    return {
-      File: fallback,
-      Files: fallback,
-    }
-  }
 
+  var im, Canvas, rsz, crp, include, initted;
+  var init = function(){
 
-  var im, Canvas, rsz, crp;
+    if ( initted ) return; initted = true
 
-  var include = function(varName, module, erMsg) {
-    try {
-      eval(varName + " = require('" + module + "');");
-    } catch (er) {
-      console.log(er, er.stack);
-      throw new Error(erMsg);
+    // Disable if they didn't configure a image resizing module to use
+    if (
+      !limby.config.imager ||
+      !limby.config.imager.module ||
+      !_.include(['canvas', 'imagemagick'], limby.config.imager.module)
+    ) {
+      var fallback = function(){ 
+        throw new Error('You must set imager.module = (canvas|imagemagick) in config to use limby Files');
+      } 
+      // Alternative to `new fallback` is `fallback.forge()`, so stub that too.
+      fallback.forge = fallback;
+      return {
+        File: fallback,
+        Files: fallback,
+      }
     }
 
-  };
+    include = function(varName, module, erMsg) {
+      try {
+        eval(varName + " = require('" + module + "');");
+      } catch (er) {
+        console.log(er, er.stack);
+        throw new Error(erMsg);
+      }
 
-  if (limby.config.imager.module == 'imagemagick') {
+    };
 
-    if (!limby.imager)
-      throw new Error("You must set limby.imager=require('imagemagick') to use the config.imager.module = 'canvas'");
+    if (limby.config.imager.module == 'imagemagick') {
 
-    im = limby.imager;
+      if (!limby.imager)
+        throw new Error("You must set limby.imager=require('imagemagick') to use the config.imager.module = 'canvas'");
 
-    _.each(['identify', 'convert', 'resize'], function(fnName) {
-      im[fnName] = nodefn.lift(_.bind(im[fnName], im));
-      im[fnName].path = fnName; // BUGFIX: imagemagick depends on a string of what bash command to run
-    })
+      im = limby.imager;
 
-    processFile = function(file) {
-
-      return when().then(function() {
-        if (file.get('type') == 'original')
-          return im.identify(['-format', '%wx%h_', file.get('tmpPath')])
+      _.each(['identify', 'convert', 'resize'], function(fnName) {
+        im[fnName] = nodefn.lift(_.bind(im[fnName], im));
+        im[fnName].path = fnName; // BUGFIX: imagemagick depends on a string of what bash command to run
       })
-      .then(function(output) {
 
-        var args = [ file.get('tmpPath') ];
-        if (file.get('type') !== 'preview') args.push('-coalesce');
-        args.push(
-          '-resize', output ? output.split('_')[0] : thumbnail.width + 'x' + thumbnail.height,
-          join(limby.config.imager.directory, file.get('fName'))
-        );
+      processFile = function(file) {
 
-        return im.convert(args);
+        return when().then(function() {
+          if (file.get('type') == 'original')
+            return im.identify(['-format', '%wx%h_', file.get('tmpPath')])
+        })
+        .then(function(output) {
 
-      });
+          var args = [ file.get('tmpPath') ];
+          if (file.get('type') !== 'preview') args.push('-coalesce');
+          args.push(
+            '-resize', output ? output.split('_')[0] : thumbnail.width + 'x' + thumbnail.height,
+            join(limby.config.imager.directory, file.get('fName'))
+          );
 
-    }
+          return im.convert(args);
 
-  } else if (limby.config.imager.module == 'canvas') {
-
-    if (!limby.imager)
-      throw new Error("You must set limby.imager=require('canvas') to use the config.imager.module = 'canvas'");
-
-    Canvas = limby.imager;
-
-    processFile = function(file) {
-
-      var img;
-
-      return fs.readFile(file.get('tmpPath'))
-      .then(function(data) {
-        img = new Canvas.Image;
-        img.src = data;
-      })
-      .then(function() {
-
-        var width = img.width, height = img.height;
-
-        var canvas = new Canvas(width, height);
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        var resizedCanvas;
-
-        if (file.get('type') !== 'original') {
-          var ratio = thumbnail.width / img.width;
-          if (thumbnail.height / img.height < ratio)
-            ratio = thumbnail.height / img.height;
-
-          width *= ratio; height *= ratio;
-          width = Math.floor(width);
-          height = Math.floor(height);
-          resizedCanvas = new Canvas(width, height);
-          require('../lib/resize_image')(canvas, resizedCanvas);
-        }
-
-        var deferred = when.defer();
-        (resizedCanvas || canvas).toBuffer(function(err, buf){
-          return fs.writeFile(join(limby.config.imager.directory, file.get('fName')), buf)
-            .then(deferred.resolve).otherwise(deferred.reject);
         });
 
-        return deferred.promise;
+      }
 
-      })
-      .otherwise(function(er){
-        console.log('error processing', er, er.stack);
-      });
+    } else if (limby.config.imager.module == 'canvas') {
 
-    }
-  };
+      if (!limby.imager)
+        throw new Error("You must set limby.imager=require('canvas') to use the config.imager.module = 'canvas'");
+
+      Canvas = limby.imager;
+
+      processFile = function(file) {
+
+        var img;
+
+        return fs.readFile(file.get('tmpPath'))
+        .then(function(data) {
+          img = new Canvas.Image;
+          img.src = data;
+        })
+        .then(function() {
+
+          var width = img.width, height = img.height;
+
+          var canvas = new Canvas(width, height);
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          var resizedCanvas;
+
+          if (file.get('type') !== 'original') {
+            var ratio = thumbnail.width / img.width;
+            if (thumbnail.height / img.height < ratio)
+              ratio = thumbnail.height / img.height;
+
+            width *= ratio; height *= ratio;
+            width = Math.floor(width);
+            height = Math.floor(height);
+            resizedCanvas = new Canvas(width, height);
+            require('../lib/resize_image')(canvas, resizedCanvas);
+          }
+
+          var deferred = when.defer();
+          (resizedCanvas || canvas).toBuffer(function(err, buf){
+            return fs.writeFile(join(limby.config.imager.directory, file.get('fName')), buf)
+              .then(deferred.resolve).otherwise(deferred.reject);
+          });
+
+          return deferred.promise;
+
+        })
+        .otherwise(function(er){
+          console.log('error processing', er, er.stack);
+        });
+
+      }
+    };
+  }
 
   instanceMethods = {
 
@@ -171,6 +175,7 @@ module.exports = function(limby, models) {
       // sets this application to busy
       processing = true;
 
+      init();
       return processFile(file).then(function() {
         // This instance has the actual values, but in the db, they reference 'processing image'
         // Now that the images exist, we can point to the actual paths by saving
