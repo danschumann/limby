@@ -2,7 +2,6 @@ module.exports = function(limby, models) {
 
   var
     File, Files,
-
     debug = require('debug')('limby:models:file'),
 
     // Since converting gifs takes a long time, we only allow one at a time
@@ -16,7 +15,14 @@ module.exports = function(limby, models) {
     config     = limby.config,
     bookshelf  = limby.bookshelf,
     _          = require('underscore'),
+    fs         = require('final-fs'),
     pm         = require('print-messages'),
+
+    thumbnail  = {
+      width: 248,
+      height: 300,
+    },
+    processFile,
 
     baseName   = require('path').basename,
     join       = require('path').join,
@@ -45,8 +51,9 @@ module.exports = function(limby, models) {
 
   var include = function(varName, module, erMsg) {
     try {
-      eval(varName + " = require('imagemagick');");
+      eval(varName + " = require('" + module + "');");
     } catch (er) {
+      console.log(er, er.stack);
       throw new Error(erMsg);
     }
 
@@ -54,22 +61,89 @@ module.exports = function(limby, models) {
 
   if (limby.config.imager.module == 'imagemagick') {
 
-    include('im', 'imagemagick',
-      "Please `npm install imagemagick` in your main application directory, or unset config.imager.module");
+    if (!limby.imager)
+      throw new Error("You must set limby.imager=require('imagemagick') to use the config.imager.module = 'canvas'");
+
+    im = limby.imager;
 
     _.each(['identify', 'convert', 'resize'], function(fnName) {
       im[fnName] = nodefn.lift(_.bind(im[fnName], im));
       im[fnName].path = fnName; // BUGFIX: imagemagick depends on a string of what bash command to run
     })
 
+    processFile = function(file) {
+
+      return when().then(function() {
+        if (file.get('type') == 'original')
+          return im.identify(['-format', '%wx%h_', file.get('tmpPath')])
+      })
+      .then(function(output) {
+
+        var args = [ file.get('tmpPath') ];
+        if (file.get('type') !== 'preview') args.push('-coalesce');
+        args.push(
+          '-resize', output ? output.split('_')[0] : thumbnail.width + 'x' + thumbnail.height,
+          join(limby.config.imager.directory, file.get('fName'))
+        );
+
+        return im.convert(args);
+
+      });
+
+    }
+
   } else if (limby.config.imager.module == 'canvas') {
-    include('Canvas', 'canvas',
-      "Please `npm install canvas` in your main application directory, or unset config.imager.module");
-    include('rsz', 'rsz',
-      "Please `npm install rsz` in your main application directory, since you are using config.imager.module = 'canvas'");
-    include('crp', 'crp',
-      "Please `npm install crp` in your main application directory, since you are using config.imager.module = 'canvas'");
-  }
+
+    if (!limby.imager)
+      throw new Error("You must set limby.imager=require('canvas') to use the config.imager.module = 'canvas'");
+
+    Canvas = limby.imager;
+
+    processFile = function(file) {
+
+      var img;
+
+      return fs.readFile(file.get('tmpPath'))
+      .then(function(data) {
+        img = new Canvas.Image;
+        img.src = data;
+      })
+      .then(function() {
+
+        var width = img.width, height = img.height;
+
+        var canvas = new Canvas(width, height);
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        var resizedCanvas;
+
+        if (file.get('type') !== 'original') {
+          var ratio = thumbnail.width / img.width;
+          if (thumbnail.height / img.height < ratio)
+            ratio = thumbnail.height / img.height;
+
+          width *= ratio; height *= ratio;
+          width = Math.floor(width);
+          height = Math.floor(height);
+          resizedCanvas = new Canvas(width, height);
+          require('../lib/resize_image')(canvas, resizedCanvas);
+        }
+
+        var deferred = when.defer();
+        (resizedCanvas || canvas).toBuffer(function(err, buf){
+          return fs.writeFile(join(limby.config.imager.directory, file.get('fName')), buf)
+            .then(deferred.resolve).otherwise(deferred.reject);
+        });
+
+        return deferred.promise;
+
+      })
+      .otherwise(function(er){
+        console.log('error processing', er, er.stack);
+      });
+
+    }
+  };
 
   instanceMethods = {
 
@@ -90,33 +164,22 @@ module.exports = function(limby, models) {
 
     validations: { },
 
-    process: function() {
+    process: function(){
 
-      processing = true;
       var file = this;
 
-      return when().then(function(){
-        if (file.get('type') == 'original')
-          return im.identify(['-format', '%wx%h_', file.get('tmpPath')])
+      // sets this application to busy
+      processing = true;
 
-      })
-      .then(function(output) {
-        var args = [ file.get('tmpPath') ]
-        if (file.get('type') !== 'preview') args.push('-coalesce');
-        args.push(
-          '-resize', output ? output.split('_')[0] : '248x300',
-          join(limby.config.imager.directory, file.get('fName'))
-        );
-
-        return im.convert(args);
-      })
-      .then(function() {
+      return processFile(file).then(function() {
+        // This instance has the actual values, but in the db, they reference 'processing image'
+        // Now that the images exist, we can point to the actual paths by saving
         return file.save()
       })
       .otherwise(function(er) {
         console.log("Couldn't resize image. do you have " + limby.config.imager.module + " installed?".red, er, er.stack);
       })
-      .then(function(){
+      .then(function() {
         processing = false;
       });
 
@@ -177,10 +240,10 @@ module.exports = function(limby, models) {
         var path = file.path;
         var fileName = fileNamer(file.originalFilename);
 
-        var hex = baseName(path).replace(extRegex, '');
-        var previewName = fileName.replace(extRegex, '-' + hex + '-preview$&')
-        var avatarName = fileName.replace(extRegex, '-' + hex + '-avatar$&')
-        var originalName = fileName.replace(extRegex, '-' + hex + '-original$&')
+        var hex           = baseName(path).replace(extRegex, '');
+        var previewName   = fileName.replace(extRegex, '-' + hex + '-preview$&');
+        var avatarName    = fileName.replace(extRegex, '-' + hex + '-avatar$&');
+        var originalName  = fileName.replace(extRegex, '-' + hex + '-original$&');
 
         // BUGFIX:
         // using sequence because my DB kept disconnecting only for this
@@ -205,7 +268,7 @@ module.exports = function(limby, models) {
               // we can set the type on it and save it later ( when the img is done )
               file.set({
                 type: ob.type,
-                tmpPath: path + (ob.type == 'preview' ? '[0]' : ''),
+                tmpPath: path + (ob.type == 'preview' && im ? '[0]' : ''), // [0] takes first frame of gif
                 fName: ob.fName,
                 
               });
@@ -216,6 +279,9 @@ module.exports = function(limby, models) {
         }));
 
       })
+      .otherwise(function(er){
+        console.log('could not create files db objects'.red, er, er.stack);
+      });
     },
     
   });
