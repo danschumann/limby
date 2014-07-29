@@ -1,18 +1,21 @@
 limby
 =====
 
-Currently not published in npm, download from github for now into `node_modules`
+I made this because I was doing the same thing over and over and over.... 
 
-    cd node_modules/limby && npm install
+See, I use a main application, and then many sub applications for each section.  I usually want each section to have it's own public and vendor directories; it's own front-end coffeescripts that get compiled and served as javascripts; and a bunch of other middleware.
+
+Limby allows you to create a middleware set that is used independently in each sub-module ( limb ).
+
+    npm install limby
     
-To use terminal commands such as `limby g migration`, `limby migrate`, `limby rollback --step=3`, `limby redo`, first:
+To use terminal commands such as `limby g migration`, `limby migrate`, `limby rollback --step=3`, `limby redo`, install with `-g`
+    
+## User signup / login integration
 
-    cd node_modules/limby && npm install -g
+Limby handles a complete user system, including sign up, login, logout, forgot password, edit account, etc.
 
-Limby is great.  It handles a complete user system, including sign up, login, logout, forgot password, edit account, etc.
-
-It comes with overrideable default views for these user managmenet tasks.  They can be fully overriden, or extended.
-
+It comes with overrideable default views for these user managment tasks.  They can be fully overriden, or extended.
 
 It's easily extendable.  Within `limbs`, you create sections of your application.  such as `limbs/message_board`.
 Limby will look at each limb, and load it's structure.  `models`, `controllers`, `views`, `app.js`, `migrations` are the main components of a `limb`.
