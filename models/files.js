@@ -22,13 +22,13 @@ module.exports = function(limby, models) {
       width: 248,
       height: 300,
     },
+
     processFile,
 
     baseName   = require('path').basename,
     join       = require('path').join,
     when       = require('when'),
     nodefn     = require('when/node/function');
-
 
   var im, Canvas, rsz, crp, include, initted;
   var init = function(){

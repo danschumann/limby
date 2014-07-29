@@ -59,7 +59,7 @@ _.extend(Limby.prototype, require('./lib/load_native'), events.EventEmitter.prot
 
 // Each module is like a mini application
 Limby.prototype.loadLimbs = function() {
-  debug('loadLimbs')
+  debug('loadLimbs');
   var limby = this;
 
   // They can have widgets within their modules that appear on limby default pages
