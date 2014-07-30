@@ -18,135 +18,17 @@ module.exports = function(limby, models) {
     fs         = require('final-fs'),
     pm         = require('print-messages'),
 
-    thumbnail  = {
-      width: 248,
-      height: 300,
-    },
-
-    processFile,
-
     baseName   = require('path').basename,
     join       = require('path').join,
     when       = require('when'),
     nodefn     = require('when/node/function');
 
-  var im, Canvas, rsz, crp, include, initted;
-  var init = function(){
+  var im, initted;
 
-    if ( initted ) return; initted = true
-
-    // Disable if they didn't configure a image resizing module to use
-    if (
-      !limby.config.imager ||
-      !limby.config.imager.module ||
-      !_.include(['canvas', 'imagemagick'], limby.config.imager.module)
-    ) {
-      var fallback = function(){ 
-        throw new Error('You must set imager.module = (canvas|imagemagick) in config to use limby Files');
-      } 
-      // Alternative to `new fallback` is `fallback.forge()`, so stub that too.
-      fallback.forge = fallback;
-      return {
-        File: fallback,
-        Files: fallback,
-      }
-    }
-
-    include = function(varName, module, erMsg) {
-      try {
-        eval(varName + " = require('" + module + "');");
-      } catch (er) {
-        console.log(er, er.stack);
-        throw new Error(erMsg);
-      }
-
-    };
-
-    if (limby.config.imager.module == 'imagemagick') {
-
-      if (!limby.imager)
-        throw new Error("You must set limby.imager=require('imagemagick') to use the config.imager.module = 'canvas'");
-
-      im = limby.imager;
-
-      _.each(['identify', 'convert', 'resize'], function(fnName) {
-        im[fnName] = nodefn.lift(_.bind(im[fnName], im));
-        im[fnName].path = fnName; // BUGFIX: imagemagick depends on a string of what bash command to run
-      })
-
-      processFile = function(file) {
-
-        return when().then(function() {
-          if (file.get('type') == 'original')
-            return im.identify(['-format', '%wx%h_', file.get('tmpPath')])
-        })
-        .then(function(output) {
-
-          var args = [ file.get('tmpPath') ];
-          if (file.get('type') !== 'preview') args.push('-coalesce');
-          args.push(
-            '-resize', output ? output.split('_')[0] : thumbnail.width + 'x' + thumbnail.height,
-            join(limby.config.imager.directory, file.get('fName'))
-          );
-
-          return im.convert(args);
-
-        });
-
-      }
-
-    } else if (limby.config.imager.module == 'canvas') {
-
-      if (!limby.imager)
-        throw new Error("You must set limby.imager=require('canvas') to use the config.imager.module = 'canvas'");
-
-      Canvas = limby.imager;
-
-      processFile = function(file) {
-
-        var img;
-
-        return fs.readFile(file.get('tmpPath'))
-        .then(function(data) {
-          img = new Canvas.Image;
-          img.src = data;
-        })
-        .then(function() {
-
-          var width = img.width, height = img.height;
-
-          var canvas = new Canvas(width, height);
-          var ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          var resizedCanvas;
-
-          if (file.get('type') !== 'original') {
-            var ratio = thumbnail.width / img.width;
-            if (thumbnail.height / img.height < ratio)
-              ratio = thumbnail.height / img.height;
-
-            width *= ratio; height *= ratio;
-            width = Math.floor(width);
-            height = Math.floor(height);
-            resizedCanvas = new Canvas(width, height);
-            require('../lib/resize_image')(canvas, resizedCanvas);
-          }
-
-          var deferred = when.defer();
-          (resizedCanvas || canvas).toBuffer(function(err, buf){
-            return fs.writeFile(join(limby.config.imager.directory, file.get('fName')), buf)
-              .then(deferred.resolve).otherwise(deferred.reject);
-          });
-
-          return deferred.promise;
-
-        })
-        .otherwise(function(er){
-          console.log('error processing', er, er.stack);
-        });
-
-      }
-    };
+  if (limby.config.imager.module && limby.imager) {
+    var resizeConfig = {};
+    resizeConfig[limby.config.imager.module] = limby.imager;
+    var resizer = limby.resizer = require('limby-resize')(resizeConfig);
   }
 
   instanceMethods = {
@@ -175,8 +57,20 @@ module.exports = function(limby, models) {
       // sets this application to busy
       processing = true;
 
-      init();
-      return processFile(file).then(function() {
+      var options = {}
+      if (file.get('type') !== 'original') {
+        options.width = 248;
+        options.height = 300;
+      };
+
+      // applies only to imagemagick gifs
+      if (file.get('type') !== 'preview') options.coalesce = true;
+
+      options.destination = join(limby.config.imager.directory, file.get('fName'));
+
+      if ( !resizer || !resizer.resize )
+        throw new Error('You must initialize your resizer at limby.config.imager -- see config/example');
+      return resizer.resize(file.get('tmpPath'), options).then(function() {
         // This instance has the actual values, but in the db, they reference 'processing image'
         // Now that the images exist, we can point to the actual paths by saving
         return file.save()
@@ -265,17 +159,23 @@ module.exports = function(limby, models) {
           return function(){
             return limby.models.File.forge({
               path: '/uploads/' + ob.fName, // urlPath
-              type: 'processing-' + ob.type,
+              type: 'processing-' + ob.type, // this is a temporary type. saved in db until real type is done
               parent_type: parent.tableName,
               parent_id: parent.id,
             }).save().then(function(file){
+
+              var _path = path;
+
+              // index page gets too noisy if gifs are animated.  take first frame only
+              if (ob.type == 'preview' && resizer.config.imagemagick)
+                _path += '[0]'; 
+
               // Since this `file` will sit in queue(memory) until it compiles
               // we can set the type on it and save it later ( when the img is done )
               file.set({
                 type: ob.type,
-                tmpPath: path + (ob.type == 'preview' && im ? '[0]' : ''), // [0] takes first frame of gif
+                tmpPath: _path,
                 fName: ob.fName,
-                
               });
 
               Files.tryProcessing(file);
