@@ -257,8 +257,7 @@ Limby.prototype.route = function() {
     limby.extend(branchName);
   });
 
-
-  var deferred = when.defer()
+  var deferred = when.defer();
 
   // _.compact because we may or may not have a host specified
   var args = _.compact([limby.config.server.port, limby.config.server.host, function(){
@@ -329,7 +328,9 @@ Limby.prototype.extend = function(key) {
     app.use(limby.middleware.stylus({
       src: j(limbPath, 'stylesheets'),
       baseURL: '/' + limbUrl,
-      callback: limbConfig.stylus && limbConfig.stylus.callback }));
+      callback: limbConfig.stylus && limbConfig.stylus.callback,
+      limbName: key,
+    }));
 
   subApp.use(function(req, res, next) {
     // The relative path to the views are now within modules 

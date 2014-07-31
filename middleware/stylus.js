@@ -7,6 +7,8 @@ module.exports = function(limby, models) {
     join      = require('path').join,
     loaddir   = require('loaddir');
 
+  limby.stylesheets = limby.stylesheets || {};
+
   var loaded_paths = [];
   var config = limby.config.stylesheets || {};
 
@@ -14,7 +16,7 @@ module.exports = function(limby, models) {
   // options.src is all we care about for this version
   return function(options){
 
-    var stylesheets = {};
+    var stylesheets = limby.stylesheets[options.limbName] = {};
 
     loaddir({
 
