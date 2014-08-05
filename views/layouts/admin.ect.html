@@ -1,45 +1,47 @@
 <% extend @limby.layout('home') %>
 
 <% @crumbs || = 'active': 'Admin' %>
+<div class="admin-layout">
 
-<div class="limb_identifier borderbottom">
-  <span class="fi fi-sheriff pull-left watermark marg-xs-right-7 marg-xs-top-5"></span>
-  Admin
-</div>
-
-<div class="row">
-
-  <div class="col-md-3">
-
-    <div class="panel panel-brand">
-      <div class="panel-body">
-        <ul class="nav nav-pills nav-stacked">
-
-          <% if @req.hasPermission('admin/super') : %>
-            <li class="<%- if (@req.url is '/admin' or @req.url is '/admin/') and @limb is @limby.core then 'active' %>">
-              <a href="<%- @baseURL %>/admin"> Users </a>
-            </li>
-          <% end %>
-
-          <% if @req.hasPermission('admin/permissions') : %>
-            <li class="<%- if @req.url?.match(/^\/admin\/permissions/) then 'active' %>">
-              <a href="<%- @baseURL %>/admin/permissions"> Permissions </a>
-            </li>
-          <% end %>
-
-          <% if @req.hasPermission('admin/tags') : %>
-            <li class="<%- if @req.url?.match(/^\/admin\/tags/) then 'active' %>">
-              <a href="<%- @baseURL %>/admin/tags"> Tags </a>
-            </li>
-          <% end %>
-
-          <%- @limby.renderWidgets('admin/nav', this) %>
-        </ul>
-      </div>
-    </div>
+  <div class="limb_identifier borderbottom">
+    <span class="fi fi-sheriff pull-left watermark marg-xs-right-7 marg-xs-top-5"></span>
+    <%- @limby.core.config.forms.admin.pageHeading %>
   </div>
 
-  <div class="col-md-9">
-    <% content %>
+  <div class="row">
+
+    <div class="col-md-3">
+
+      <div class="panel panel-brand">
+        <div class="panel-body">
+          <ul class="nav nav-pills nav-stacked">
+
+            <% if @req.hasPermission('admin/super') : %>
+              <li class="<%- if (@req.url is '/admin' or @req.url is '/admin/') and @limb is @limby.core then 'active' %>">
+                <a href="<%- @baseURL %>/admin"> Users </a>
+              </li>
+            <% end %>
+
+            <% if @req.hasPermission('admin/permissions') : %>
+              <li class="<%- if @req.url?.match(/^\/admin\/permissions/) then 'active' %>">
+                <a href="<%- @baseURL %>/admin/permissions"> Permissions </a>
+              </li>
+            <% end %>
+
+            <% if @req.hasPermission('admin/tags') : %>
+              <li class="<%- if @req.url?.match(/^\/admin\/tags/) then 'active' %>">
+                <a href="<%- @baseURL %>/admin/tags"> Tags </a>
+              </li>
+            <% end %>
+
+            <%- @limby.renderWidgets('admin/nav', this) %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <% content %>
+    </div>
   </div>
 </div>

@@ -6,9 +6,9 @@
 
 <% include @limby.viewPath('permissions/_index') %>
 
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <a class="btn btn-primary btn-xs pull-right" href="<%- @baseURL %>/admin/permissions/groups/create">
+<div class="<%- @limb.config.forms.admin.className %>">
+  <div class="<%- @limb.config.forms.admin.panelHeadingClass %>">
+    <a class="<%- @limb.config.forms.admin.createClass %>" href="<%- @baseURL %>/admin/permissions/groups/create">
       Create
       <span class="glyphicon glyphicon-plus-sign marg-xs-left-5"></span>
     </a>
@@ -23,8 +23,10 @@
   </div>
 </div>
 
-<div class="panel panel-default">
-  <div class="panel-heading">Users</div>
+<div class="<%- @limb.config.forms.admin.className %>">
+  <div class="<%- @limb.config.forms.admin.panelHeadingClass %>">
+    Users
+  </div>
   <div class="panel-body">
     <div class="panel-group" id="accordion">
       <% @users.each (user) => : %>

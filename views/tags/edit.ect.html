@@ -12,8 +12,8 @@
   <link rel="stylesheet" type="text/css" href="<%- @baseURL %>/whiteboard/stylesheets/customer_request.css" />
 <% end %>
 
-<div class="panel panel-default">
-  <div class="panel-heading">
+<div class="<%- @limb.config.forms.admin.className %>">
+  <div class="<%- @limb.config.forms.admin.panelHeadingClass %>">
     <% if @tag : %>
       <a
         class="pull-right btn btn-primary btn-xs"
@@ -44,7 +44,7 @@
 
       <div class="form-group">
         <div class="col-md-10 col-md-offset-2">
-          <input class="btn btn-primary btn-lg" type="submit" value="Save" />
+          <input class="<%- @limb.config.forms.admin.buttonClass %>" type="submit" value="Save" />
         </div>
       </div>
     </form>
