@@ -28,15 +28,18 @@ module.exports = function(limby, models) {
         })
         .then(function() {
 
-          user.trigger('login');
           req.session.user_id = user.get('id');
 
-          if (req.session.previousURL) {
-            var url = req.session.previousURL;
-            delete req.session.previousURL;
-            res.redirect(url);
-          } else
-            res.redirect(limby.baseURL + '/');
+          user.trigger('login');
+
+          if (!res._header) {
+            if (req.session.previousURL) {
+              var url = req.session.previousURL;
+              delete req.session.previousURL;
+              res.redirect(url);
+            } else
+              res.redirect(limby.baseURL + '/');
+          };
         })
         .otherwise(function(er) {
           if (user.errors.email)
