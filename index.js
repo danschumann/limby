@@ -292,21 +292,23 @@ Limby.prototype.extend = function(key) {
     limbPath = limby.paths.core;
     limbUrl = '';
   } else {
-    limbPath = j(limby.paths.limbs, key)
+    limbPath = j(limby.paths.limbs, key);
     limbUrl = key;
   }
 
   subApp = express();
 
-
   debug('extend'.blue, key);
   _.extend(subApp.settings, app.settings);
   _.extend(subApp.engines, app.engines);
 
+  if (limbConfig.beforeRoute)
+    limbConfig.beforeRoute(limby, subApp);
+
   _.each(['public', 'vendor'], function(staticKey) {
     if (limb[staticKey])
       app.use('/' + limbUrl, serveStatic(j(limbPath, staticKey), {redirect: false}));
-  })
+  });
 
   debug('extend coffeescripts'.blue, key);
   var csConfig = limbConfig.coffeescripts || {};
