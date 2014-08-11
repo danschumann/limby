@@ -274,7 +274,6 @@ module.exports = function(limby, models) {
         return processFile(file, opts);
       })
       .then(function(){
-        console.log('OPTY'.red, opts.output);
         return Files.forge(opts.output);
       })
       .otherwise(function(er){
