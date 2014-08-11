@@ -1,7 +1,9 @@
 <% @formGroupHorizontal ?= true %>
 <% @_.each @formGroup, (group) => : %>
   <% {labelClass, inputContainerClass, value, title, type, className} = group %>
-  <% if type == 'submit': %>
+  <% if type == 'hidden': %>
+    <input type="hidden" <%- if value then 'value="' + value + '"' %> name="<%- group.name %>" />
+  <% else if type == 'submit': %>
     <% {buttonClass, buttonText} = group %>
     <div class="<%- group.groupClass || 'form-group form-group-submit' %>">
       <div class="<%- inputContainerClass || (@formGroupHorizontal && "col-md-#{@formRight || 9} col-md-offset-#{@formLeft || 3}") || '' %> ">

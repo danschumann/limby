@@ -82,9 +82,11 @@ module.exports = function(limby, models) {
           type: 'processing-' + ob.type, // this is a temporary type. saved in db until real type is done
           parent_type: opts.parent.tableName,
           parent_id: opts.parent.id,
+          user_id: opts.req.session.user_id,
           width: opts.width,
           height: opts.height,
         });
+
 
         debug('sequence file', file.toJSON());
 
@@ -95,7 +97,8 @@ module.exports = function(limby, models) {
         else
           file.set({limby_files_id: original.id});
 
-        return file.save().then(function() {
+        return file.save().then(function(_file) {
+          opts.output.push(_file);
 
           debug('sequence file saved')
 
@@ -117,7 +120,6 @@ module.exports = function(limby, models) {
           });
 
           Files.tryProcessing(file);
-          return file;
         });
       };
     }));
@@ -130,6 +132,7 @@ module.exports = function(limby, models) {
     permittedAttributes: [
       'id',
       'name',
+      'user_id',
       'parent_id',
       'parent_type',
       'limby_files_id',
@@ -263,10 +266,16 @@ module.exports = function(limby, models) {
       req.files[key] = req.files[key] || [];
       if (!_.isArray(req.files[key]))
         req.files[key] = [req.files[key]];
+    
+      opts.output = [];
 
       // They could have uploaded multple files
       return when.map(req.files[key], function(file){
-        processFile(file, opts);
+        return processFile(file, opts);
+      })
+      .then(function(){
+        console.log('OPTY'.red, opts.output);
+        return Files.forge(opts.output);
       })
       .otherwise(function(er){
         console.log('could not create files db objects'.red, er, er.stack);
