@@ -26,7 +26,7 @@ module.exports = function(limby, models) {
   var im, initted;
 
   // Massage config into resize config
-  if (limby.config.imager.module && limby.imager) {
+  if (limby.config.imager && limby.config.imager.module && limby.imager) {
 
     // limby-resize expects {canvas: require('canvas')}, or {imagemagick: require('imagemagick')}
     var resizeConfig = {};
@@ -171,7 +171,7 @@ module.exports = function(limby, models) {
       var ext = path.extname(file.get('path')).substring(1).toLowerCase();
       var isImage;
 
-      if ( _.include(['gif', 'png', 'jpg', 'jpeg'], ext) )
+      if ( _.include(['tif', 'gif', 'png', 'jpg', 'jpeg'], ext) )
         file.set('file_type', 'image');
 
       return when().then(function() {
