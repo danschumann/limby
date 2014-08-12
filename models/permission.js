@@ -34,7 +34,8 @@ module.exports = function(limby, models) {
 
   };
 
-  classMethods = { };
+  classMethods = {
+  };
 
   options = {
     instanceMethods: instanceMethods,
@@ -42,7 +43,35 @@ module.exports = function(limby, models) {
   };
 
   Permission = bookshelf.Model.extend(instanceMethods, classMethods);
-  Permissions = bookshelf.Collection.extend({ model: Permission }, { });
+  Permissions = bookshelf.Collection.extend({
+
+    model: Permission,
+
+    loadParents: function() {
+      var permissions = this;
+
+      return when.map(permissions.map(function(p) {
+        if (p.get('parent_type'))
+          return p.load('parent');
+      }));
+    },
+
+    fetchOrderedWithParents: function() {
+
+      var permissions = this;
+
+      return permissions.query(function(qb){
+        qb.orderBy('seeded', 'desc');
+        qb.orderBy('name');
+      }).fetch()
+      .then(function(){
+        return permissions.loadParents();
+      })
+      .then(function(){
+        return permissions;
+      });
+    },
+  }, { /* collection class methods */ });
       
   return {Permission: Permission, Permissions: Permissions};
 

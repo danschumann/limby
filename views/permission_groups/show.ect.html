@@ -22,6 +22,11 @@
     <%- @group.get('name') %>
   </div>
 
+  <% if @group.get('default') : %>
+    <div class="panel-body">
+      <b> This is a default group added to new users </b>
+    </div>
+  <% end %>
   <div class="panel-body">
     <p><strong>Users</strong></p>
     <div class="list-group">
@@ -51,6 +56,9 @@
             <%- if @group.related('permission_group_roles').findWhere({limby_permission_id: role.id}) then 'checked' else '' %>
           />
           <%- role.get('name') %>
+          <% if role.get('parent_type') : %>
+             -- <%- role.related('parent').permissionName() %>
+          <% end %>
           <% if role.get('seeded') : %>
             <div class="label label-info">Admin Permission</div>
           <% end %>

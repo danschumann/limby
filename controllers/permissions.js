@@ -13,16 +13,9 @@ module.exports = function(limby, models) {
       var
         output = {};
 
-      models.Permissions.forge().query(function(qb){
-        qb.orderBy('seeded', 'desc');
-        qb.orderBy('name');
-      }).fetch()
+      models.Permissions.forge().fetchOrderedWithParents()
       .then(function(permissions) {
         output.permissions = permissions;
-        return when.map(permissions.map(function(p) {
-          if (p.get('parent_type'))
-            return p.load('parent');
-        }));
       })
       .then(function(groups){
         return models.PermissionGroups.forge().fetch({withRelated: ['permission_group_roles']});

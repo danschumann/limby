@@ -19,6 +19,7 @@ module.exports = function(limby, models) {
     permittedAttributes: [
       'id',
       'name',
+      'default',
     ],
 
     permission_group_roles: function(){

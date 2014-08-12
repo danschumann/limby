@@ -40,10 +40,11 @@ module.exports = function(limby, models) {
         isNew = !group.id;
 
       group.set({
-        name: _.escape(req.body.name)
+        name: _.escape(req.body.name),
+        default: req.body.default == 'on',
       }).validate()
       .then(function(){
-        return group.save()
+        return group.save();
       })
       .then(function(group) {
         req.flash.success('Successfully ' + (isNew ? 'created' : 'edited') + ' group name');
@@ -72,13 +73,12 @@ module.exports = function(limby, models) {
       })
       .then(function(users){
         output.users = users;
-        return models.Permissions.forge().query(function(qb){
-          qb.orderBy('seeded', 'desc');
-          qb.orderBy('name');
-        }).fetch();
+        return models.Permissions.forge().fetchOrderedWithParents()
       })
       .then(function(roles){
         output.roles = roles;
+      })
+      .then(function(){
         res.view('permission_groups/show', output);
       });
 
