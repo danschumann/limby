@@ -174,7 +174,7 @@ module.exports = function(limby, models) {
       var ext = path.extname(file.get('path')).substring(1).toLowerCase();
       var isImage;
 
-      if ( _.include(['tif', 'gif', 'png', 'jpg', 'jpeg'], ext) )
+      if ( _.include(['tif', 'gif', 'png', 'jpg', 'jpeg', 'bmp'], ext) )
         file.set('file_type', 'image');
 
       return when().then(function() {
