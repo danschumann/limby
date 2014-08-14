@@ -29,6 +29,7 @@ module.exports = function(limby, models) {
         .then(function() {
 
           req.session.user_id = user.get('id');
+          req.session.login = {}; // any variables to be cleared upon login
 
           user.trigger('login');
 

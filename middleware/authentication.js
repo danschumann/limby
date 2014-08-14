@@ -11,7 +11,7 @@ module.exports = function(limby, models) {
       if ( req.session.user_id )
         next();
       else {
-        req.session.previousURL = req.originalUrl;
+        req.session.previousURL = (limby.baseURL && !limby.config.nodeNested ? limby.baseURL : '') + req.originalUrl;
         req.error('Please log in before continuing');
         res.redirect(limby.baseURL + '/login');
       };

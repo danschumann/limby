@@ -14,9 +14,9 @@ module.exports = function(limby) {
 
   // Bookshelf Init -- DB connect
   knex = knex(limby.config.bookshelf);
-  limby.bookshelf = bookshelf = bookshelf(knex);
   limby.knex = knex;
   wrap(knex, 'raw');
+  limby.bookshelf = bookshelf = bookshelf(knex);
   limby.schema = bookshelf.schema = limby.knex.schema;
 
   bookshelf.Model = bookshelf.Model.extend({
