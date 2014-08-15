@@ -24,6 +24,7 @@ module.exports = function(limby, models) {
 
       callback: function(){
         var url_path = '/javascripts/' + join(this.relativePath, this.baseName).replace(sepReg, '/') + '.js';
+        options.callback && options.callback(this);
         javascripts[url_path] = this.fileContents;
       },
     });

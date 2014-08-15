@@ -316,6 +316,7 @@ Limby.prototype.extend = function(key) {
     subApp.use(limby.middleware.coffeescript({
       src: csConfig.src || j(limbPath, 'frontend'),
       fastWatch: csConfig.fastWatch,
+      callback: csConfig.callback,
     }));
 
   debug('extend coffeecups'.blue, key);
@@ -346,7 +347,7 @@ Limby.prototype.extend = function(key) {
   if (_.isString(limb.app)) {
     limb.app = require(limb.app);
     debug('extend call app'.blue, key);
-    limb.app(limby, subApp);
+    limb.appFile = limb.app(limby, subApp);
   }
   limb.app = subApp;
 
