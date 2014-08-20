@@ -1,7 +1,8 @@
+require('colors');
+
 var
 
   sepReg      = require('./lib/regexes').sepReg,
-  pm          = require('print-messages'),
   _           = require('underscore'),
   _s          = require('underscore.string'),
   lo          = require('lodash'),
@@ -261,7 +262,7 @@ Limby.prototype.route = function() {
 
   // _.compact because we may or may not have a host specified
   var args = _.compact([limby.config.server.port, limby.config.server.host, function(){
-    pm.log('Limby server listening on port ', limby.config.server.port);
+    console.log('Limby server listening on port ', limby.config.server.port);
     deferred.resolve(limby)
   }]);
 

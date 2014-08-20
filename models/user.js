@@ -8,7 +8,6 @@ module.exports = function(limby, models) {
     loginColumn = config.login.column,
     bookshelf  = limby.bookshelf,
     _          = require('underscore'),
-    pm         = require('print-messages'),
     when       = require('when'),
     crypto     = require('crypto'),
     bcrypt     = require('bcrypt'),
@@ -223,6 +222,23 @@ module.exports = function(limby, models) {
 
     can: function(name) {
       return this.related('permissions').findWhere({name: name});
+    },
+
+    setDefaultPermissions: function() {
+      var user = this;
+      return models.PermissionGroups.forge().query(function(qb) {
+        qb.where('default', true);
+      }).fetch().then(function(groups){
+        return when.all(groups.map(function(pg){
+          return models.PermissionGroupUser
+            .forge({limby_permission_group_id: pg.id, user_id: user.id})
+            .save();
+        }));
+        
+      })
+      .then(function(){
+        return user;
+      });
     },
 
     loadPermissions: function() {

@@ -7,7 +7,6 @@ module.exports = function(limby, models) {
     config     = limby.config,
     bookshelf  = limby.bookshelf,
     _          = require('underscore'),
-    pm         = require('print-messages'),
     when       = require('when'),
 
     nodefn     = require('when/node/function');
@@ -50,10 +49,10 @@ module.exports = function(limby, models) {
     loadParents: function() {
       var permissions = this;
 
-      return when.map(permissions.map(function(p) {
+      return when.map(permissions.models, function(p) {
         if (p.get('parent_type'))
           return p.load('parent');
-      }));
+      });
     },
 
     fetchOrderedWithParents: function() {

@@ -33,12 +33,12 @@ module.exports = function(limby, models) {
         next();
     },
 
+    // permission(true, 'perm1', 'perm2') does ALL
+    // permission('perm1', 'perm2') does ANY
     permission: function() {
 
-      // If we pass true as the first argument, we are checking if they can do ALL of the permissions
-      // (rather than ANY)
       var
-        all = (arguments[0] === true),
+        all = (arguments[0] === true), // as opposed to ANY
         perms = Array.prototype.slice.call(arguments, all ? 1 : 0);
 
       return function(req, res, next) {

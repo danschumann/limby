@@ -13,8 +13,7 @@ var
   basename  = require('path').basename,
   join      = require('path').join,
   _         = require('underscore'),
-  fs        = require('final-fs'),
-  pm        = require('print-messages');
+  fs        = require('final-fs');
 
 module.exports = function(limby) {
 
@@ -194,7 +193,7 @@ module.exports = function(limby) {
 
       return bookshelf.knex.schema.hasTable(tableName).then(function(exists){
         if ( !exists ) {
-          pm.log('Creating Migrations Table...');
+          console.log('Creating Migrations Table...');
           return bookshelf.schema.createTable(tableName, function(table){
 
             table.increments('id').unique().primary();

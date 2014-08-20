@@ -3,7 +3,6 @@ var
   loaddir = require('loaddir'),
   join    = require('path').join,
   when    = require('when'),
-  pm      = require('print-messages'),
   _       = require('underscore');
 
 

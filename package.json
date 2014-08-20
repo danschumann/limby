@@ -32,7 +32,6 @@
     "optimist": "~0.6.0",
     "papercut": "0.0.6",
     "param-bindings": "0.0.4",
-    "print-messages": "~0.3.0",
     "prompt": "0.2.11",
     "serve-static": "^1.0.4",
     "static-favicon": "^1.0.2",
@@ -40,7 +39,7 @@
     "underscore": "1.5.2",
     "underscore.string": "^2.3.3",
     "validator": "3.12.0",
-    "when": "~2.6.0"
+    "when": "^3.4.4"
   },
   "license": "MIT"
 }

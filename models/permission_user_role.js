@@ -7,7 +7,6 @@ module.exports = function(limby, models) {
     config     = limby.config,
     bookshelf  = limby.bookshelf,
     _          = require('underscore'),
-    pm         = require('print-messages'),
     when       = require('when'),
 
     check      = bookshelf.check,

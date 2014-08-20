@@ -15,7 +15,6 @@ module.exports = function(limby, models) {
     bookshelf  = limby.bookshelf,
     _          = require('underscore'),
     fs         = require('final-fs'),
-    pm         = require('print-messages'),
 
     baseName   = require('path').basename,
     join       = require('path').join,
