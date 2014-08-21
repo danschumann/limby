@@ -306,6 +306,12 @@ Limby.prototype.extend = function(key) {
   if (limbConfig.beforeRoute)
     limbConfig.beforeRoute(limby, subApp);
 
+  subApp.all('*', function(req, res, next) {
+    req.locals.limbName = req.locals.limbName || key;
+    next()
+  });
+
+
   _.each(['public', 'vendor'], function(staticKey) {
     if (limb[staticKey])
       app.use('/' + limbUrl, serveStatic(j(limbPath, staticKey), {redirect: false}));
