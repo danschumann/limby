@@ -310,7 +310,7 @@ module.exports = function(limby, models) {
     classMethods: classMethods,
   };
 
-  User = bookshelf.Model.extend(instanceMethods, classMethods);
+  User = limby.Model.extend(instanceMethods, classMethods);
   Users = bookshelf.Collection.extend({ model: User });
       
   return {User: User, Users: Users};

@@ -5,6 +5,6 @@
   <% include @limby.viewPath('navbar') %>
 </div>
 
-<% if sectionHeader = @limby.limbs[@req._limby.key]?.views?.header : %>
+<% if sectionHeader = @limby.limbs[@req.locals.limbName]?.views?.header : %>
   <% include sectionHeader %>
 <% end %>

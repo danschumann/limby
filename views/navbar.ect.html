@@ -2,7 +2,7 @@
 
   <% if @req.session.user_id : %>
 
-    <% if !@req._limby.key : %>
+    <% if !@req.locals.limbName : %>
       <% if @req.url == '/account' : %>
         <% accountClass = 'active' %>
       <% else if !@req.url || @req.url == '/' : %>

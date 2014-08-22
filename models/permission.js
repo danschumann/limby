@@ -26,7 +26,7 @@ module.exports = function(limby, models) {
 
     validations: { },
 
-    morphParents: [ limby.bookshelf.Model ], // extend this in other files
+    morphParents: [ limby.Model ], // extend this in other files
     parent: function() {
       return this.morphTo.apply(this, ['parent'].concat(this.morphParents));
     },
@@ -41,7 +41,7 @@ module.exports = function(limby, models) {
     classMethods: classMethods,
   };
 
-  Permission = bookshelf.Model.extend(instanceMethods, classMethods);
+  Permission = limby.Model.extend(instanceMethods, classMethods);
   Permissions = bookshelf.Collection.extend({
 
     model: Permission,

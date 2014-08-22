@@ -41,7 +41,7 @@ module.exports = function(limby, models) {
     classMethods: classMethods,
   };
 
-  PermissionUserRole = bookshelf.Model.extend(instanceMethods, classMethods);
+  PermissionUserRole = limby.Model.extend(instanceMethods, classMethods);
   PermissionUserRoles = bookshelf.Collection.extend({ model: PermissionUserRole }, { });
       
   return {PermissionUserRole: PermissionUserRole, PermissionUserRoles: PermissionUserRoles};

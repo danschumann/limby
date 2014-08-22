@@ -32,7 +32,7 @@ module.exports = function(limby, models) {
     classMethods: classMethods,
   };
 
-  PermissionGroupRole = bookshelf.Model.extend(instanceMethods, classMethods);
+  PermissionGroupRole = limby.Model.extend(instanceMethods, classMethods);
   PermissionGroupRoles = bookshelf.Collection.extend({ model: PermissionGroupRole }, { });
       
   return {PermissionGroupRole: PermissionGroupRole, PermissionGroupRoles: PermissionGroupRoles};

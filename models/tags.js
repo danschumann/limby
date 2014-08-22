@@ -40,7 +40,7 @@ module.exports = function(limby, models) {
     classMethods: classMethods,
   };
 
-  Tag = bookshelf.Model.extend(instanceMethods, classMethods);
+  Tag = limby.Model.extend(instanceMethods, classMethods);
   Tags = bookshelf.Collection.extend({ model: Tag }, {
   });
       

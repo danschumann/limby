@@ -19,7 +19,7 @@ module.exports = function(limby) {
 
   var bookshelf = limby.bookshelf;
 
-  Migration   = bookshelf.Model.extend({
+  Migration   = limby.Model.extend({
 
     tableName: tableName,
 

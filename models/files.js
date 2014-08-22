@@ -168,7 +168,7 @@ module.exports = function(limby, models) {
         options.height = file.get('height') || 300;
       };
 
-      options.destination = join(limby.config.imager.directory, file.get('fName'));
+      options.destination = join(limby.paths.uploads, file.get('fName'));
 
       var ext = path.extname(file.get('path')).substring(1).toLowerCase();
       var isImage;
@@ -236,7 +236,7 @@ module.exports = function(limby, models) {
     classMethods: classMethods,
   };
 
-  File = bookshelf.Model.extend(instanceMethods, classMethods);
+  File = limby.Model.extend(instanceMethods, classMethods);
   Files = bookshelf.Collection.extend({ model: File }, {
 
     // Async method that empties out queue and kicks off processing
