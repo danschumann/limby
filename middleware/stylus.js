@@ -13,21 +13,21 @@ module.exports = function(limby, models) {
   var config = limby.config.stylesheets || {};
 
   // We load every stylesheet into memory and serve them only if that url gets hit
-  // options.src is all we care about for this version
+  // options.path is all we care about for this version
   return function(options){
 
     var stylesheets = limby.stylesheets[options.limbName] = {};
 
     loaddir({
 
-      path: options.src,
+      path: options.path,
       fastWatch: config.fastWatch,
 
       callback: function(){
         var self = this;
 
         var s = stylus(this.fileContents)
-          .set('paths', [options.src])
+          .set('paths', [options.path])
           .use(nib());
 
         // we don't know the implications of changing a mixin so we touch every stylesheet
@@ -42,7 +42,7 @@ module.exports = function(limby, models) {
         var baseMixinPath = join(limby.paths.core, 'stylesheets/mixins');
         if ( fs.existsSync(baseMixinPath + '.styl') ) s = s.import(baseMixinPath);
 
-        var mixinPath = join(options.src, 'mixins');
+        var mixinPath = join(options.path, 'mixins');
         if ( fs.existsSync(mixinPath + '.styl') ) s = s.import(mixinPath);
 
         // replace() -- windows fix
@@ -52,7 +52,7 @@ module.exports = function(limby, models) {
 
         s.render(function(err, css){
           stylesheets[self.urlPath] = css;
-          if (err) console.log('css error'.red, err);
+          if (err) console.log('css error'.red, err, err.stack);
         });
 
       }

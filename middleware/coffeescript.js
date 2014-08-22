@@ -8,7 +8,7 @@ module.exports = function(limby, models) {
     loaddir  = require('loaddir');
 
   // We load every stylesheet into memory and serve them only if that url gets hit
-  // options.src is all we care about for this version
+  // options.path is all we care about for this version
   return function(options) {
 
     var javascripts = {};
@@ -16,7 +16,7 @@ module.exports = function(limby, models) {
     loaddir({
       fastWatch: options.fastWatch,
 
-      path: options.src,
+      path: options.path,
 
       compile: function(){
         return coffeescript.compile(this.fileContents);
