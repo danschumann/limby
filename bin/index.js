@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Top level entry point
-require('../lib/bootstrap');
+//require('../lib/bootstrap');
 require('when/monitor/console');
 
 var

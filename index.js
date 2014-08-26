@@ -27,10 +27,10 @@ var Limby = function(root, configPath) {
   require('./lib/config-loader')(limby, configPath);
   _.extend(loaddir, limby.config.loaddir);
   require('./lib/database')(limby);
-  require('./lib/mail')(limby);
+  require('./lib/email')(limby);
   require('./lib/mask_passwords')(limby);
-  require('./lib/templates').wrap(limby);
   require('./lib/render_flash').wrap(limby);
+  require('./lib/templates').wrap(limby);
 
   limby.app = express();
 

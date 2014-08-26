@@ -3,6 +3,7 @@ module.exports = function(limby, models) {
   var
     User, Users,
     columns, instanceMethods, classMethods, options,
+    debug       = require('debug')('limby:models:user'),
 
     config     = limby.config,
     loginColumn = config.login.column,
@@ -184,6 +185,10 @@ module.exports = function(limby, models) {
 
     },
 
+    firstAndLastInitial: function(name){
+      return this.get('first_name') + ' ' + (this.get('last_name') && this.get('last_name').substring(0,1)) + '.';
+    },
+
     fullName: function(name){
       return this.get('first_name') + ' ' + this.get('last_name');
     },
@@ -251,6 +256,35 @@ module.exports = function(limby, models) {
           user.related('permissions').add(results[0]);
           return models.Permissions.forge(results && results[0]);
         });
+
+    },
+    
+    email: function(options) {
+
+      options = _.clone(options);
+      var user = this;
+      options.user = user;
+      options.styliner = true;
+
+      var done = function(er, source){
+        return limby.email({
+          subject: options.subject,
+          to:      options.to || user.formattedEmail(),
+          from:    options.from || config.mail.from,
+          text:    options.text || source || options.html,
+          html:    options.html || source || options.text,
+        })
+        .then(function(){
+          debug('Sent Mail'.green, options.to || user.formattedEmail(), options.subject);
+        })
+        .otherwise(function(){
+          debug('Failed Mail'.red, arguments, user.formattedEmail());
+        });
+      }
+      if (options.template)
+        return limby.render(options.template, options, done)
+      else
+        return done(); // hopefully they provided html || text
 
     },
 
