@@ -12,7 +12,9 @@ module.exports = function(limby, models) {
     // Creating is done through occurrences and customer_requests
     index: function(req, res, next) {
 
-      Tags.forge().fetch()
+      Tags.forge().query(function(qb) {
+        qb.orderBy('name');
+      }).fetch()
       .then(function(tags){
         return res.view('tags/index', {tags: tags});
       })
