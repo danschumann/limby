@@ -48,6 +48,7 @@
           <% end %>
           <% else: %>
             <input
+              placeholder="<%- group.placeholder || '' %>"
               class="form-control <%- group.className %>"
               <% if group.type == 'checkbox' : %>
                 <%- value && 'checked' || '' %>
