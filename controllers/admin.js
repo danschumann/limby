@@ -4,7 +4,7 @@ module.exports = function(limby){
 
     index: function(req, res, next) {
       limby.models.Users.forge().query(function(qb){
-        qb.orderBy('last_name');
+        qb.orderBy('first_name');
       }).fetch().then(function(users){
         res.view('admin/index', {users: users});
       });
