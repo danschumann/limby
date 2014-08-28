@@ -17,8 +17,8 @@ module.exports = function(limby, models) {
     fs         = require('final-fs'),
 
     baseName   = require('path').basename,
-    join       = require('path').join,
     path       = require('path'),
+    join       = path.join,
     when       = require('when'),
     nodefn     = require('when/node/function');
 

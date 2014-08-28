@@ -68,10 +68,10 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
 } else {
     
   debug('constructor')
-  var limby = new Limby(join(process.cwd(), 'config'));
+  var limby = new Limby(process.cwd());
 
   debug('loadNative');
-  return limby.loadNative()
+  return limby.load()
   .then(function(){
     debug('loadLimbs');
     return limby.loadLimbs();
