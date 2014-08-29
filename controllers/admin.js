@@ -13,11 +13,14 @@ module.exports = function(limby){
     toggle: function(req, res, next) {
 
       if (+req.params.user_id == req.session.user_id)
-        return res.json({error: true, messages: "You can't revoke your own admin priviledges"});
+        return res.json({error: true, messages: "You can't edit your own priviledges"});
 
       limby.models.User.forge({id: req.params.user_id}).fetch()
       .then(function(user){
-        return user.set({admin: req.body.toggle == 'true'}).save();
+        if (req.body.toggle == null)
+          return user.set({deleted: req.body.disable == 'true'}).save();
+        else
+          return user.set({admin: req.body.toggle == 'true'}).save();
       })
       .then(function(){
         res.json({success: true});

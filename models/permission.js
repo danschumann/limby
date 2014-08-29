@@ -24,6 +24,14 @@ module.exports = function(limby, models) {
       'parent_type',
     ],
 
+    permission_group_roles: function(){
+      return this.hasMany(limby.models.PermissionGroupRole);
+    },
+
+    permission_user_roles: function(){
+      return this.hasMany(limby.models.PermissionUserRole);
+    },
+
     validations: { },
 
     morphParents: [ limby.Model ], // extend this in other files

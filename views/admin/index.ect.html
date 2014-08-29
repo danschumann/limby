@@ -8,10 +8,23 @@
       Admin Users
     </div>
 
-    <div class="<%- @limb.config.forms.admin.panelBodyClass %>">
+    <div class="<%- @limb.config.forms.admin.panelBodyClass %> admin-users-list">
       <% @users.each (user) => : %>
         <div class="list-group-item">
-          <input class="admin_user" type="checkbox" data-id="<%- user.id %>" <%- if user.get('admin') then 'checked' %> />
+          <div class="label label-danger pull-right">
+            <input class="disabled_user pull-left marg-xs-top-3" type="checkbox" data-id="<%- user.id %>" <%- if user.get('deleted') then 'checked' %> />
+            <span class="pull-right marg-xs-top-3">
+              disabled
+            </span>
+          </div>
+
+          <div class="label label-primary pull-right">
+            <input class="admin_user pull-left marg-xs-top-3" type="checkbox" data-id="<%- user.id %>" <%- if user.get('admin') then 'checked' %> />
+            <span class="pull-right marg-xs-top-3">
+              Admin
+            </span>
+          </div>
+
           <span class="name">
             <%- user.fullName() %>
           </span>

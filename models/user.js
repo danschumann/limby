@@ -28,9 +28,7 @@ module.exports = function(limby, models) {
       'password_token', 
       'password_token_expires', 
       'admin',
-      'notify_start_vote',
-      'notify_end_vote',
-      'notify_pickup',
+      'deleted',
     ],
 
     validations: {

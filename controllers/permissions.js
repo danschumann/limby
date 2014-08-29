@@ -25,6 +25,7 @@ module.exports = function(limby, models) {
         return models.Users.forge().query(function(qb){
           qb.orderBy('first_name');
           qb.orderBy('last_name');
+          qb.where('deleted', null);
         }).fetch({withRelated: ['permission_roles', 'group_users']});
       })
       .then(function(users){
