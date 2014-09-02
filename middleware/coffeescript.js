@@ -3,10 +3,11 @@ module.exports = function(limby, models) {
 
   var
     coffeescript  = require('coffee-script'),
-    join = require('path').join,
-    debug     = require('debug')('limby:middleware:coffeescript'),
-    sepReg = require('../lib/regexes').sepReg,
-    loaddir  = require('loaddir');
+    path          = require('path'),
+    join          = path.join,
+    debug         = require('debug')('limby:middleware:coffeescript'),
+    sepReg        = require('../lib/regexes').sepReg,
+    loaddir       = require('loaddir');
 
   // We load every stylesheet into memory and serve them only if that url gets hit
   // options.path is all we care about for this version
@@ -21,7 +22,7 @@ module.exports = function(limby, models) {
 
       path: options.path,
 
-      manifest: limby.paths.manifests && join(limby.paths.manifests, 'coffeescript_' + options.key),
+      manifest: limby.paths.manifests && join(limby.paths.manifests, options.path.replace(new RegExp(path.sep, 'g'), '_' + encodeURIComponent(path.sep) + '_')),
 
       compile: function(){
         this.fileContents = coffeescript.compile(this.fileContents);

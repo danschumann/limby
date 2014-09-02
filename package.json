@@ -23,7 +23,7 @@
     "final-fs": "~1.4.4",
     "knex": "0.6.16",
     "limby-resize": "0.0.2",
-    "loaddir": "2.0.0",
+    "loaddir": "2.0.1",
     "lodash": "^2.4.1",
     "moment": "^2.7.0",
     "mysql": "~2.0.0",
