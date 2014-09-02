@@ -4,6 +4,7 @@ module.exports = function(limby, models) {
   var
     coffeescript  = require('coffee-script'),
     join = require('path').join,
+    debug     = require('debug')('limby:middleware:coffeescript'),
     sepReg = require('../lib/regexes').sepReg,
     loaddir  = require('loaddir');
 
@@ -11,15 +12,19 @@ module.exports = function(limby, models) {
   // options.path is all we care about for this version
   return function(options) {
 
+    debug('extend coffeescripts'.blue, options.limbName);
+
     var javascripts = {};
 
-    loaddir({
+    return loaddir({
       fastWatch: options.fastWatch,
 
       path: options.path,
 
+      manifest: limby.paths.manifests && join(limby.paths.manifests, 'coffeescript_' + options.key),
+
       compile: function(){
-        return coffeescript.compile(this.fileContents);
+        this.fileContents = coffeescript.compile(this.fileContents);
       },
 
       callback: function(){
@@ -27,14 +32,16 @@ module.exports = function(limby, models) {
         options.callback && options.callback(this);
         javascripts[url_path] = this.fileContents;
       },
-    });
+    }).then(function(){
 
-    return function(req, res, next){
-      if (javascripts[req.url]){
-        res.setHeader('content-type', 'text/javascript');
-        res.end(javascripts[req.url]);
-      } else
-        next();
-    };
+      options.app.use(function(req, res, next){
+        if (javascripts[req.url]){
+          res.setHeader('content-type', 'text/javascript');
+          res.end(javascripts[req.url]);
+        } else
+          next();
+      });
+
+    });
   };
 };

@@ -18,9 +18,9 @@ module.exports = function(limby){
       limby.models.User.forge({id: req.params.user_id}).fetch()
       .then(function(user){
         if (req.body.toggle == null)
-          return user.set({deleted: req.body.disable == 'true'}).save();
+          return user.set({deleted: (req.body.disable == 'true') || null}).save();
         else
-          return user.set({admin: req.body.toggle == 'true'}).save();
+          return user.set({admin: (req.body.toggle == 'true') || null}).save();
       })
       .then(function(){
         res.json({success: true});

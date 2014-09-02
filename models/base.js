@@ -6,10 +6,10 @@ module.exports = function(limby) {
     validator   = require('validator'),
     when        = require('when');
 
-  module.exports = {
+  return {
 
     // limby.Model for ease of access
-    Model: limby.Model = limby.bookshelf.Model.extend({
+    Base: limby.Model = limby.bookshelf.Model.extend({
 
       initialize: function () {
 

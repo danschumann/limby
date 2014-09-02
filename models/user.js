@@ -247,6 +247,7 @@ module.exports = function(limby, models) {
     loadPermissions: function() {
 
       var user = this;
+      console.log(limby.queries);
 
       // union permissions through roles and groups
       return limby.knex.raw(limby.queries.user_permissions, [user.id, user.id])

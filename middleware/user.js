@@ -2,10 +2,13 @@ module.exports = function(limby, models) {
 
   var
     when = require('when'),
+    debug = require('debug')('limby:middleware:user'),
     userMiddleware = {};
 
   // Only logged in users may be at this page
   userMiddleware.load = function(req, res, next) {
+
+    debug('load');
 
     // Not logged in or already loaded user
     //   We don't care about not logged in because
