@@ -1,26 +1,41 @@
-$(function() {
+$(listen);
 
-  $('.permission_user_role').change(function(e) {
-    var $role = $(e.currentTarget)
-    var user_id = $(e.currentTarget).parents('[data-user_id]:first').attr('data-user_id');
+function listen() {
+  $('.permission_user_role').off('change.pur').on('change.pur', _handler('role'))
+  $('.permission_user_group').off('change.pug').on('change.pug', _handler('group'))
+};
 
-    $.post((window.baseURL || '') + '/admin/permissions/' + $role.attr('data-permission_id') + '/users/' + user_id,
-      {toggle: $role.is(':checked') || undefined},
+// routes handler
+function _handler(type){
+  return function(e) {
+    flash.loading(true);
+    var
+      user_id = $(e.currentTarget).parents('[data-user_id]:first').attr('data-user_id'),
+      $el = $(e.currentTarget),
+      urlComponent = type == 'role'
+        ? $el.attr('data-permission_id')
+        : 'groups/' + $el.attr('data-group_id');
+
+    $.post(
+      (window.baseURL || '') + '/admin/permissions/' + urlComponent + '/users/' + user_id,
+      {toggle: $el.is(':checked') || undefined},
       function(res) {
+        populate(e, user_id);
       }
     );
+  };
+};
 
-  });
+var populate = _.debounce(function(e, user_id){
+  var $el = $(e.target).parents('.panel-body:first');
+  $el.find('input').prop('disabled', true);
 
-  $('.permission_user_group').change(function(e) {
-    $pgu = $(e.currentTarget)
-
-    $.post((window.baseURL || '') + '/admin/permissions/groups/' + $pgu.attr('data-group_id') + '/users/' + $pgu.attr('data-user_id'),
-      {toggle: $pgu.is(':checked') || undefined},
-      function(res) {
-      }
+  $.get((window.baseURL || '') + '/admin/permissions?user_id=' + user_id, function(res) {
+    flash.loading(false);
+    flash.success('Updated');
+    $el.html(
+      $(res).find('.panel-body:first').html()
     );
-
+    listen();
   });
-
-});
+}, 1000)

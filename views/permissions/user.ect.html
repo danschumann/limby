@@ -1,0 +1,67 @@
+<% user = @user %>
+<% permsFromGroups = [] %>
+<div class="panel panel-default" data-user_id="<%- user.id %>" >
+
+  <a class="panel-heading btn-block" data-toggle="collapse" data-parent="#accordion" href="#<%- id = 'collaspe' + user.id %>">
+    <%- user.fullName() %>
+  </a>
+
+  <div class="panel-body panel-collapse collapse" id="<%- id %>">
+    <div class="group_list" >
+      <h6>groups</h6>
+      <% @groups.each (group) => : %>
+        <div>
+          <input 
+          id="user_<%- user.id %>_group_<%- group.id %>"
+          type="checkbox"
+          class="permission_user_group"
+          data-user_id="<%- user.id %>"
+          data-group_id="<%- group.id %>"
+          <%
+          if checked = user.related('group_users').findWhere({limby_permission_group_id: group.id})
+            group.related('permission_group_roles').each (gr) =>
+              permsFromGroups.push gr.get('permission_role_id')
+          %>
+          <%- if checked then 'checked' else '' %>
+          />
+          <label for="user_<%- user.id %>_group_<%- group.id %>">
+            <%- group.get 'name' %>
+          </label>
+        </div>
+      <% end %>
+    </div>
+    <div class="perm_list" >
+      <h6>permissions</h6>
+      <div class="list-group">
+        <% @permissions.each (perm) => : %>
+          
+          <div class="list-group-item">
+            <input 
+            id="user_<%- user.id %>_perm_<%- perm.id %>"
+            type="checkbox"
+            class="permission_user_role <%- if (@_.include permsFromGroups, perm.id) then 'permFromGroup' else '' %>"
+            data-permission_id="<%- perm.id %>"
+            <%- if user.related('permission_roles').findWhere({limby_permission_id: perm.id}) then 'checked' else '' %>
+            />
+            <% if user.get('perms')[perm.id] : %>
+              <span class="fa fa-check-square-o" title="Permissions granted from group"></span>
+            <% end %>
+            <label for="user_<%- user.id %>_perm_<%- perm.id %>">
+              <%- perm.get('name') %>
+              <% if perm.get('parent_type') : %>
+                 -- <%- perm.related('parent').permissionName() %>
+              <% end %>
+            </label>
+            <% @_.each user.get('perms')[perm.id], (pg) => : %>
+              <span class="label label-default"><%- pg %></span>
+            <% end %>
+            <% if perm.get('seeded') : %>
+              <div class="pull-right label label-info">Admin Permission</div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -33,12 +33,15 @@
       <% @users.each (user) => : %>
         <div class="list-group-item">
           <input
+            id="perm_user_<%- user.id %>"
             type="checkbox"
             class="permission_group_user"
             data-user_id="<%- user.id %>"
             <%- if @group.related('permission_group_users').findWhere({user_id: user.id}) then 'checked' else '' %>
           />
-          <%- user.fullName() %>
+          <label for="perm_user_<%- user.id %>">
+            <%- user.fullName() %>
+          </label>
         </div>
       <% end %>
     </div>
@@ -49,19 +52,21 @@
     <div class="list-group">
       <% @roles.each (role) => : %>
         <div class="list-group-item">
-          <input
+          <input id="perm_group_<%- role.id %>"
             type="checkbox"
             class="permission_group_role"
             data-role_id="<%- role.id %>"
             <%- if @group.related('permission_group_roles').findWhere({limby_permission_id: role.id}) then 'checked' else '' %>
           />
-          <%- role.get('name') %>
-          <% if role.get('parent_type') : %>
-             -- <%- role.related('parent').permissionName() %>
-          <% end %>
-          <% if role.get('seeded') : %>
-            <div class="label label-info">Admin Permission</div>
-          <% end %>
+          <label for="perm_group_<%- role.id %>">
+            <%- role.get('name') %>
+            <% if role.get('parent_type') : %>
+               -- <%- role.related('parent').permissionName() %>
+            <% end %>
+            <% if role.get('seeded') : %>
+              <div class="label label-info">Admin Permission</div>
+            <% end %>
+          </label>
         </div>
       <% end %>
     </div>

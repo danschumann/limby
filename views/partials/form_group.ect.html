@@ -1,5 +1,6 @@
 <% @formGroupHorizontal ?= true %>
 <% @_.each @formGroup, (group) => : %>
+  <% id = @_.uniqueId() %>
   <% {labelClass, inputContainerClass, value, title, type, className} = group %>
   <% if type == 'hidden': %>
     <input type="hidden" <%- if value then 'value="' + value + '"' %> name="<%- group.name %>" />
@@ -17,7 +18,7 @@
     <% err = @renderFlash name %>
     <div class="<%- group.groupClass || 'form-group' %> <%- err && 'has-feedback has-error' %>">
       <% if group.label isnt false : %>
-      <label class="control-label <%- labelClass || (@formGroupHorizontal && "col-md-#{@formLeft || 3}") || '' %>">
+      <label for="form_input_<%- id %>" class="control-label <%- labelClass || (@formGroupHorizontal && "col-md-#{@formLeft || 3}") || '' %>">
           <span class="<%- group.required && 'required' || '' %>"><%- title %></span>
         </label>
       <% end %>
@@ -27,7 +28,7 @@
             <%- group.html %>
           <% end %>
           <% when 'select': %>
-            <select class="form-control" name="<%- name %>">
+            <select class="form-control" name="<%- name %>" id="form_input_<%- id %>">
               <% @_.each group.options, (opt) => : %>
                 <option
                   <%- opt.value? && 'value="' + opt.value + '"' %>
@@ -39,6 +40,7 @@
           <% end %>
           <% when 'textarea' : %>
             <textarea
+              id="form_input_<%- id %>"
               class="form-control <%- group.className %>"
               <%- if group.autofocus then 'autofocus' %>
               <%- if group.rows then "rows=\"#{group.rows}\"" %>
@@ -49,6 +51,7 @@
           <% else: %>
             <input
               placeholder="<%- group.placeholder || '' %>"
+              id="form_input_<%- id %>"
               class="form-control <%- group.className %>"
               <% if group.type == 'checkbox' : %>
                 <%- value && 'checked' || '' %>

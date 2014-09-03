@@ -15,6 +15,7 @@ $(function() {
         flash[toggle && 'success' || 'info'](
           "<strong>" + ($check.parent().parent().find('.name').html()) + "</strong> is " + (toggle ? 'now' : 'no longer') + " disabled"
         );
+        $(e.currentTarget).parents('.list-group-item:first').toggleClass('deleted-user', toggle);
 
       } else {
         $check.prop('checked', !toggle); // uncheck or recheck since it failed
@@ -38,6 +39,7 @@ $(function() {
         flash[toggle && 'success' || 'info'](
           "<strong>" + ($check.parent().parent().find('.name').html()) + "</strong> is " + (toggle ? 'now' : 'no longer') + " an admin"
         );
+        $(e.currentTarget).parents('.list-group-item:first').toggleClass('admin-user', toggle);
 
       } else {
         $check.prop('checked', !toggle); // uncheck or recheck since it failed
