@@ -69,7 +69,11 @@ module.exports = function(limby, models) {
       .then(function(){
 
         output.group = req.locals.permission_group;
-        return models.Users.forge().fetch();
+        return models.Users.forge().query(function(qb) {
+          qb.orderBy('first_name');
+          qb.orderBy('last_name');
+          qb.where('deleted', null);
+        }).fetch();
       })
       .then(function(users){
         output.users = users;
