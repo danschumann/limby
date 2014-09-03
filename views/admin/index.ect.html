@@ -11,19 +11,19 @@
     <div class="<%- @limb.config.forms.admin.panelBodyClass %> admin-users-list">
       <% @users.each (user) => : %>
       <div class="list-group-item <%- if user.get('admin') then 'admin-user' %> <%- if user.get('deleted') then 'deleted-user' %> ">
-          <div class="label label-danger pull-right">
+          <label for="disabled_user_<%- user.id %>" class="label label-danger pull-right">
             <input id="disabled_user_<%- user.id %>" class="disabled_user pull-left marg-xs-top-3" type="checkbox" data-id="<%- user.id %>" <%- if user.get('deleted') then 'checked' %> />
-            <label for="disabled_user_<%- user.id %>" class="pull-right marg-xs-top-3">
+            <span class="pull-right marg-xs-top-3">
               disabled
-            </label>
-          </div>
+            </span>
+          </label>
 
-          <div class="label label-primary pull-right">
+          <label for="admin_user_<%- user.id %>"  class="label label-primary pull-right">
             <input id="admin_user_<%- user.id %>" class="admin_user pull-left marg-xs-top-3" type="checkbox" data-id="<%- user.id %>" <%- if user.get('admin') then 'checked' %> />
-            <label for="admin_user_<%- user.id %>" class="pull-right marg-xs-top-3">
+            <span class="pull-right marg-xs-top-3">
               admin
-            </label>
-          </div>
+            </span>
+          </label>
 
           <span class="name">
             <%- user.fullName() %>
