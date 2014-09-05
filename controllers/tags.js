@@ -83,18 +83,5 @@ module.exports = function(limby, models) {
 
     },
 
-    // Creating is done through occurrences and customer_requests
-    destroy: function(req, res, next){
-
-      Tag.forge({id: req.params.tag_id}).fetch()
-      .then(function(tag){
-        return tag.destroy();
-      })
-      .then(function(){
-        res.redirect('back');
-      });
-
-    },
-
   };
 };

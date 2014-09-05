@@ -8,10 +8,6 @@
 
 <% extend @limby.layout('admin') %>
 
-<% block 'head' : %>
-  <link rel="stylesheet" type="text/css" href="<%- @baseURL %>/whiteboard/stylesheets/customer_request.css" />
-<% end %>
-
 <div class="<%- @limb.config.forms.admin.className %>">
   <div class="<%- @limb.config.forms.admin.panelHeadingClass %>">
     <% if @tag : %>

@@ -47,7 +47,7 @@ module.exports = function(limby, models) {
         return group.save();
       })
       .then(function(group) {
-        req.flash.success('Successfully ' + (isNew ? 'created' : 'edited') + ' group name');
+        req.flash.success('Successfully ' + (isNew ? 'created' : 'edited') + ' group <strong>' + group.get('name') + '</strong>');
         res.redirect(limby.baseURL + '/admin/permissions/groups/' + group.id);
       })
       .otherwise(function(er){
@@ -89,11 +89,13 @@ module.exports = function(limby, models) {
     },
 
     destroy: function(req, res, next) {
+      var name = req.locals.permission_group.get('name');
+
       req.locals.permission_group.destroy()
         .then(function(){
           req.flash.info(
-            '<strong>' + req.locals.permission_group.get('name') + '<strong>' + 
-            ' Destroyed permission group'
+            ' destroyed permission group' +
+            ' <strong>' + name + '</strong>'
           );
           res.redirect(limby.baseURL + '/admin/permissions')
         })
