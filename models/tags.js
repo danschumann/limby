@@ -32,7 +32,7 @@ module.exports = function(limby, models) {
         var tag = this;
 
         return Tag.forge({name: val}).fetch().then(function(t) {
-          if (t && t.id) {
+          if (t && t.id && t.id != tag.id) {
             // add errors to `email` key
             tag.error('name', 'Already taken');
             // and use a blank `unique_email` key
@@ -52,8 +52,7 @@ module.exports = function(limby, models) {
   };
 
   Tag = limby.Model.extend(instanceMethods, classMethods);
-  Tags = bookshelf.Collection.extend({ model: Tag }, {
-  });
+  Tags = bookshelf.Collection.extend({ model: Tag }, { });
       
   return {Tag: Tag, Tags: Tags};
 

@@ -1,7 +1,6 @@
 require('colors');
 
 var
-
   sepReg   = require('./lib/regexes').sepReg,
   _        = require('underscore'),
   events   = require('events'),
@@ -9,7 +8,6 @@ var
   express  = require('express'),
   loaddir  = require('loaddir'),
   debug    = require('debug')('limby:base'),
-
   x;
  
 require('./lib/mysql_date_format');
