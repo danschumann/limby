@@ -28,6 +28,12 @@ module.exports = function(limby, models) {
 
     var mixinPath   = join(options.path, 'mixins');
 
+    var genURLPath = function (self) {
+      // replace() -- windows fix
+      return join((options.baseURL || ''), '/stylesheets/', self.relativePath, self.baseName + '.css')
+        .replace(new RegExp(path.sep, 'g'), '/');
+    };
+
     return fs.exists(mixinPath + '.styl').then(function(mixinExists) {
       if (!mixinExists)
         mixinPath = null;
@@ -50,20 +56,26 @@ module.exports = function(limby, models) {
 
           if (mixinPath) s = s.import(mixinPath);
 
-          options.callback && options.callback.call(self, s, stylesheets);
-          
-          var deferred = when.defer();
+          self.urlPath = genURLPath(self);
 
-          s.render(function(err, css){
-            if (err) {
-              console.log('css error'.red, err, err.stack);
-              deferred.reject(err);
-            } else {
-              self.fileContents = css;
-              deferred.resolve();
-            }
-          });
-          return deferred.promise;
+          return when().then(function(){
+            if (options.callback)
+              return options.callback.call(self, s, stylesheets);
+          }).then(function(){
+            
+            var deferred = when.defer();
+
+            s.render(function(err, css){
+              if (err) {
+                console.log('css error'.red, err, err.stack);
+                deferred.reject(err);
+              } else {
+                self.fileContents = css;
+                deferred.resolve();
+              }
+            });
+            return deferred.promise;
+          })
 
         },
 
@@ -71,10 +83,7 @@ module.exports = function(limby, models) {
 
           var self = this;
 
-          // replace() -- windows fix
-          self.urlPath = join((options.baseURL || ''), '/stylesheets/', self.relativePath, self.baseName + '.css')
-            .replace(new RegExp(path.sep, 'g'), '/');
-
+          self.urlPath = self.urlPath || genURLPath(self);
           stylesheets[self.urlPath] = self.fileContents;
 
         }
@@ -90,5 +99,6 @@ module.exports = function(limby, models) {
         } else next();
       });
     });
+
   };
 };
