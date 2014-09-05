@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -34,7 +34,6 @@
     "param-bindings": "0.0.4",
     "prompt": "0.2.11",
     "serve-static": "^1.0.4",
-    "static-favicon": "^1.0.2",
     "styliner": "^0.8.9",
     "stylus": "^0.41.3",
     "underscore": "1.5.2",
