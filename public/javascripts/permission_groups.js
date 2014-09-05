@@ -8,6 +8,7 @@ $(function(){
     $.post((window.baseURL || '') + '/admin/permissions/groups/' + group_id + '/users/' + $pgu.attr('data-user_id'),
       {toggle: $pgu.is(':checked') || undefined},
       function(res) {
+        flash.success({messages: 'saved', time: 500, animate: false })
       }
     );
 
@@ -19,6 +20,7 @@ $(function(){
     $.post((window.baseURL || '') + '/admin/permissions/groups/' + group_id + '/roles/' + $pgu.attr('data-role_id'),
       {toggle: $pgu.is(':checked') || undefined},
       function(res) {
+        flash.success({messages: 'saved', time: 500, animate: false })
       }
     );
 
