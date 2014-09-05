@@ -11,7 +11,6 @@ module.exports = function(limby, models) {
     fs           = require('final-fs'),
     path         = require('path'),
     join         = path.join,
-    loaded_paths = [],
     loaddir      = require('loaddir');
 
   limby.stylesheets = limby.stylesheets || {};
@@ -77,16 +76,6 @@ module.exports = function(limby, models) {
             .replace(new RegExp(path.sep, 'g'), '/');
 
           stylesheets[self.urlPath] = self.fileContents;
-
-          // we don't know the implications of changing a mixin so we touch every stylesheet
-          if (config.touch !== false && this.baseName == 'mixins') {
-            if (loaded)
-              _.each(loaded_paths, function(lpath) {
-                fs.utimes(lpath, new Date(), new Date());
-              });
-          } else {
-            loaded_paths.push(this.path);
-          };
 
         }
       })
