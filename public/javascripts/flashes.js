@@ -35,13 +35,15 @@ window.flash = {};
 
 var types = ['danger', 'info', 'warning', 'success'];
 for (i in types) {
-  var type = types[i];
-  flash[type] = function(ob) {
+  // wrapped to preserve variable type
+  (function(type){
+    flash[type] = function(ob) {
 
-    if (_.isString(ob)) ob = { messages: ob };
+      if (_.isString(ob)) ob = { messages: ob };
 
-    _flash(_.extend(ob, { type: type }));
-  };
+      _flash(_.extend(ob, { type: type }));
+    };
+  })(types[i]);
 };
 
 flash.loading = function(enabled) {
