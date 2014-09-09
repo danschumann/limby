@@ -1,14 +1,11 @@
 require('colors');
 
 var
-  sepReg   = require('./lib/regexes').sepReg,
   _        = require('underscore'),
   events   = require('events'),
   join     = require('path').join,
   express  = require('express'),
-  loaddir  = require('loaddir'),
-  debug    = require('debug')('limby:base'),
-  x;
+  loaddir  = require('loaddir');
  
 require('./lib/mysql_date_format');
 
@@ -20,18 +17,18 @@ var Limby = function(root, options) {
   if (!(limby instanceof Limby)) return new Limby(unformattedConfig);
 
   options = options || {};
+  this.root = root;
 
   // passing knex allows you to use sqlite3 or unify connections to db
   this.knex = options.knex;
-  this.root = root;
   options.configPath = options.configPath || join(root, 'config');
+
   events.EventEmitter.call(limby);
+
   require('./lib/config-loader')(limby, options.configPath);
   _.extend(loaddir, limby.config.loaddir);
   require('./lib/database')(limby);
   require('./lib/email')(limby);
-  require('./lib/mask_passwords')(limby);
-  require('./lib/render_flash').wrap(limby);
   require('./lib/templates').wrap(limby);
 
   limby.app = express();

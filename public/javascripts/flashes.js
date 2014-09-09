@@ -8,26 +8,67 @@ _flash = function(options) {
     data = options.data,
     messages = options.messages,
     target = options.target,
-    templates = options.templates,
+    template = options.template,
     time = options.time,
     type = options.type;
 
   if (animate == null) animate = true;
-  if (time == null) time = 6000;
+  if (time == null) {
+    if (animate)
+      time = 6000;
+    else
+      time = 0;
+  }
   if (action == null) action = 'appendTo';
-  if (_.isString(messages)) messages = [messages];
+  if (typeof messages == 'string') messages = [messages];
 
-  $flash = $((templates || coffeecups).flash(data || {
-    messages: messages,
-    type: type
-  })).hide();
-  $flash[action](target || '.popups');
-  $flash[animate && 'slideDown' || 'show']().alert();
+  if (template)
+    $flash = $(template(data || {
+      messages: messages,
+      type: type
+    }));
+  else {
+    if (typeof messages !== 'array') messages = [messages];
+
+    var html = '<div class="alert-list">';
+    for (key in messages) {
+      var msg = messages[key];
+      if (typeof msg !== 'array') msg = [msg];
+      html += '<div class="alert alert-' + type + '">';
+      if (options.close !== false)
+        html += '<button class="close">&times;</button>';
+      if ('' + parseInt(i) !== i) html += '<strong>' + key + '</strong>';
+      html += msg;
+      html += '</div>';
+    };
+    html += '</div>';
+    $flash = $(html);
+  };
+
+  $flash.hide();
+  if (action !== false) {
+    $flash[action](target || '.popups');
+    $flash[animate && 'slideDown' || 'show']().alert();
+  };
+
+  var remove = function(){
+    $flash[animate && 'slideUp' || 'hide'](time, function(){
+      $flash.remove();
+    });
+  };
   if (time) 
     setTimeout(function() {
       if ($flash.is(':visible'))
-        $flash[animate && 'slideUp' || 'hide']();
+        remove();
     }, time);
+
+  $flash.on('click', '.close', function(e){
+    remove();
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+    e.preventDefault();
+  })
+  return $flash;
 
 };
 
@@ -39,9 +80,10 @@ for (i in types) {
   (function(type){
     flash[type] = function(ob) {
 
-      if (_.isString(ob)) ob = { messages: ob };
+      if (typeof ob == 'string') ob = { messages: ob };
 
-      _flash(_.extend(ob, { type: type }));
+      ob.type = type;
+      _flash(ob);
     };
   })(types[i]);
 };
