@@ -52,7 +52,7 @@ _flash = function(options) {
   };
 
   var remove = function(){
-    $flash[animate && 'slideUp' || 'hide'](time, function(){
+    $flash[animate && 'slideUp' || 'hide'](function(){
       $flash.remove();
     });
   };
