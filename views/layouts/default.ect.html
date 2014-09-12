@@ -15,12 +15,12 @@
 </head>
 <body>
 
-  <% include @limby.views['header'] %>
-  <% include @limby.views['notifications'] %>
+  <% include @limby.viewPath 'header' %>
+  <% include @limby.viewPath 'notifications' %>
 
   <% content %>
 
-  <% include @limby.views['footer'] %>
+  <% include @limby.viewPath 'footer' %>
 
 </body>
 </html>

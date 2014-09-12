@@ -28,7 +28,7 @@
   <div class="panel-body">
     <div class="panel-group" id="accordion">
       <% @users.each (@user) => : %>
-        <% include @limby.views['permissions/user'] %>
+        <% include @limby.viewPath 'permissions/user' %>
       <% end %>
     </div>
   </div>
