@@ -48,7 +48,7 @@ _.extend.apply(_, [
   require('./lib/limbs'),
   require('./lib/route'),
   require('./lib/crud'),
-])
+]);
 
 Limby.prototype.migrate = function() {
   return this.models.Migrations.migrate();

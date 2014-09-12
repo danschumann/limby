@@ -116,10 +116,11 @@ module.exports = function(limby) {
 
       return when(fs.readdir(limbyMigrationsPath)).then(function(limbyMigrationFiles){
 
-        _.each(limbyMigrationFiles, function(fileName){
-          // We will sort based on fileName so we keep that separate, but then we will need the full path
-          files.push([fileName, join(limbyMigrationsPath, fileName)])
-        })
+        if (limby.config.migrate !== false && limby.core.config.migrate !== false)
+          _.each(limbyMigrationFiles, function(fileName){
+            // We will sort based on fileName so we keep that separate, but then we will need the full path
+            files.push([fileName, join(limbyMigrationsPath, fileName)])
+          })
 
       }).then(function(appMigrationFiles){
 

@@ -39,7 +39,7 @@ if (argv._[0]) {
     if (thisPath == join(process.cwd(), argv._[0]))
       argv._.shift()
   }
-}
+};
 
 var command = argv._[0];
 
@@ -112,4 +112,4 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
     throw er;
   });
 
-}
+};

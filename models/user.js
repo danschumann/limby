@@ -66,7 +66,8 @@ module.exports = function(limby, models) {
 
             };
           })
-          .otherwise(function(){
+          .otherwise(function(er){
+            console.log('unknown error', er, er.stack)
             user.error('email', 'Could not lookup that email, an unknown error has occured');
             return when.reject();
           });
@@ -247,7 +248,6 @@ module.exports = function(limby, models) {
     loadPermissions: function() {
 
       var user = this;
-      console.log(limby.queries);
 
       // union permissions through roles and groups
       return limby.knex.raw(limby.queries.user_permissions, [user.id, user.id])
