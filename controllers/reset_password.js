@@ -30,12 +30,12 @@ module.exports = function(limby, models) {
           return user.save();
         })
         .then(function(){
-          req.notification('You have updated your password');
+          req.flash.success('You have updated your password');
           req.session.user_id = user.get('id');
           res.redirect(limby.baseURL + '/');
         })
         .otherwise(function(errors){
-          req.error( errors );
+          req.flash.danger( errors );
           return res.view('reset_password');
         });
 

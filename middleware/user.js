@@ -24,7 +24,7 @@ module.exports = function(limby, models) {
         };
         req.locals.user = user;
         if (user.get('banned')) {
-          req.error('You have been temporarily banned for misuse, please try again later. ( HAHA )');
+          req.flash.danger('You have been temporarily banned for misuse, please try again later. ( HAHA )');
           delete req.session.user_id;
           return res.redirect(limby.baseURL + '/');
         }
@@ -34,7 +34,7 @@ module.exports = function(limby, models) {
       })
       .otherwise(function(er) {
         delete req.session.user_id;
-        req.error('You have been logged out, this may be a problem with our database.  Please log back in or try again later');
+        req.flash.danger('You have been logged out, this may be a problem with our database.  Please log back in or try again later');
         res.redirect(limby.baseURL + '/login');
       });
   };

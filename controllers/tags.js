@@ -46,7 +46,7 @@ module.exports = function(limby, models) {
         return tag.destroy();
       })
       .then(function() {
-        req.notification('Deleted tag');
+        req.flash.success('Deleted tag');
         res.redirect(limby.baseURL + '/admin/tags');
       });
 
@@ -72,7 +72,7 @@ module.exports = function(limby, models) {
         return tag.save();
       })
       .then(function() {
-        req.notification(req.params.tag_id ? 'Updated tag' : 'Created tag');
+        req.flash.success(req.params.tag_id ? 'Updated tag' : 'Created tag');
         res.redirect(limby.baseURL + '/admin/tags');
       })
       .otherwise(function(er) {

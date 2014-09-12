@@ -17,7 +17,7 @@ module.exports = function(limby, models) {
           res.view('forgot_password_sent', attributes);
         })
         .otherwise(function(errors){
-          req.error(errors);
+          req.flash.danger(errors);
           res.view('forgot_password', {body: req.body});
         });
     },
