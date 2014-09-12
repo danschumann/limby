@@ -6,6 +6,8 @@ module.exports = function(limby) {
     validator   = require('validator'),
     when        = require('when');
 
+  limby.validator = validator;
+
   // No overrides on collection yet
   limby.Collection = limby.bookshelf.Collection
 
