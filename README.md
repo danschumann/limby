@@ -93,7 +93,7 @@ structure
       return limby.loadLimbs();
     })
     .then(function(){
-      return limby.require('core.app');
+      return limby.require('core/app');
     })
     .then(function(){
       limby.route();
