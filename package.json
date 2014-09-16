@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.3.23",
+  "version": "0.3.24",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -39,7 +39,7 @@
     "underscore.string": "^2.3.3",
     "validator": "3.12.0",
     "when": "^3.4.4",
-    "knex": "git+ssh://git@github.com:tgriesser/knex.git#7ef13ed32aa1e54340e8e55420b3c673583ad807"
+    "knex": "git+https://github.com/tgriesser/knex.git#7ef13ed32aa1e54340e8e55420b3c673583ad807"
   },
   "license": "MIT"
 }
