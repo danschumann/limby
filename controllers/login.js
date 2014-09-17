@@ -1,11 +1,12 @@
 module.exports = function(limby, models) {
   var
+    _    = require('underscore'),
     User = models.User;
 
   return {
 
     index: function(req, res, next) {
-      res.view('login');
+      res.view('login', {body: {email: _.escape(req.body.email)}});
     },
 
     post: function(req, res, next) {
@@ -51,7 +52,7 @@ module.exports = function(limby, models) {
             req.flash.danger("Unknown error! Contact Portal Admin");
             console.log('uncaught error'.red, er, er.stack);
           }
-          res.view('login', {body: {email: _.escape(req.body.email)}});
+          res.redirect(limby.baseURL + '/login#login-index')
         });
 
     },
