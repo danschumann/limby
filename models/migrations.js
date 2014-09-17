@@ -67,19 +67,13 @@ module.exports = function(limby) {
         pretty_direction = (direction == 'up' ? 'up'.green : 'down'.red),
 
         // In case it fails
-        undoMigration = function(){
-
-          // If we migrate successfully, but fail to save in migrations table
-          // we have to undo the migration manually since it can't be in a transaction
-          return migration[direction == 'up' ? 'down' : 'up'](bookshelf)
-            .then(function(){
-              throw new Error('Some migrations were successful, but we could not save them to the database'); 
-            });
-
+        fail = function(er){
+          console.log('Migration successful, but we could not save them to the migrations table'.red, er); 
+          console.log(er.stack);
         };
 
       // We do the migration
-      return when(migration[direction](limby))
+      return migration[direction](limby)
         .then(function(){
 
           var limbName = filePath.split(path.sep);
@@ -91,12 +85,12 @@ module.exports = function(limby) {
 
           console.log('saving in migrations table..'.green, fileName);
           if ( direction == 'up' )  {
-            return record = record.save().otherwise(undoMigration);
+            return record = record.save().otherwise(fail);
           } else
             return record = record.fetch().then(function(model){
               return model.destroy();
             })
-            .otherwise(undoMigration);
+            .otherwise(fail)
 
         });
           

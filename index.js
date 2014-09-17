@@ -11,27 +11,33 @@ require('./lib/mysql_date_format');
 
 var Limby = function(root, options) {
 
-  var limby = this;
-
   // We don't care if they call `Limby()` or `new Limby`
-  if (!(limby instanceof Limby)) return new Limby(unformattedConfig);
+  if (!(this instanceof Limby)) return new Limby(unformattedConfig);
 
   options = options || {};
+
+  // application's __dirname
   this.root = root;
 
-  // passing knex allows you to use sqlite3 or unify connections to db
+  // OPTIONAL: passing knex allows you to use sqlite3 or unify connections to db
   this.knex = options.knex;
+
   options.configPath = options.configPath || join(root, 'config');
 
-  events.EventEmitter.call(limby);
+  events.EventEmitter.call(this);
 
-  require('./lib/config-loader')(limby, options.configPath);
-  _.extend(loaddir, limby.config.loaddir);
-  require('./lib/database')(limby);
-  require('./lib/email')(limby);
-  require('./lib/templates').wrap(limby);
+  require('./lib/config-loader')(this, options.configPath);
 
-  limby.app = express();
+  _.extend(loaddir, this.config.loaddir);
+
+  if (this.config.namespace)
+    Limby[this.config.namespace] = this;
+
+  require('./lib/database')(this);
+  require('./lib/email')(this);
+  require('./lib/templates').wrap(this);
+
+  this.app = express();
 
   return this;
 
