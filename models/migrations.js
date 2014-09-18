@@ -59,6 +59,7 @@ module.exports = function(limby) {
 
     run: function(filePath, direction) {
 
+      debug(filePath, direction);
       var
         migration = require(filePath),
         fileName = basename(filePath),
@@ -73,7 +74,7 @@ module.exports = function(limby) {
         };
 
       // We do the migration
-      return migration[direction](limby)
+      return when(migration[direction](limby))
         .then(function(){
 
           var limbName = filePath.split(path.sep);
