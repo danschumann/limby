@@ -2,7 +2,7 @@
 <% config = @limb.config.forms.signup %>
 
 <div class="<%- config.containerClass %>">
-  <form class="<%- config.className %>" action="<%- config.action %>" method="post">
+  <form class="<%- config.className %>" action="<%- @signupURL || config.action %>" method="post">
 
     <div class="<%- config.panelHeadingClass %>">
       <%- config.panelHeading %>
