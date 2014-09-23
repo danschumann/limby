@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.3.34",
+  "version": "0.3.35",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
