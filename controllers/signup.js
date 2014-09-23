@@ -55,7 +55,7 @@ module.exports = function(limby, models) {
 
         })
         .otherwise(function(er){
-          if (er) console.log('Signup error'.red, er, er.stack);
+          if (!user.errored()) console.log('Signup error'.red, er, er.stack);
           req.flash.danger(user.errors);
 
           // Remember fields to put back into form
