@@ -74,16 +74,20 @@ _flash = function(options) {
 
 window.flash = {};
 
-var types = ['danger', 'info', 'warning', 'success'];
+var types = ['error', 'danger', 'info', 'warning', 'success'];
 for (i in types) {
   // wrapped to preserve variable type
   (function(type){
-    flash[type] = function(ob) {
+    flash[type] = function(input) {
 
-      if (typeof ob == 'string') ob = { messages: ob };
+      var opts;
+      if (Object.prototype.toString.call(input) == '[object Array]' || 'string' == typeof input)
+        opts = { messages: input };
+      else
+        opts = input;
 
-      ob.type = type;
-      _flash(ob);
+      opts.type = (type == 'error' ? 'danger' : type);
+      _flash(opts);
     };
   })(types[i]);
 };
