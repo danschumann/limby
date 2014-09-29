@@ -107,16 +107,20 @@ module.exports = function(limby, models) {
           if (ob.type == 'preview' && resizer.config.imagemagick)
             _path += '[0]';
 
-          file.set({
-            // Since this `file` will sit in queue(memory) until it compiles
-            // we can set the type on it and save it later ( when the img is done )
+          var toSet = {
             type: ob.type,
 
             // Not saved to db, used by tryProcessing
             tmpPath: _path,
             fName: ob.fName,
+          };
 
-          });
+          file.set(_.extend({
+            // Since this `file` will sit in queue(memory) until it compiles
+            // we can set the type on it and save it later ( when the img is done )
+            toSet: toSet,
+
+          }, toSet));
 
           Files.tryProcessing(file);
         });
@@ -222,8 +226,17 @@ module.exports = function(limby, models) {
         // This instance has the actual values, but in the db, they reference 'processing image'
         // Now that the images exist, we can point to the actual paths by saving
         processing = false;
-        return file.save()
-      });
+        var toSet = file.get('toSet');
+
+        // We get the updated attributes before updating, in case the parent_id changed
+        // parent_id will change if we upload a file, then save a new post.
+        // we have to fetch to make sure to get the new parent_id
+        file = File.forge({id: file.id});
+        return file.fetch().then(function(){
+          file.set(toSet);
+          return file.save();
+        })
+      }.bind(this));
 
     },
 
