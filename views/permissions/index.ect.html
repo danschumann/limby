@@ -33,3 +33,34 @@
     </div>
   </div>
 </div>
+
+<div class="<%- @limb.config.forms.admin.className %>">
+  <div class="<%- @limb.config.forms.admin.panelHeadingClass %>">
+    Permissions
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th width='300'>name</th>
+        <th>description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @permissions.each (permission) =>:  %>
+      <tr>
+        <td>
+          <%- _.escape permission.get('name') %>
+        </td>
+        <td>
+          <button class="btn btn-default pull-right edit-permission-description" data-id="<%- permission.id %>"><span class="glyphicon glyphicon-pencil"></span></button>
+          <div class="permission-description">
+            <%- _.escape permission.get('description') %>
+          </div>
+        </td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<script src="<%- @baseURL %>/limby_static/javascripts/permission_description.js"></script>

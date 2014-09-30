@@ -41,8 +41,21 @@ if (argv._[0]) {
 
 var command = argv._[0];
 
-if (argv._[0] == 'g' && argv._[1] == 'migration') {
-  debug('generating migration');
+var commands = ['generate', 'g', 'migrate', 'rollback', 'redo']
+
+if (command && !_.include(commands, command)) {
+  console.log(('Valid commands include: ' + commands.join(', ')).red);
+  process.exit(1)
+}
+
+if ((command == 'generate' || command == 'g')) {
+
+  if (argv._[2] && argv._[1] !== 'migration')
+    throw new Error('if you are generating something, the syntax is `limby g migration MY_MIGRATION` or `limby g MY_MIGRATION`');
+
+  var migrationName = argv._[2] || argv._[1];
+
+  console.log('generating migration'.blue, migrationName);
 
   counter = 10;
   var dir = join(process.cwd());
@@ -59,7 +72,7 @@ if (argv._[0] == 'g' && argv._[1] == 'migration') {
     .createReadStream(join(__dirname, '../lib/migration_template.js'))
     .pipe(
       fs.createWriteStream(
-        join(dir, 'migrations', date + '__' + argv._[2] + '.js')
+        join(dir, 'migrations', date + '__' + migrationName + '.js')
       )
     );
 

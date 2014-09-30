@@ -77,6 +77,9 @@ module.exports = function(limby) {
 
   app.get ('/admin/permissions', controllers.permissions.index);
 
+  app.param('permission_id', controllers.permissions.load);
+  app.post('/admin/permissions/:permission_id', controllers.permissions.update);
+
   var pg = controllers.permission_groups;
   app.get  ('/admin/permissions/groups/create', pg.edit);
   app.post ('/admin/permissions/groups', pg.update);

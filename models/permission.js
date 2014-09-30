@@ -18,6 +18,7 @@ module.exports = function(limby, models) {
     permittedAttributes: [
       'id',
       'name',
+      'description',
       'seeded',
       'module',
       'parent_id',

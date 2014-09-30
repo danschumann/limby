@@ -232,7 +232,7 @@ module.exports = function(limby, models) {
         // parent_id will change if we upload a file, then save a new post.
         // we have to fetch to make sure to get the new parent_id
         file = File.forge({id: file.id});
-        return file.fetch().then(function(){
+        return file.fetch().then(function() {
           file.set(toSet);
           return file.save();
         })

@@ -12,7 +12,7 @@
     </thead>
     <tbody>
       <% @permissions.each (perm) => : %>
-      <tr class="permission_row">
+        <tr class="permission_row">
           <td><%- perm.get('module') %></td>
           <td>
             <%- perm.get 'name' %>

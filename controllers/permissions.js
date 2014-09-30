@@ -9,6 +9,24 @@ module.exports = function(limby, models) {
 
   return {
 
+    load: function(req, res, next) {
+
+      models.Permission.forge({id: req.params.permission_id}).fetch().then(function(permission) {
+        if (!permission) throw new Error('Permission not found');
+        req.locals.permission = permission;
+        next();
+      }).otherwise(function(er){
+        req.flash.danger('could not load permission');
+        res.redirect('back');
+      });
+    }, 
+      
+    update: function(req, res, next) {
+      req.locals.permission.set({description: _.escape(req.body.description).replace(/\n/g, '<br />')}).save().then(function(){
+        res.json({message: 'Saved permission', html: req.locals.permission.get('description'), type: 'success'});
+      });
+    },
+
     // Loads for index and showing a single user via json
     index: function(req, res, next) {
 
