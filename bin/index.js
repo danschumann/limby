@@ -41,14 +41,16 @@ if (argv._[0]) {
 
 var command = argv._[0];
 
-var commands = ['generate', 'g', 'migrate', 'rollback', 'redo']
+var commands = ['generate', 'g', 'migrate', 'rollback', 'redo', 'version']
 
 if (command && !_.include(commands, command)) {
   console.log(('Valid commands include: ' + commands.join(', ')).red);
   process.exit(1)
 }
 
-if ((command == 'generate' || command == 'g')) {
+if (argv.v || command == 'version') {
+  console.log('Limby version '.blue, require('../package.json').version);
+} else if ((command == 'generate' || command == 'g')) {
 
   if (argv._[2] && argv._[1] !== 'migration')
     throw new Error('if you are generating something, the syntax is `limby g migration MY_MIGRATION` or `limby g MY_MIGRATION`');
