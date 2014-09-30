@@ -3,7 +3,7 @@ $(function(){
     var
       $button = $(e.currentTarget),
       $html = $button.next('.permission-description'),
-      description = $.trim($html.html()),
+      description = $.trim($html.text()),
       $input = $('<textarea />').val(description.replace(/<br>/g, '\n'));
 
     $html.after($input).hide();
