@@ -22,7 +22,7 @@ module.exports = function(limby, models) {
     }, 
       
     update: function(req, res, next) {
-      req.locals.permission.set({description: _.escape(req.body.description).replace(/\n/g, '<br />')}).save().then(function(){
+      req.locals.permission.set({description: _.escape(req.body.description).replace(/\n/g, '<br>')}).save().then(function(){
         res.json({message: 'Saved permission', html: req.locals.permission.get('description'), type: 'success'});
       });
     },

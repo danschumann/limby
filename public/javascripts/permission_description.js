@@ -4,13 +4,15 @@ $(function(){
       $button = $(e.currentTarget),
       $html = $button.next('.permission-description'),
       description = $.trim($html.html()),
-      $input = $('<textarea />').val(description);
+      $input = $('<textarea />').val(description.replace(/<br>/g, '\n'));
 
     $html.after($input).hide();
+    $button.hide()
 
     var update = _.debounce(function(){
       $.post(baseURL + '/admin/permissions/' + $(e.currentTarget).attr('data-id'), {description: $input.val()}, function(res) {
 
+        $button.show()
         if (res.type) {
           flash[res.type](res.message);
           if (res.html) $html.html(res.html);
@@ -22,10 +24,11 @@ $(function(){
       });
     }, 100);
     $input.on('change blur',update);
-    $input.on('keyup', function(e) {
+    $input.on('keydown', function(e) {
       if (e.keyCode == 13 && !e.shiftKey) {
         e.preventDefault();
         update(e);
+        $input.blur()
       }
     });
   });
