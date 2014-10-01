@@ -30,13 +30,21 @@ module.exports = function(limby, models) {
           return user.save();
         })
         .then(function(){
-          req.flash.success('You have successfully edited your account.');
-          res.redirect(limby.baseURL + '/account?success=1');
+          if (req.xhr)
+            res.json({type: 'success', message: 'You have successfully updated your account', flash: true});
+          else {
+            req.flash.success('You have successfully edited your account.');
+            res.redirect(limby.baseURL + '/account?success=1');
+          }
         })
         .otherwise(function(er){
           if ( !user.errored() ) console.log('uncaught error'.red, er, er.stack);
-          req.flash.danger(user.errored() ? user.errors : 'Unknown error');
-          controller.index(req, res, next);
+          if (req.xhr)
+            res.json({type: 'danger', message: user.errored() ? user.errors : 'Unknown error', flash: true});
+          else {
+            req.flash.danger(user.errored() ? user.errors : 'Unknown error');
+            controller.index(req, res, next);
+          }
         });
     },
 
