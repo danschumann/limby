@@ -3,6 +3,8 @@ module.exports = function(limby, models) {
 
   var
     coffeescript  = require('coffee-script'),
+    reactTools    = require('react-tools'),
+    coffeeReact    = require('coffee-react-transform'),
     path          = require('path'),
     join          = path.join,
     debug         = require('debug')('limby:middleware:coffeescript'),
@@ -25,7 +27,23 @@ module.exports = function(limby, models) {
       manifest: limby.paths.manifests && join(limby.paths.manifests, options.path.replace(new RegExp(path.sep, 'g'), '_' + encodeURIComponent(path.sep) + '_')),
 
       compile: function(){
-        this.fileContents = coffeescript.compile(this.fileContents);
+
+        if (!this._ext) return;
+
+        if (this.fileName.match('.jsx.coffee')) {
+          this.baseName = this.baseName.replace('.jsx', '');
+          this.fileContents = coffeeReact('# @jsx React.DOM \n' + this.fileContents,
+            _.extend({sourceMap: true, filename: null}, options.react)
+          );
+
+        } else if (this.fileName.match('.jsx'))
+          this.fileContents = reactTools.transform('/** @jsx React.DOM */ \n' + this.fileContents,
+            _.extend({sourceMap: true, filename: null}, options.react)
+          );
+
+        if (this._ext == '.coffee')
+          this.fileContents = coffeescript.compile(this.fileContents);
+
       },
 
       callback: function(){
