@@ -4,12 +4,20 @@
 <div class="<%- config.containerClass %>">
   <form class="<%- config.className %>" action="<%- @baseURL %><%- @signupURL || config.action %>" method="post">
 
-    <div class="<%- config.panelHeadingClass %>">
-      <%- config.panelHeading %>
-    </div>
+    <% if config.header? : %>
+      <%- config.header %>
+    <% else : %>
+      <div class="<%- config.panelHeadingClass %>">
+        <%- config.panelHeading %>
+      </div>
+    <% end %>
 
     <div class="<%- config.panelBodyClass %>">
-      <% @formGroup = @_.compact [
+
+      <%- config.wrapper.pre %>
+      <%
+      @formGroup ?= []
+      @formGroup.push @_.compact([
         title: 'First Name:'
         name: 'first_name'
         value: @body.first_name
@@ -35,7 +43,7 @@
           name: 'password'
           type: 'password'
           required: true
-      ] %>
+      ])... %>
       <% @formGroupHorizontal = config.horizontal %>
       <% include @limby.viewPath 'partials/form_group' %>
 
@@ -47,7 +55,10 @@
         value: config.buttonText
         type: 'submit'
       ] %>
+
       <% include @limby.viewPath 'partials/form_group' %>
+
+      <%- config.wrapper.post %>
 
     </div>
   </form>
