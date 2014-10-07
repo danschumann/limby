@@ -40,7 +40,7 @@ module.exports = function(limby, models) {
               delete req.session.previousURL;
               res.redirect(url);
             } else
-              res.redirect(limby.baseURL + '/');
+              res.redirect(limby.baseURL + '/#logged-in');
           };
         })
         .otherwise(function(er) {

@@ -51,7 +51,7 @@ module.exports = function(limby, models) {
           console.log(user, user.get('id'));
           debug('set session', user.get('id'));
           req.session.user_id = user.get('id');
-          res.redirect(limby.baseURL + '/');
+          res.redirect(limby.baseURL + '/#logged-in');
 
         })
         .otherwise(function(er){
