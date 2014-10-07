@@ -7,7 +7,6 @@ module.exports = {
     return limby.models.Permission.firstOrCreate({
       name: 'admin/super',
       module: 'limby',
-      description: 'Ability to add/remove other super users (HIGHEST PERMISSION POSSIBLE)',
       seeded: true
     });
     

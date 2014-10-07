@@ -7,7 +7,6 @@ module.exports = {
     return limby.models.Permission.firstOrCreate({
       name: 'admin/permissions',
       module: 'limby',
-      description: 'Ability to change other users permissions ( HIGH Admins )',
       seeded: true
     })
     .then(function(){
@@ -15,7 +14,6 @@ module.exports = {
       return limby.models.Permission.firstOrCreate({
         name: 'admin/tags',
         module: 'limby',
-        description: 'Ability to create tags/tag things',
         seeded: true
       });
 
