@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.3.45",
+  "version": "0.4.0",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -22,7 +22,7 @@
     "express": "^4.0.0",
     "final-fs": "~1.4.4",
     "limby-resize": "0.0.5",
-    "loaddir": "2.0.8",
+    "loaddir": "2.1.0",
     "lodash": "^2.4.1",
     "moment": "^2.7.0",
     "mysql": "~2.0.0",
