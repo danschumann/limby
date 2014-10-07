@@ -11,7 +11,6 @@
     <% @user = @req.locals.user.toJSON() %>
 
     <div class="<%- @limb.config.forms.account.panelHeadingClass %>">
-      <%- @limb.config.forms.account.panelHeading %>
       <div class="pull-right edit-actions">
         <a class="btn btn-default btn-xs" href="<%- @baseURL %>/email">
           Change Email
@@ -23,6 +22,8 @@
           </a>
         <% end %>
       </div>
+
+      <%- @limb.config.forms.account.panelHeading %>
     </div>
 
     <div class="<%- @limb.config.forms.account.panelBodyClass %>">
