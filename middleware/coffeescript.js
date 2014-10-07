@@ -41,7 +41,7 @@ module.exports = function(limby, models) {
             _.extend({sourceMap: true, filename: null}, options.react)
           );
 
-        if (this._ext == '.coffee')
+        if (this.fileName.match('.coffee'))
           this.fileContents = coffeescript.compile(this.fileContents);
 
       },
