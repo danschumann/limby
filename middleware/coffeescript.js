@@ -17,10 +17,10 @@ module.exports = function(limby, models) {
 
     debug('extend coffeescripts'.blue, options.limbName);
 
-    var javascripts = {};
-
     return loaddir({
       fastWatch: options.fastWatch,
+
+      asObject: false,
 
       path: options.path,
 
@@ -47,11 +47,10 @@ module.exports = function(limby, models) {
       },
 
       callback: function(){
-        var url_path = '/javascripts/' + join(this.relativePath, this.baseName).replace(sepReg, '/') + '.js';
+        this.key = '/javascripts/' + join(this.relativePath, this.baseName).replace(sepReg, '/') + '.js';
         options.callback && options.callback.apply(this, arguments);
-        javascripts[url_path] = this.fileContents;
       },
-    }).then(function(){
+    }).then(function(javascripts){
 
       options.app.use(function(req, res, next){
         if (javascripts[req.url]){
