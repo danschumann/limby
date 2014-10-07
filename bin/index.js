@@ -50,10 +50,16 @@ if (command && !_.include(commands, command)) {
 
 if (argv.v || command == 'version') {
   console.log('Limby version '.blue, require('../package.json').version);
+
 } else if ((command == 'generate' || command == 'g')) {
 
-  if (argv._[2] && argv._[1] !== 'migration')
-    throw new Error('if you are generating something, the syntax is `limby g migration MY_MIGRATION` or `limby g MY_MIGRATION`');
+  if ((argv._[2] && argv._[1] !== 'migration') || !argv._[1]) {
+    console.log(
+        ('if you are generating something, ' + 
+        'the syntax is `limby g migration MY_MIGRATION` or `limby g MY_MIGRATION`').red
+    );
+    process.exit(1);
+  }
 
   var migrationName = argv._[2] || argv._[1];
 
@@ -122,7 +128,7 @@ if (argv.v || command == 'version') {
   })
   .otherwise(function(er){
     console.log('migration err'.red, er, er.stack);
-    throw er;
+    process.exit(1);
   });
 
 };
