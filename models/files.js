@@ -177,9 +177,6 @@ module.exports = function(limby, models) {
       var ext = path.extname(file.get('path')).substring(1).toLowerCase();
       var isImage;
 
-      if ( _.include(['tif', 'gif', 'png', 'jpg', 'jpeg', 'bmp'], ext) )
-        file.set('file_type', 'image');
-
       return when().then(function() {
         if (file.get('type') == 'original') {
 
@@ -223,6 +220,7 @@ module.exports = function(limby, models) {
         };
       })
       .then(function() {
+
         // This instance has the actual values, but in the db, they reference 'processing image'
         // Now that the images exist, we can point to the actual paths by saving
         processing = false;
@@ -234,6 +232,8 @@ module.exports = function(limby, models) {
         file = File.forge({id: file.id});
         return file.fetch().then(function() {
           file.set(toSet);
+          if ( _.include(['tif', 'gif', 'png', 'jpg', 'jpeg', 'bmp'], ext) )
+            file.set('file_type', 'image');
           return file.save();
         })
       }.bind(this));
