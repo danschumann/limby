@@ -24,6 +24,9 @@
       <% end %>
       <div class="<%- inputContainerClass || (@formGroupHorizontal && "col-md-#{@formRight || 9}") || '' %>">
         <% switch type : %>
+          <% when 'block' : %>
+            <% content group.blockName %>
+          <% end %>
           <% when 'html' : %>
             <%- group.html %>
           <% end %>

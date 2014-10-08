@@ -1,6 +1,7 @@
 var _flash;
 
-_flash = function(options) {
+_flash = function(forceClose, options) {
+
   var
     $flash,
     action = options.action,
@@ -47,6 +48,7 @@ _flash = function(options) {
 
   $flash.hide();
   if (action !== false) {
+    if (forceClose) $(target || '.popups').empty();
     $flash[action](target || '.popups');
     $flash[animate && 'slideDown' || 'show']().alert();
   };
@@ -78,7 +80,11 @@ var types = ['error', 'danger', 'info', 'warning', 'success'];
 for (i in types) {
   // wrapped to preserve variable type
   (function(type){
-    flash[type] = function(input) {
+    flash[type] = function(forceClose, input) {
+
+      if ('boolean' != typeof forceClose){ // optional boolean flag to close other msgs
+        input = forceClose; forceClose = null; 
+      }
 
       var opts;
       if (Object.prototype.toString.call(input) == '[object Array]' || 'string' == typeof input)
@@ -87,7 +93,7 @@ for (i in types) {
         opts = input;
 
       opts.type = (type == 'error' ? 'danger' : type);
-      _flash(opts);
+      _flash(forceClose, opts);
     };
   })(types[i]);
 };
