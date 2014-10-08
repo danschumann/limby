@@ -14,6 +14,7 @@ module.exports = function(limby, models) {
 
       Tags.forge().query(function(qb) {
         qb.orderBy('name');
+        qb.where('deleted', 0);
       }).fetch()
       .then(function(tags){
         return res.view('tags/index', {tags: tags});
@@ -43,7 +44,7 @@ module.exports = function(limby, models) {
 
       Tag.forge({ id: req.params.tag_id }).fetch()
       .then(function(tag) {
-        return tag.destroy();
+        return tag.set({deleted: 1}).save();
       })
       .then(function() {
         req.flash.success('Deleted tag');

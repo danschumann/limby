@@ -18,6 +18,7 @@ module.exports = function(limby, models) {
     permittedAttributes: [
       'id',
       'name',
+      'deleted',
     ],
 
     taggings: function(){
