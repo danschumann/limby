@@ -1,0 +1,12 @@
+<div class="pull-right"><div class="dropdown">
+  <span class="btn dropdown-toggle btn-default btn-sm" data-toggle="dropdown">
+    <span class="glyphicon glyphicon-chevron-down"></span>
+  </span>
+  <ul class="dropdown-menu dropdown-menu-right">
+    <li>
+      <% @_.each @dropdown, (d) => : %>
+        <% content d %>
+      <% end %>
+    </li>
+  </ul>
+</div></div>

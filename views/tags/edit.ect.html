@@ -11,13 +11,22 @@
 <div class="<%- @limb.config.forms.admin.className %>">
   <div class="<%- @limb.config.forms.admin.panelHeadingClass %>">
     <% if @tag : %>
-      <a
-        class="pull-right btn btn-primary btn-xs"
-        href="<%- @baseURL %>/admin/tags/<%- @tag?.id %>/delete"
-        onclick="javascript: return confirm('Delete? Are you sure?');"
-      >
-        <span class="glyphicon glyphicon-trash"></span>
-      </a>
+
+      <% @dropdown = [
+        'tags-delete'
+      ] %>
+      <% block 'tags-delete' : %>
+        <a
+          class="btn text-right"
+          href="<%- @baseURL %>/admin/tags/<%- @tag?.id %>/delete"
+          onclick="javascript: return confirm('Delete? Are you sure?');"
+        >
+          Delete
+          <span class="glyphicon glyphicon-trash pull-left"></span>
+        </a>
+      <% end %>
+      <% include @limby.viewPath('partials/dropdown') %>
+
     <% end %>
     <%- (@tag? && 'Edit') || 'New' %> Tag
   </div>
