@@ -109,7 +109,7 @@ flash.loading = function(enabled) {
 
   $('.flash-loading')[enabled ? 'show' : 'hide']().css({
     left: ($(window).width() - $('.flash-loading').outerWidth()) / 2,
-    top: ($(window).height() - $('.flash-loading').outerHeight()) / 2,
+    top: ($(window).height() - $('.flash-loading').outerHeight()) / 2
   })
 
 };
