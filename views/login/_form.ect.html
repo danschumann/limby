@@ -1,7 +1,7 @@
 <% @body ?= {email: ''} %>
 
 <div class="<%- @limb.config.forms.login.containerClass %>">
-  <form role="form" class="<%- @limb.config.forms.login.className %>" action="<%- @baseURL %>/login" method="post">
+  <form role="form" class="<%- @limb.config.forms.login.className %>" action="<%- @baseURL %>/login#login-index" method="post">
       
     <div class="<%- @limb.config.forms.login.panelHeadingClass %>">
       <%- @limb.config.forms.login.panelHeading %>
