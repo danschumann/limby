@@ -77,8 +77,6 @@ module.exports = function(limby) {
 
   app.get ('/admin/permissions', controllers.permissions.index);
 
-  app.param('permission_id', controllers.permissions.load);
-  app.post('/admin/permissions/:permission_id', controllers.permissions.update);
 
   var pg = controllers.permission_groups;
   app.get  ('/admin/permissions/groups/create', pg.edit);
@@ -93,6 +91,8 @@ module.exports = function(limby) {
   app.post('/admin/permissions/groups/:group_id/users/:user_id', controllers.permission_group_users.toggle);
   app.post('/admin/permissions/groups/:group_id/roles/:role_id', controllers.permission_group_roles.toggle);
 
+  app.param('permission_id', controllers.permissions.load);
+  app.post('/admin/permissions/:permission_id', controllers.permissions.update);
   app.post('/admin/permissions/:role_id/users/:user_id', controllers.permission_user_roles.toggle);
 
   app.all ('/admin/tags/?*', authentication.permission('admin/tags'));
