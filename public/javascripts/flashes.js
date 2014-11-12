@@ -107,9 +107,9 @@ flash.loading = function(enabled) {
     enabled = true;
   };
 
-  $('.flash-loading')[enabled ? 'show' : 'hide']().css({
-    left: ($(window).width() - $('.flash-loading').outerWidth()) / 2,
-    top: ($(window).height() - $('.flash-loading').outerHeight()) / 2
-  })
+  $('.flash-loading')[enabled ? 'addClass' : 'removeClass']('active').css({
+    width: $(window).width(),
+    height: $(window).height(),
+  });
 
 };
