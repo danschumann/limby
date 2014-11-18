@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require('colors');
+
 require('when/monitor/console');
 
 var
