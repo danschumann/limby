@@ -24,6 +24,9 @@ module.exports = function(limby, models) {
 
       path: options.path,
 
+      white_list: options.white_list,
+      black_list: options.black_list,
+
       manifest: limby.paths.manifests && join(limby.paths.manifests, options.path.replace(new RegExp(path.sep, 'g'), '_' + encodeURIComponent(path.sep) + '_')),
 
       compile: function(){
