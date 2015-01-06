@@ -31,6 +31,7 @@ var Limby = function(root, options) {
 
   _.extend(loaddir, this.config.loaddir);
 
+  // So you can require limby without nesting your whole file
   if (this.config.namespace)
     Limby[this.config.namespace] = this;
 
