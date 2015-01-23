@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.8.14",
+  "version": "0.8.15",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -12,6 +12,7 @@
     "body-parser": "^1.0.2",
     "bookshelf": "0.7.3",
     "client-sessions": "^0.6.0",
+    "coffee-react-transform": "~0.5.2",
     "coffee-script": "^1.7.1",
     "coffeecup": "~0.3.21",
     "colors": "~0.6.2",
@@ -21,6 +22,7 @@
     "ect": "~0.5.4",
     "express": "^4.0.0",
     "final-fs": "~1.4.4",
+    "knex-dschumann": "0.6.300",
     "limby-resize": "0.0.5",
     "loaddir": "2.1.2",
     "lodash": "^2.4.1",
@@ -32,16 +34,15 @@
     "papercut": "0.0.6",
     "param-bindings": "0.0.5",
     "prompt": "0.2.11",
+    "react": "^0.12.2",
+    "react-tools": "~0.11.2",
     "serve-static": "^1.0.4",
     "styliner": "^0.8.9",
     "stylus": "^0.41.3",
     "underscore": "1.5.2",
     "underscore.string": "^2.3.3",
     "validator": "3.12.0",
-    "when": "^3.4.4",
-    "knex-dschumann": "0.6.300",
-    "react-tools": "~0.11.2",
-    "coffee-react-transform": "~0.5.2"
+    "when": "^3.4.4"
   },
   "license": "MIT"
 }

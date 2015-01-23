@@ -1,4 +1,5 @@
 module.exports = limbyViewMiddleware;
+var join = require('path').join;
 
 function limbyViewMiddleware(app, limby){
   return function (req, res, next) {
