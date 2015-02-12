@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 require('colors');
+require('coffee-script/register');
 
 require('when/monitor/console');
 

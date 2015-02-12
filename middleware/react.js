@@ -58,6 +58,13 @@ module.exports = function(limby, models) {
         // We define a function similar to a res.render
         if (!res.react){
           res.react = function(ReactClass, opts){
+
+            // Allow this to be printed in DOM
+            if (opts.passthrough && opts.passthrough instanceof Object)
+              opts.passthroughInject = 'JSON.parse("' +
+                JSON.stringify( opts.passthrough ).replace(/\\/g, '\\\\').replace(/"/g, '\\\"') +
+              '")';
+
             var rHTML = React.renderToStaticMarkup(
               ReactClass(_.extend({
                 isServer: true,

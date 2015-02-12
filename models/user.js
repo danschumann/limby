@@ -107,6 +107,7 @@ module.exports = function(limby, models) {
     },
 
     validationBatches: {
+      email: [ 'email', 'confirm_email', 'unique_email' ],
       editAccount: [ 'first_name', 'last_name' ],
       signup: [ 'first_name', 'last_name',
                 'email', 'confirm_email',

@@ -28,17 +28,13 @@ module.exports = function(limby, models) {
         else
           return user
             .set(req.locals.attributes)
-            .validate('email', 'confirm_email', 'unique_email')
-
-      })
-      .then(function(){
+            .validateBatch('email', 'confirm_email', 'unique_email');
+      }).then(function(){
         return user.save();
-      })
-      .then(function(user){
+      }).then(function(user){
         req.flash.success('You have successfully changed your email');
         res.redirect(limby.baseURL + '/account');
-      })
-      .otherwise(function(){
+      }).otherwise(function(){
         req.flash.danger(user.errors);
         controller.index(req, res, next);
       });
