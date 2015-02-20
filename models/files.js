@@ -31,6 +31,7 @@ module.exports = function(limby, models) {
     var resizeConfig = {};
     resizeConfig[limby.config.imager.module] = limby.imager;
 
+    debug('Resize Config', resizeConfig);
     var resizer = limby.resizer = require('limby-resize')(resizeConfig);
 
   }
@@ -82,10 +83,7 @@ module.exports = function(limby, models) {
           parent_type: opts.parent.tableName,
           parent_id: opts.parent.id,
           user_id: opts.req.session.user_id,
-          width: opts.width,
-          height: opts.height,
         });
-
 
         debug('sequence file', file.toJSON());
 
@@ -97,9 +95,15 @@ module.exports = function(limby, models) {
           file.set({limby_files_id: original.id});
 
         return file.save().then(function(_file) {
+
+          file.set({
+            width: ob.type == 'preview' && opts.smallWidth || opts.width,
+            height: ob.type == 'preview' && opts.smallHeight || opts.height,
+          });
+
           opts.output.push(_file);
 
-          debug('sequence file saved')
+          debug('sequence file saved', _file.toJSON())
 
           var _path = path;
 
@@ -190,12 +194,8 @@ module.exports = function(limby, models) {
           var write = fs.createWriteStream(options.destination);
           read.pipe(write);
           var deferred = when.defer();
-          write.on('error', function(err){
-            deferred.reject(err)
-          });
-          write.on('close', function(){
-            deferred.resolve()
-          });
+          write.on('error', function(err){ deferred.reject(err) });
+          write.on('close', function(){ deferred.resolve() });
 
           return deferred.promise
 
@@ -217,7 +217,7 @@ module.exports = function(limby, models) {
               console.log("Couldn't resize image. do you have " + limby.config.imager.module + " installed?".red, er, er.stack);
             });
 
-          } else
+          } else // files can be uploaded too, with a static thumbnail of 'file.png'
             return file.set({path: '/images/file.png'}).save();
 
         };
@@ -236,7 +236,7 @@ module.exports = function(limby, models) {
           file.set(toSet);
           if (isImage) file.set('file_type', 'image');
           return file.save();
-        })
+        });
       }.bind(this));
 
     },
