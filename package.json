@@ -1,6 +1,6 @@
 {
   "name": "limby",
-  "version": "0.8.17",
+  "version": "0.9.0",
   "description": "Server framework for modular applications",
   "main": "./index.js",
   "bin": "bin/index.js",
@@ -22,6 +22,7 @@
     "ect": "~0.5.4",
     "express": "^4.0.0",
     "final-fs": "~1.4.4",
+    "helmet": "^0.7.1",
     "knex-dschumann": "0.6.300",
     "limby-resize": "0.0.5",
     "loaddir": "2.1.2",

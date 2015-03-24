@@ -71,12 +71,8 @@ module.exports = function(limby) {
   app.post('/admin/users/:user_id',
     authentication.permission('admin/super'),
     controllers.admin.toggle);
-
-
   app.all ('/admin/permissions*?', authentication.permission('admin/permissions'))
-
   app.get ('/admin/permissions', controllers.permissions.index);
-
 
   var pg = controllers.permission_groups;
   app.get  ('/admin/permissions/groups/create', pg.edit);
