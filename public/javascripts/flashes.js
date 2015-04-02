@@ -100,16 +100,22 @@ for (i in types) {
 
 flash.loading = function(enabled) {
 
-  if (typeof enabled == 'Number') {
+  if (typeof enabled == 'number') {
     setTimeout(function() {
       flash.loading(false)
     }, enabled)
     enabled = true;
   };
 
-  $('.flash-loading')[enabled ? 'addClass' : 'removeClass']('active').css({
-    width: $(window).width(),
-    height: $(window).height(),
-  });
+  if (enabled)
+    return $('.flash-loading').addClass('active').css({
+      width: $(window).width(),
+      height: $(window).height(),
+    });
+  else
+    return $('.flash-loading').removeClass('active').css({
+      width: 0,
+      height: 0,
+    });
 
 };
