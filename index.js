@@ -39,8 +39,8 @@ var Limby = function(root, options) {
 
   require('./lib/database')(this);
   require('./lib/email')(this);
-  require('./lib/templates').wrap(this);
-
+  if (this.config.templates !== false)
+    require('./lib/templates').wrap(this);
   this.app = express();
 
   return this;
@@ -63,7 +63,7 @@ _.extend.apply(_, [
 
 // init limby in sequence
 // limby.init('load', 'loadLimbs', function(){ /* custom */ }, 'route')
-Limby.prototype.init = function() {
+Limby.prototype.sequence = function() {
 
   var methods;
 
@@ -79,6 +79,11 @@ Limby.prototype.init = function() {
   return sequence(methods);
 
 };
+
+Limby.prototype.init = function() {
+  console.log('Deprecated:  instead of limby.init, use `limby.sequence` ( it\'s more descriptive )');
+  return this.sequence.apply(this,arguments);
+}
 
 Limby.prototype.ready = function(){
   console.log('Start Startup time', ((((new Date).getTime() - this.startTime.getTime())/1000).toFixed(1) + 's').green);

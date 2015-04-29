@@ -1,19 +1,18 @@
 module.exports = function(limby, models) {
   // Compiling coffeescripts and serving on the frontend
 
-  var
-    coffeescript  = require('coffee-script'),
-    reactTools    = require('react-tools'),
-    coffeeReact    = require('coffee-react-transform'),
-    path          = require('path'),
-    join          = path.join,
-    debug         = require('debug')('limby:middleware:coffeescript'),
-    sepReg        = require('../lib/regexes').sepReg,
-    loaddir       = require('loaddir');
-
   // We load every stylesheet into memory and serve them only if that url gets hit
   // options.path is all we care about for this version
   return function(options) {
+    var
+      coffeescript  = require('coffee-react'),
+      reactTools    = require('react-tools'),
+      coffeeReact    = require('coffee-react-transform'),
+      path          = require('path'),
+      join          = path.join,
+      debug         = require('debug')('limby:middleware:coffeescript'),
+      sepReg        = require('../lib/regexes').sepReg,
+      loaddir       = require('loaddir');
 
     debug('extend coffeescripts'.blue, options.limbName);
 

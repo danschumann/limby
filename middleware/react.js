@@ -3,7 +3,7 @@ module.exports = function(limby, models) {
   require('../public/javascripts/object-assign.polyfill');
 
   var
-    coffeescript  = require('coffee-script'),
+    coffeescript  = require('coffee-react'),
     React         = require('react'),
     reactTools    = require('react-tools'),
     coffeeReact   = require('coffee-react-transform'),

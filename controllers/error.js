@@ -13,7 +13,12 @@ module.exports = function(limby, models){
       text: err.toString() + '\n' + err.stack,
       html: err.toString() + '<br />' + err.stack.toString().replace(/\n/g, '<br />'),
     }).then(function(){
-      res.view('error');
+      if (limby.config.errorPage)
+        res.view(limby.config.errorPage || 'error');
+      else
+        limby.render(limby.viewPath('error'), function(err, html) {
+          res.send(html);
+        });
     });
   };
 };

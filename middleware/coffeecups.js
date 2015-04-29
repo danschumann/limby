@@ -16,7 +16,7 @@ module.exports = function(limby, models) {
       joinTemplates, repeat,
       sep = require('path').sep,
       join = require('path').join,
-      coffeescript = require('coffee-script'),
+      coffeescript = require('coffee-react'),
       loaddir = require('loaddir'),
       _       = require('underscore');
 
