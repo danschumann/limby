@@ -12,7 +12,7 @@ module.exports = function(limby, models) {
 
     post: function(req, res, next) {
 
-      var user = User.forge({
+      var user = req.locals.user || User.forge({
         email: _.escape(req.body.email),
         password: req.body.password,
       });
