@@ -12,7 +12,7 @@ module.exports = function(limby, models) {
 
     post: function(req, res, next) {
 
-      var user = req.locals.user || User.forge({
+      var user = req.locals.loginUser || req.locals.user || User.forge({
         email: _.escape(req.body.email),
         password: req.body.password,
       });
@@ -34,15 +34,16 @@ module.exports = function(limby, models) {
           req.session.login = {}; // any variables to be cleared upon login
 
           user.trigger('login');
-
-          if (!res._header) {
-            if (req.session.previousURL) {
-              var url = req.session.previousURL;
-              delete req.session.previousURL;
-              res.redirect(url);
-            } else
-              res.redirect(limby.baseURL + '/#logged-in');
-          };
+          (user.delayLogin || require('when')()).then(function(){
+            if (!res._header) {
+              if (req.session.previousURL) {
+                var url = req.session.previousURL;
+                delete req.session.previousURL;
+                res.redirect(url);
+              } else
+                res.redirect(limby.baseURL + '/#logged-in');
+            };
+          });
         })
         .otherwise(function(er) {
           if (user.errors.email)
