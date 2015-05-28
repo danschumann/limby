@@ -20,6 +20,8 @@ module.exports = function(limby, models) {
 
       var user = req.locals.user;
 
+      attributes.password_token = null
+      attributes.password_token_expires = null
       user
         .set(attributes)
         .validate('password', 'confirm_password')
