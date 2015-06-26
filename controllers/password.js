@@ -44,12 +44,30 @@ module.exports = function(limby, models) {
         return user.save();
       })
       .then(function(){
-        req.flash.success('You have successfully updated your password');
-        res.redirect(limby.baseURL + '/account');
+        if (req.xhr) {
+          res.json({
+            type: 'success',
+            success: true,
+            messages: 'You have successfully changed your password',
+          });
+        } else {
+          req.flash.success('You have successfully updated your password');
+          res.redirect(limby.baseURL + '/account');
+        }
       })
-      .otherwise(function(){
-        req.flash.danger(user.errors);
-        controller.index(req, res, next);
+      .otherwise(function(er){
+        if (!user.errored())
+          console.log('Uncaught password error', er)
+        if (req.xhr) {
+          res.json({
+            type: 'danger',
+            error: true,
+            messages: user.errored() ? user.errors : 'Unknown error setting password',
+          });
+        } else {
+          req.flash.danger(user.errors);
+          controller.index(req, res, next);
+        }
       });
     },
 

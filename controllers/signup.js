@@ -48,20 +48,37 @@ module.exports = function(limby, models) {
 
           // Success
           user.mailers && _.isFunction(user.mailers.signup) && user.mailers.signup();
-          console.log(user, user.get('id'));
           debug('set session', user.get('id'));
+
           req.session.user_id = user.get('id');
-          res.redirect(limby.baseURL + '/#logged-in');
+          if (req.xhr) {
+            res.json({
+              success: true,
+              type: 'success',
+              messages: 'You have successfully created an account',
+              data: {user: user},
+            });
+          } else {
+            res.redirect(limby.baseURL + '/#logged-in');
+          }
 
         })
         .otherwise(function(er){
           if (!user.errored()) console.log('Signup error'.red, er, er.stack);
-          req.flash.danger(user.errors);
-
+         
           // Remember fields to put back into form
           req.locals.signup = user.toJSON();
 
-          controller.index(req, res, next);
+          if (req.xhr) {
+            res.json({
+              error: true,
+              type: 'danger',
+              messages: user.errors,
+            });
+          } else {
+            req.flash.danger(user.errors);
+            controller.index(req, res, next);
+          }
 
         });
     },

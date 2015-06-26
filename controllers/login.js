@@ -34,14 +34,23 @@ module.exports = function(limby, models) {
           req.session.login = {}; // any variables to be cleared upon login
 
           user.trigger('login');
-          (user.delayLogin || require('when')()).then(function(){
-            if (!res._header) {
-              if (req.session.previousURL) {
+          return (user.delayLogin || require('when')()).then(function(){
+            if (!res._header) { // make sure nothing has responded yet
+
+              if (req.is('json'))
+                res.json({
+                  success: true,
+                  type: 'success',
+                  messages: 'You have been successfully logged on',
+                  data: req.locals.responseJSON
+                });
+              else if (req.session.previousURL) {
                 var url = req.session.previousURL;
                 delete req.session.previousURL;
                 res.redirect(url);
               } else
                 res.redirect(limby.baseURL + '/#logged-in');
+
             };
           });
         })
@@ -49,12 +58,18 @@ module.exports = function(limby, models) {
           if (user.errors.email)
             // if user error, we display it, and only one
             user.errors = { email: _.first(user.errors.email) };
-          req.flash.danger(user.errors);
+
+          var errors = user.errors;
           if (!user.errored()) {
-            req.flash.danger("Unknown error! Contact Portal Admin");
+            errors = {unknown: 'Unknown error!  Please contact webmaster!'};
             console.log('uncaught error'.red, er, er.stack);
           }
-          controller.index(req, res, next);
+          if (req.is('json'))
+            res.json({error: true, type: 'danger', messages: errors});
+          else {
+            req.flash.danger(errors);
+            controller.index(req, res, next);
+          }
         });
 
     },

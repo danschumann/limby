@@ -31,7 +31,11 @@ module.exports = function(limby, models) {
         })
         .then(function(){
           if (req.xhr)
-            res.json({type: 'success', message: 'You have successfully updated your account', flash: true});
+            res.json({
+              type: 'success',
+              message: 'You have successfully updated your account',
+              flash: true
+            });
           else {
             req.flash.success('You have successfully edited your account.');
             res.redirect(limby.baseURL + '/account?success=1');

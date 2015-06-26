@@ -27,7 +27,7 @@ module.exports = function(limby, models) {
       })
       .otherwise(function(){
         errorOut('Cannot get that user');
-        next();
+        //next();
       });
     },
 

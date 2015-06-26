@@ -164,7 +164,7 @@ module.exports = function(limby, models) {
       return this.fetch()
         .then(function() {
           if (!user || !user.id)
-           return user.reject("Could not find that account");
+           return user.reject('email', "Could not find that account");
         });
     },
 

@@ -32,11 +32,27 @@ module.exports = function(limby, models) {
       }).then(function(){
         return user.save();
       }).then(function(user){
-        req.flash.success('You have successfully changed your email');
-        res.redirect(limby.baseURL + '/account');
+        if (req.xhr) {
+          res.json({
+            type: 'success',
+            success: true,
+            messages: 'You have successfully changed your email',
+          });
+        } else {
+          req.flash.success('You have successfully changed your email');
+          res.redirect(limby.baseURL + '/account');
+        }
       }).otherwise(function(){
-        req.flash.danger(user.errors);
-        controller.index(req, res, next);
+        if (req.xhr) {
+          res.json({
+            type: 'danger',
+            error: true,
+            messages: user.errors,
+          });
+        } else {
+          req.flash.danger(user.errors);
+          controller.index(req, res, next);
+        }
       });
     },
 
