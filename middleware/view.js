@@ -66,7 +66,7 @@ function limbyViewMiddleware(app, limby){
           }
           return cb(null, html);
 
-        } else
+        } else if (!res.headersSent)
           return res.send(limby.render(view, options));
       };
 
