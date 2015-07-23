@@ -110,12 +110,12 @@ flash.loading = function(enabled) {
   if (enabled)
     return $('.flash-loading').addClass('active').css({
       width: $(window).width(),
-      height: $(window).height(),
+      height: $(window).height()
     });
   else
     return $('.flash-loading').removeClass('active').css({
       width: 0,
-      height: 0,
+      height: 0
     });
 
 };
