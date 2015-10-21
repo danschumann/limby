@@ -1,7 +1,6 @@
 module.exports = function(limby) {
 
   var
-    config      = limby.config,
     _           = require('underscore'),
     validator   = require('validator'),
     when        = require('when');

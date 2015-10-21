@@ -3,38 +3,32 @@ module.exports = {
   title: 'populate permissions',
 
   up: function(limby) {
-    
-    return limby.models.Permission.firstOrCreate({
+    var p1 = {
       name: 'admin/permissions',
       module: 'limby',
       seeded: true
+    };
+    var p2 = {
+      name: 'admin/tags',
+      module: 'limby',
+      seeded: true
+    };
+    return limby.knex('limby_permissions').where(p1).then(function(res){
+      if (!res[0]) return limby.knex('limby_permissions').insert(p1);
     })
     .then(function(){
-
-      return limby.models.Permission.firstOrCreate({
-        name: 'admin/tags',
-        module: 'limby',
-        seeded: true
-      });
-
+      return limby.knex('limby_permissions').where(p2)
+    }).then(function(res){
+      if (!res[0]) return limby.knex('limby_permissions').insert(p2);
     });
     
   },
 
   down: function(limby) {
 
-    return limby.models.Permission.forge({name: 'admin/permissions', module: 'limby'}).fetch()
-      .then(function(perm) {
-        if (perm)
-          return perm.destroy();
-      })
-      .then(function(){
-        return limby.models.Permission.forge({name: 'admin/tags', module: 'limby'}).fetch()
-      })
-      .then(function(perm) {
-        if (perm)
-          return perm.destroy();
-      });
+    return limby.knex('limby_permissions').where({name: 'admin/permissions', module: 'limby'}).del().then(function(){
+      return limby.knex('limby_permissions').where({name: 'admin/tags', module: 'limby'}).del();
+    })
   },
 
 };
